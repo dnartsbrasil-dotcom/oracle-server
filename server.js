@@ -295,10 +295,22 @@ ${questionAnalysis.level <= 3 ? 'A resposta é clara e direta.' : 'A situação 
   `.trim();
   
   res.json({
-    rgbValues: rgbValues,
-    cardNumbers: cardNumbers,
+    rgbValues: {
+      r: rgbValues.r,
+      g: rgbValues.g,
+      b: rgbValues.b
+    },
+    cardNumbers: {
+      red: cardNumbers.red,
+      green: cardNumbers.green,
+      blue: cardNumbers.blue
+    },
     cards: cards,
-    colorAnalysis: colorAnalysis,
+    colorAnalysis: {
+      dominantColor: colorAnalysis.dominantColor,
+      emotionalState: colorAnalysis.emotionalState,
+      energy: colorAnalysis.energy
+    },
     questionLevel: questionAnalysis.level,
     interpretation: interpretation,
     timestamp: Date.now()
