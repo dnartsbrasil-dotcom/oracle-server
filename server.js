@@ -1,8 +1,5 @@
 const express = require('express');
-const app = 
-  
-  
-  express();
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json({ limit: '50mb' }));
@@ -321,4 +318,5 @@ ${questionAnalysis.level <= 3 ? 'A resposta é clara e direta.' : 'A situação 
 });
 
 app.listen(PORT, () => console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`));
+// Force rebuild v2
 
