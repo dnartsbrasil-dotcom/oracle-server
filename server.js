@@ -22,6 +22,28 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.post('/oracleConsult', (req, res) => {
+  console.log('✅ /oracleConsult chamado (sem imagem)');
+  const { question } = req.body;
+  
+  if (!question) {
+    return res.status(400).json({ error: 'Question required' });
+  }
+  
+  const cards = [
+    { symbol: 'X7', greekName: 'A Lua', meaning: 'Transformação e intuição' },
+    { symbol: 'F2', greekName: 'O Portal', meaning: 'Novas oportunidades' },
+    { symbol: 'A1', greekName: 'O Sol', meaning: 'Energia vital e sucesso' }
+  ];
+  
+  res.json({
+    level: 3,
+    bases: cards,
+    interpretation: 'As energias revelam uma pergunta sobre tendências. O caminho está claro.',
+    timestamp: Date.now()
+  });
+});
+
 app.post('/oracleConsultWithImage', (req, res) => {
   console.log('✅ /oracleConsultWithImage chamado');
   console.log('Body recebido:', JSON.stringify(req.body));
