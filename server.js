@@ -91,3 +91,4 @@ app.listen(PORT, () => {
   console.log(`  GET  /health`);
   console.log(`  POST /oracleConsultWithImage`);
 });
+
