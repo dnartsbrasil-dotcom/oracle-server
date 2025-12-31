@@ -107,10 +107,111 @@ app.post('/oracleConsultWithImage', (req, res) => {
   res.json(response);
 });
 
+app.post('/oracleConsultWithAudio', (req, res) => {
+  console.log('✅ /oracleConsultWithAudio chamado');
+  console.log('Body recebido:', JSON.stringify(req.body));
+  
+  const { question, audioValues } = req.body;
+  
+  if (!question || !audioValues || !Array.isArray(audioValues)) {
+    console.log('❌ Dados faltando ou inválidos!');
+    return res.status(400).json({ error: 'Missing or invalid data' });
+  }
+  
+  const cardCount = audioValues.length;
+  console.log(`🎙️ Gerando ${cardCount} cartas para: "${question}"`);
+  console.log(`Valores de áudio: ${audioValues.join(', ')}`);
+  
+  // Nomes dinâmicos de fonte baseados no índice
+  const sourceNames = [
+    'Graves', 'Médios', 'Agudos', 
+    'Harmônicos', 'Ressonância', 'Timbre',
+    'Amplitude', 'Fase'
+  ];
+  
+  // Gerar cartas baseadas nos valores
+  const cards = audioValues.map((value, index) => {
+    const cardNumber = value % 78 || 1;
+    const card = getCard(cardNumber);
+    
+    return {
+      symbol: card.symbol,
+      greekName: card.greekName,
+      meaning: card.meaning,
+      source: sourceNames[index] || `Frequência ${index + 1}`,
+      calculation: `${value} → ${cardNumber}`
+    };
+  });
+  
+  // Análise de áudio baseada na quantidade de cartas
+  const audioAnalysis = {
+    dominantFrequency: cardCount >= 5 ? 'Espectro amplo' : 'Médias',
+    emotionalTone: cardCount >= 7 ? 'Profundo e complexo' : 'Calmo e assertivo',
+    energy: cardCount >= 6 ? 'Energia intensa' : 'Energia equilibrada'
+  };
+  
+  // Interpretação baseada no nível
+  let levelDescription = '';
+  if (cardCount === 1) levelDescription = 'resposta direta';
+  else if (cardCount === 2) levelDescription = 'escolha clara';
+  else if (cardCount === 3) levelDescription = 'padrão vibracional único';
+  else if (cardCount === 4) levelDescription = 'contexto amplo';
+  else if (cardCount === 5) levelDescription = 'análise complexa';
+  else if (cardCount === 6) levelDescription = 'visão profunda';
+  else if (cardCount === 7) levelDescription = 'análise completa';
+  else levelDescription = 'máxima profundidade';
+  
+  const cardNames = cards.map(c => c.greekName).join(', ');
+  
+  const response = {
+    audioValues: audioValues,
+    cards: cards,
+    audioAnalysis: audioAnalysis,
+    questionLevel: cardCount,
+    interpretation: `🎙️ A análise de áudio revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`,
+    timestamp: Date.now()
+  };
+  
+  console.log(`✅ Enviando resposta com ${cards.length} cartas`);
+  res.json(response);
+});
+
+function getCard(cardNumber) {
+  const CARD_DATABASE = {
+    1: { symbol: 'X7', greekName: 'A Lua', meaning: 'Transformação e intuição' },
+    2: { symbol: 'Q3', greekName: 'O Espelho', meaning: 'Reflexão necessária' },
+    3: { symbol: 'K15', greekName: 'A Clareza', meaning: 'Visão clara do caminho' },
+    4: { symbol: 'A1', greekName: 'O Sol', meaning: 'Energia vital e sucesso' },
+    5: { symbol: 'B9', greekName: 'A Estrela', meaning: 'Esperança e guia' },
+    6: { symbol: 'C4', greekName: 'O Caminho', meaning: 'Escolhas importantes' },
+    7: { symbol: 'D12', greekName: 'A Torre', meaning: 'Mudanças súbitas' },
+    8: { symbol: 'E8', greekName: 'A Roda', meaning: 'Ciclos se completando' },
+    9: { symbol: 'F2', greekName: 'O Portal', meaning: 'Novas oportunidades' },
+    10: { symbol: 'G11', greekName: 'O Amor', meaning: 'Conexões profundas' },
+    11: { symbol: 'H5', greekName: 'A Força', meaning: 'Coragem e determinação' },
+    12: { symbol: 'I14', greekName: 'O Tempo', meaning: 'Paciência necessária' },
+    13: { symbol: 'J6', greekName: 'A Morte', meaning: 'Fim e recomeço' },
+    14: { symbol: 'L10', greekName: 'O Renascimento', meaning: 'Nova fase chegando' },
+    15: { symbol: 'M3', greekName: 'O Destino', meaning: 'Caminhos predestinados' }
+  };
+  
+  if (!CARD_DATABASE[cardNumber]) {
+    return {
+      symbol: `C${cardNumber}`,
+      greekName: `Arcano ${cardNumber}`,
+      meaning: `Energia da Base ${cardNumber}`
+    };
+  }
+  
+  return CARD_DATABASE[cardNumber];
+}
+
 app.listen(PORT, () => {
   console.log(`🔮 Servidor rodando na porta ${PORT}`);
   console.log(`Endpoints disponíveis:`);
   console.log(`  GET  /health`);
+  console.log(`  POST /oracleConsult`);
   console.log(`  POST /oracleConsultWithImage`);
+  console.log(`  POST /oracleConsultWithAudio`);
 });
 
