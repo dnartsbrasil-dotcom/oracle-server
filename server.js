@@ -107,6 +107,19 @@ app.post('/oracleConsultWithImage', (req, res) => {
   res.json(response);
 });
 
+// Funções de numerologia (igual ao Kotlin)
+function sumDigits(num) {
+  return num.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+}
+
+function reduceToBase(num) {
+  let result = num;
+  while (result > 78) {
+    result = sumDigits(result);
+  }
+  return result === 0 ? 1 : result;
+}
+
 app.post('/oracleConsultWithAudio', (req, res) => {
   console.log('✅ /oracleConsultWithAudio chamado');
   console.log('Body recebido:', JSON.stringify(req.body));
@@ -129,9 +142,9 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     'Amplitude', 'Fase'
   ];
   
-  // Gerar cartas baseadas nos valores
+  // Gerar cartas baseadas nos valores com NUMEROLOGIA
   const cards = audioValues.map((value, index) => {
-    const cardNumber = value % 78 || 1;
+    const cardNumber = reduceToBase(value);  // ✅ NUMEROLOGIA!
     const card = getCard(cardNumber);
     
     return {
@@ -214,5 +227,3 @@ app.listen(PORT, () => {
   console.log(`  POST /oracleConsultWithImage`);
   console.log(`  POST /oracleConsultWithAudio`);
 });
-
-
