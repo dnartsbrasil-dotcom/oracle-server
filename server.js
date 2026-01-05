@@ -18,93 +18,92 @@ app.use((req, res, next) => {
 // BARALHO RIDER-WAITE (Tarot - 78 cartas)
 // =============================================================================
 const RIDER_WAITE_DECK = {
-  // Arcanos Maiores (0-21)
-  0: { symbol: '0', name: 'O Louco', meaning: 'Novos começos, liberdade, inocência' },
-  1: { symbol: 'I', name: 'O Mago', meaning: 'Manifestação, poder pessoal, ação' },
-  2: { symbol: 'II', name: 'A Sacerdotisa', meaning: 'Intuição, mistério, sabedoria interior' },
-  3: { symbol: 'III', name: 'A Imperatriz', meaning: 'Fertilidade, abundância, natureza' },
-  4: { symbol: 'IV', name: 'O Imperador', meaning: 'Autoridade, estrutura, controle' },
-  5: { symbol: 'V', name: 'O Hierofante', meaning: 'Tradição, educação, espiritualidade' },
-  6: { symbol: 'VI', name: 'Os Amantes', meaning: 'Escolhas, união, amor' },
-  7: { symbol: 'VII', name: 'O Carro', meaning: 'Determinação, vitória, controle' },
-  8: { symbol: 'VIII', name: 'A Força', meaning: 'Coragem, paciência, compaixão' },
-  9: { symbol: 'IX', name: 'O Eremita', meaning: 'Introspecção, sabedoria, solidão' },
-  10: { symbol: 'X', name: 'A Roda da Fortuna', meaning: 'Ciclos, destino, mudança' },
-  11: { symbol: 'XI', name: 'A Justiça', meaning: 'Equilíbrio, verdade, karma' },
-  12: { symbol: 'XII', name: 'O Enforcado', meaning: 'Sacrifício, nova perspectiva' },
-  13: { symbol: 'XIII', name: 'A Morte', meaning: 'Transformação, fim de ciclo' },
-  14: { symbol: 'XIV', name: 'A Temperança', meaning: 'Equilíbrio, moderação, paciência' },
-  15: { symbol: 'XV', name: 'O Diabo', meaning: 'Tentação, materialismo, vícios' },
-  16: { symbol: 'XVI', name: 'A Torre', meaning: 'Ruptura, revelação, mudança súbita' },
-  17: { symbol: 'XVII', name: 'A Estrela', meaning: 'Esperança, inspiração, renovação' },
-  18: { symbol: 'XVIII', name: 'A Lua', meaning: 'Ilusão, medo, intuição' },
-  19: { symbol: 'XIX', name: 'O Sol', meaning: 'Alegria, sucesso, vitalidade' },
-  20: { symbol: 'XX', name: 'O Julgamento', meaning: 'Renascimento, chamado superior' },
-  21: { symbol: 'XXI', name: 'O Mundo', meaning: 'Completude, realização, viagem' },
+  1: { symbol: '0', name: 'O Louco', meaning: 'Novos começos, liberdade, inocência' },
+  2: { symbol: 'I', name: 'O Mago', meaning: 'Manifestação, poder pessoal, ação' },
+  3: { symbol: 'II', name: 'A Sacerdotisa', meaning: 'Intuição, mistério, sabedoria interior' },
+  4: { symbol: 'III', name: 'A Imperatriz', meaning: 'Fertilidade, abundância, natureza' },
+  5: { symbol: 'IV', name: 'O Imperador', meaning: 'Autoridade, estrutura, controle' },
+  6: { symbol: 'V', name: 'O Hierofante', meaning: 'Tradição, educação, espiritualidade' },
+  7: { symbol: 'VI', name: 'Os Amantes', meaning: 'Escolhas, união, amor' },
+  8: { symbol: 'VII', name: 'O Carro', meaning: 'Determinação, vitória, controle' },
+  9: { symbol: 'VIII', name: 'A Força', meaning: 'Coragem, paciência, compaixão' },
+  10: { symbol: 'IX', name: 'O Eremita', meaning: 'Introspecção, sabedoria, solidão' },
+  11: { symbol: 'X', name: 'A Roda da Fortuna', meaning: 'Ciclos, destino, mudança' },
+  12: { symbol: 'XI', name: 'A Justiça', meaning: 'Equilíbrio, verdade, karma' },
+  13: { symbol: 'XII', name: 'O Enforcado', meaning: 'Sacrifício, nova perspectiva' },
+  14: { symbol: 'XIII', name: 'A Morte', meaning: 'Transformação, fim de ciclo' },
+  15: { symbol: 'XIV', name: 'A Temperança', meaning: 'Equilíbrio, moderação, paciência' },
+  16: { symbol: 'XV', name: 'O Diabo', meaning: 'Tentação, materialismo, vícios' },
+  17: { symbol: 'XVI', name: 'A Torre', meaning: 'Ruptura, revelação, mudança súbita' },
+  18: { symbol: 'XVII', name: 'A Estrela', meaning: 'Esperança, inspiração, renovação' },
+  19: { symbol: 'XVIII', name: 'A Lua', meaning: 'Ilusão, medo, intuição' },
+  20: { symbol: 'XIX', name: 'O Sol', meaning: 'Alegria, sucesso, vitalidade' },
+  21: { symbol: 'XX', name: 'O Julgamento', meaning: 'Renascimento, chamado superior' },
+  22: { symbol: 'XXI', name: 'O Mundo', meaning: 'Completude, realização, viagem' },
   
-  // Copas (22-35)
-  22: { symbol: 'Ás♥', name: 'Ás de Copas', meaning: 'Novo amor, emoções puras' },
-  23: { symbol: '2♥', name: 'Dois de Copas', meaning: 'União, parceria, amor' },
-  24: { symbol: '3♥', name: 'Três de Copas', meaning: 'Celebração, amizade' },
-  25: { symbol: '4♥', name: 'Quatro de Copas', meaning: 'Apatia, reavaliação' },
-  26: { symbol: '5♥', name: 'Cinco de Copas', meaning: 'Perda, arrependimento' },
-  27: { symbol: '6♥', name: 'Seis de Copas', meaning: 'Nostalgia, inocência' },
-  28: { symbol: '7♥', name: 'Sete de Copas', meaning: 'Escolhas, ilusão' },
-  29: { symbol: '8♥', name: 'Oito de Copas', meaning: 'Abandono, busca' },
-  30: { symbol: '9♥', name: 'Nove de Copas', meaning: 'Satisfação, desejo' },
-  31: { symbol: '10♥', name: 'Dez de Copas', meaning: 'Felicidade familiar' },
-  32: { symbol: 'V♥', name: 'Valete de Copas', meaning: 'Mensageiro emocional' },
-  33: { symbol: 'C♥', name: 'Cavaleiro de Copas', meaning: 'Romance, idealismo' },
-  34: { symbol: 'R♥', name: 'Rainha de Copas', meaning: 'Intuição, compaixão' },
-  35: { symbol: 'K♥', name: 'Rei de Copas', meaning: 'Equilíbrio emocional' },
+  // Copas (23-36)
+  23: { symbol: 'Ás♥', name: 'Ás de Copas', meaning: 'Novo amor, emoções puras' },
+  24: { symbol: '2♥', name: 'Dois de Copas', meaning: 'União, parceria, amor' },
+  25: { symbol: '3♥', name: 'Três de Copas', meaning: 'Celebração, amizade' },
+  26: { symbol: '4♥', name: 'Quatro de Copas', meaning: 'Apatia, reavaliação' },
+  27: { symbol: '5♥', name: 'Cinco de Copas', meaning: 'Perda, arrependimento' },
+  28: { symbol: '6♥', name: 'Seis de Copas', meaning: 'Nostalgia, inocência' },
+  29: { symbol: '7♥', name: 'Sete de Copas', meaning: 'Escolhas, ilusão' },
+  30: { symbol: '8♥', name: 'Oito de Copas', meaning: 'Abandono, busca' },
+  31: { symbol: '9♥', name: 'Nove de Copas', meaning: 'Satisfação, desejo' },
+  32: { symbol: '10♥', name: 'Dez de Copas', meaning: 'Felicidade familiar' },
+  33: { symbol: 'V♥', name: 'Valete de Copas', meaning: 'Mensageiro emocional' },
+  34: { symbol: 'C♥', name: 'Cavaleiro de Copas', meaning: 'Romance, idealismo' },
+  35: { symbol: 'R♥', name: 'Rainha de Copas', meaning: 'Intuição, compaixão' },
+  36: { symbol: 'K♥', name: 'Rei de Copas', meaning: 'Equilíbrio emocional' },
   
-  // Paus (36-49)
-  36: { symbol: 'Ás♣', name: 'Ás de Paus', meaning: 'Novo projeto, inspiração' },
-  37: { symbol: '2♣', name: 'Dois de Paus', meaning: 'Planejamento, decisão' },
-  38: { symbol: '3♣', name: 'Três de Paus', meaning: 'Expansão, visão' },
-  39: { symbol: '4♣', name: 'Quatro de Paus', meaning: 'Celebração, harmonia' },
-  40: { symbol: '5♣', name: 'Cinco de Paus', meaning: 'Conflito, competição' },
-  41: { symbol: '6♣', name: 'Seis de Paus', meaning: 'Vitória, reconhecimento' },
-  42: { symbol: '7♣', name: 'Sete de Paus', meaning: 'Defesa, perseverança' },
-  43: { symbol: '8♣', name: 'Oito de Paus', meaning: 'Rapidez, ação' },
-  44: { symbol: '9♣', name: 'Nove de Paus', meaning: 'Resiliência, defesa' },
-  45: { symbol: '10♣', name: 'Dez de Paus', meaning: 'Responsabilidade' },
-  46: { symbol: 'V♣', name: 'Valete de Paus', meaning: 'Mensageiro ativo' },
-  47: { symbol: 'C♣', name: 'Cavaleiro de Paus', meaning: 'Aventura, paixão' },
-  48: { symbol: 'R♣', name: 'Rainha de Paus', meaning: 'Confiança, carisma' },
-  49: { symbol: 'K♣', name: 'Rei de Paus', meaning: 'Liderança, visão' },
+  // Paus (37-50)
+  37: { symbol: 'Ás♣', name: 'Ás de Paus', meaning: 'Novo projeto, inspiração' },
+  38: { symbol: '2♣', name: 'Dois de Paus', meaning: 'Planejamento, decisão' },
+  39: { symbol: '3♣', name: 'Três de Paus', meaning: 'Expansão, visão' },
+  40: { symbol: '4♣', name: 'Quatro de Paus', meaning: 'Celebração, harmonia' },
+  41: { symbol: '5♣', name: 'Cinco de Paus', meaning: 'Conflito, competição' },
+  42: { symbol: '6♣', name: 'Seis de Paus', meaning: 'Vitória, reconhecimento' },
+  43: { symbol: '7♣', name: 'Sete de Paus', meaning: 'Defesa, perseverança' },
+  44: { symbol: '8♣', name: 'Oito de Paus', meaning: 'Rapidez, ação' },
+  45: { symbol: '9♣', name: 'Nove de Paus', meaning: 'Resiliência, defesa' },
+  46: { symbol: '10♣', name: 'Dez de Paus', meaning: 'Responsabilidade' },
+  47: { symbol: 'V♣', name: 'Valete de Paus', meaning: 'Mensageiro ativo' },
+  48: { symbol: 'C♣', name: 'Cavaleiro de Paus', meaning: 'Aventura, paixão' },
+  49: { symbol: 'R♣', name: 'Rainha de Paus', meaning: 'Confiança, carisma' },
+  50: { symbol: 'K♣', name: 'Rei de Paus', meaning: 'Liderança, visão' },
   
-  // Espadas (50-63)
-  50: { symbol: 'Ás♠', name: 'Ás de Espadas', meaning: 'Clareza mental, verdade' },
-  51: { symbol: '2♠', name: 'Dois de Espadas', meaning: 'Decisão difícil' },
-  52: { symbol: '3♠', name: 'Três de Espadas', meaning: 'Dor, separação' },
-  53: { symbol: '4♠', name: 'Quatro de Espadas', meaning: 'Descanso, pausa' },
-  54: { symbol: '5♠', name: 'Cinco de Espadas', meaning: 'Conflito, derrota' },
-  55: { symbol: '6♠', name: 'Seis de Espadas', meaning: 'Transição, mudança' },
-  56: { symbol: '7♠', name: 'Sete de Espadas', meaning: 'Estratégia, cautela' },
-  57: { symbol: '8♠', name: 'Oito de Espadas', meaning: 'Restrição, medo' },
-  58: { symbol: '9♠', name: 'Nove de Espadas', meaning: 'Ansiedade, pesadelo' },
-  59: { symbol: '10♠', name: 'Dez de Espadas', meaning: 'Fim doloroso' },
-  60: { symbol: 'V♠', name: 'Valete de Espadas', meaning: 'Vigilância' },
-  61: { symbol: 'C♠', name: 'Cavaleiro de Espadas', meaning: 'Ação rápida' },
-  62: { symbol: 'R♠', name: 'Rainha de Espadas', meaning: 'Clareza, independência' },
-  63: { symbol: 'K♠', name: 'Rei de Espadas', meaning: 'Autoridade intelectual' },
+  // Espadas (51-64)
+  51: { symbol: 'Ás♠', name: 'Ás de Espadas', meaning: 'Clareza mental, verdade' },
+  52: { symbol: '2♠', name: 'Dois de Espadas', meaning: 'Decisão difícil' },
+  53: { symbol: '3♠', name: 'Três de Espadas', meaning: 'Dor, separação' },
+  54: { symbol: '4♠', name: 'Quatro de Espadas', meaning: 'Descanso, pausa' },
+  55: { symbol: '5♠', name: 'Cinco de Espadas', meaning: 'Conflito, derrota' },
+  56: { symbol: '6♠', name: 'Seis de Espadas', meaning: 'Transição, mudança' },
+  57: { symbol: '7♠', name: 'Sete de Espadas', meaning: 'Estratégia, cautela' },
+  58: { symbol: '8♠', name: 'Oito de Espadas', meaning: 'Restrição, medo' },
+  59: { symbol: '9♠', name: 'Nove de Espadas', meaning: 'Ansiedade, pesadelo' },
+  60: { symbol: '10♠', name: 'Dez de Espadas', meaning: 'Fim doloroso' },
+  61: { symbol: 'V♠', name: 'Valete de Espadas', meaning: 'Vigilância' },
+  62: { symbol: 'C♠', name: 'Cavaleiro de Espadas', meaning: 'Ação rápida' },
+  63: { symbol: 'R♠', name: 'Rainha de Espadas', meaning: 'Clareza, independência' },
+  64: { symbol: 'K♠', name: 'Rei de Espadas', meaning: 'Autoridade intelectual' },
   
-  // Ouros (64-77)
-  64: { symbol: 'Ás♦', name: 'Ás de Ouros', meaning: 'Nova oportunidade material' },
-  65: { symbol: '2♦', name: 'Dois de Ouros', meaning: 'Equilíbrio, adaptação' },
-  66: { symbol: '3♦', name: 'Três de Ouros', meaning: 'Trabalho em equipe' },
-  67: { symbol: '4♦', name: 'Quatro de Ouros', meaning: 'Controle, segurança' },
-  68: { symbol: '5♦', name: 'Cinco de Ouros', meaning: 'Dificuldade financeira' },
-  69: { symbol: '6♦', name: 'Seis de Ouros', meaning: 'Generosidade, equilíbrio' },
-  70: { symbol: '7♦', name: 'Sete de Ouros', meaning: 'Paciência, investimento' },
-  71: { symbol: '8♦', name: 'Oito de Ouros', meaning: 'Dedicação, habilidade' },
-  72: { symbol: '9♦', name: 'Nove de Ouros', meaning: 'Abundância, independência' },
-  73: { symbol: '10♦', name: 'Dez de Ouros', meaning: 'Riqueza, família' },
-  74: { symbol: 'V♦', name: 'Valete de Ouros', meaning: 'Estudante, mensagem prática' },
-  75: { symbol: 'C♦', name: 'Cavaleiro de Ouros', meaning: 'Trabalho duro, rotina' },
-  76: { symbol: 'R♦', name: 'Rainha de Ouros', meaning: 'Praticidade, nutrição' },
-  77: { symbol: 'K♦', name: 'Rei de Ouros', meaning: 'Sucesso material, estabilidade' }
+  // Ouros (65-78)
+  65: { symbol: 'Ás♦', name: 'Ás de Ouros', meaning: 'Nova oportunidade material' },
+  66: { symbol: '2♦', name: 'Dois de Ouros', meaning: 'Equilíbrio, adaptação' },
+  67: { symbol: '3♦', name: 'Três de Ouros', meaning: 'Trabalho em equipe' },
+  68: { symbol: '4♦', name: 'Quatro de Ouros', meaning: 'Controle, segurança' },
+  69: { symbol: '5♦', name: 'Cinco de Ouros', meaning: 'Dificuldade financeira' },
+  70: { symbol: '6♦', name: 'Seis de Ouros', meaning: 'Generosidade, equilíbrio' },
+  71: { symbol: '7♦', name: 'Sete de Ouros', meaning: 'Paciência, investimento' },
+  72: { symbol: '8♦', name: 'Oito de Ouros', meaning: 'Dedicação, habilidade' },
+  73: { symbol: '9♦', name: 'Nove de Ouros', meaning: 'Abundância, independência' },
+  74: { symbol: '10♦', name: 'Dez de Ouros', meaning: 'Riqueza, família' },
+  75: { symbol: 'V♦', name: 'Valete de Ouros', meaning: 'Estudante, mensagem prática' },
+  76: { symbol: 'C♦', name: 'Cavaleiro de Ouros', meaning: 'Trabalho duro, rotina' },
+  77: { symbol: 'R♦', name: 'Rainha de Ouros', meaning: 'Praticidade, nutrição' },
+  78: { symbol: 'K♦', name: 'Rei de Ouros', meaning: 'Sucesso material, estabilidade' }
 };
 
 // =============================================================================
@@ -153,7 +152,6 @@ const CIGANO_DECK = {
 // FUNÇÕES AUXILIARES
 // =============================================================================
 
-// Numerologia
 function sumDigits(num) {
   return num.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
 }
@@ -166,44 +164,87 @@ function reduceToBase(num) {
   return result === 0 ? 1 : result;
 }
 
-// Detectar baralho ideal
 function detectDeckType(question) {
   const text = question.toLowerCase();
   
+  // ✅ LISTA COMPLETA DE PALAVRAS-CHAVE
   const riderWaiteKeywords = [
-    'propósito', 'proposito', 'missão', 'missao', 'alma',
-    'espiritual', 'evolução', 'evolucao', 'transformação',
-    'autoconhecimento', 'destino', 'karma', 'consciência'
+    'propósito', 'proposito', 'missão', 'missao',
+    'espiritualidade', 'espiritual', 'alma', 'evolução', 'evolucao',
+    'transformação', 'transformacao', 'autoconhecimento',
+    'crescimento', 'crescer', 'destino', 'karma',
+    'consciência', 'consciencia', 'despertar', 'iluminação', 'iluminacao',
+    'transcendência', 'transcendencia', 'essência', 'essencia',
+    'caminho espiritual', 'jornada interior', 'eu superior'
   ];
   
   const ciganoKeywords = [
-    'amor', 'namoro', 'trabalho', 'emprego', 'dinheiro',
-    'casa', 'família', 'familia', 'amigo', 'viagem',
-    'saúde', 'saude', 'vai dar certo', 'vou conseguir'
+    'amor', 'namoro', 'namorado', 'namorada', 'casamento', 'casar',
+    'trabalho', 'emprego', 'trampo', 'chefe', 'colega',
+    'dinheiro', 'grana', 'salário', 'salario', 'pagar', 'conta',
+    'casa', 'apartamento', 'mudança', 'mudanca', 'mudar',
+    'família', 'familia', 'mãe', 'mae', 'pai', 'filho', 'irmão', 'irmao',
+    'amigo', 'amiga', 'amizade',
+    'viagem', 'viajar', 'passeio',
+    'saúde', 'saude', 'doença', 'doenca', 'médico', 'medico',
+    'sucesso', 'conquistar', 'conseguir', 'ganhar',
+    'vai dar certo', 'vai acontecer', 'vou conseguir',
+    'quando', 'onde', 'quem', 'como faço', 'como faco',
+    'sonhei', 'sonho', 'sonhar', 'pesadelo'
   ];
+  
+  // Padrões específicos forçam Rider-Waite
+  const deepPatterns = [
+    /(qual|onde está|onde esta).*(propósito|proposito|missão|missao)/,
+    /(como|preciso).*(evoluir|crescer|despertar)/,
+    /(meu|minha).*(alma|essência|essencia|ser)/,
+    /(caminho|jornada).*(espiritual|interior|consciência|consciencia)/
+  ];
+  
+  if (deepPatterns.some(pattern => pattern.test(text))) {
+    console.log('🃏 Baralho selecionado: RIDER_WAITE (padrão espiritual)');
+    return 'RIDER_WAITE';
+  }
+  
+  // Padrões específicos forçam Cigano
+  const practicalPatterns = [
+    /(vai|vou).*(dar certo|conseguir|ganhar|receber)/,
+    /(quando|onde|como).*(vou|vai|acontece|consigo)/,
+    /(namoro|casamento|amor|trabalho|dinheiro|casa)/,
+    /(sonhei|sonho|sonhar|pesadelo)/
+  ];
+  
+  if (practicalPatterns.some(pattern => pattern.test(text))) {
+    console.log('🃏 Baralho selecionado: CIGANO (padrão prático)');
+    return 'CIGANO';
+  }
   
   const riderScore = riderWaiteKeywords.filter(k => text.includes(k)).length;
   const ciganoScore = ciganoKeywords.filter(k => text.includes(k)).length;
   
-  return riderScore > ciganoScore ? 'RIDER_WAITE' : 'CIGANO';
+  const selected = riderScore > ciganoScore ? 'RIDER_WAITE' : 'CIGANO';
+  console.log(`🃏 Baralho selecionado: ${selected} (score: R=${riderScore}, C=${ciganoScore})`);
+  return selected;
 }
 
-// Pegar carta do baralho correto
+// ✅ CORREÇÃO: Ajuste correto de número
 function getCardFromDeck(cardNumber, deckType) {
   const deck = deckType === 'RIDER_WAITE' ? RIDER_WAITE_DECK : CIGANO_DECK;
   const maxCards = deckType === 'RIDER_WAITE' ? 78 : 36;
   
-  // Ajustar número para o baralho
-  const adjustedNumber = ((cardNumber - 1) % maxCards);
+  // ✅ CORREÇÃO: Ajustar corretamente para 1-based index
+  let adjustedNumber = ((cardNumber - 1) % maxCards) + 1;
   
   if (deck[adjustedNumber]) {
     return deck[adjustedNumber];
   }
   
+  // Fallback mais inteligente
+  console.log(`⚠️ Carta ${adjustedNumber} não encontrada, usando fallback`);
   return {
-    symbol: `${adjustedNumber}`,
+    symbol: `#${adjustedNumber}`,
     name: `Arcano ${adjustedNumber}`,
-    meaning: `Energia da carta ${adjustedNumber}`
+    meaning: `Energia vibracional da carta ${adjustedNumber} do ${deckType === 'RIDER_WAITE' ? 'Tarot' : 'Cigano'}`
   };
 }
 
@@ -215,93 +256,12 @@ app.get('/health', (req, res) => {
   console.log('✅ /health chamado');
   res.json({
     status: 'online',
-    timestamp: Date.now()
-  });
-});
-
-app.post('/oracleConsult', (req, res) => {
-  console.log('✅ /oracleConsult chamado (sem imagem)');
-  const { question } = req.body;
-  
-  if (!question) {
-    return res.status(400).json({ error: 'Question required' });
-  }
-  
-  const cards = [
-    { symbol: 'X7', greekName: 'A Lua', meaning: 'Transformação e intuição' },
-    { symbol: 'F2', greekName: 'O Portal', meaning: 'Novas oportunidades' },
-    { symbol: 'A1', greekName: 'O Sol', meaning: 'Energia vital e sucesso' }
-  ];
-  
-  res.json({
-    level: 3,
-    bases: cards,
-    interpretation: 'As energias revelam uma pergunta sobre tendências. O caminho está claro.',
-    timestamp: Date.now()
-  });
-});
-
-app.post('/oracleConsultWithImage', (req, res) => {
-  console.log('✅ /oracleConsultWithImage chamado');
-  console.log('Body recebido:', JSON.stringify(req.body));
-  
-  const { question, rgbValues } = req.body;
-  
-  if (!question || !rgbValues) {
-    console.log('❌ Dados faltando!');
-    return res.status(400).json({ error: 'Missing data' });
-  }
-  
-  console.log(`RGB: R=${rgbValues.r}, G=${rgbValues.g}, B=${rgbValues.b}`);
-  
-  const cards = [
-    { 
-      symbol: 'X7', 
-      greekName: 'A Lua', 
-      meaning: 'Transformação', 
-      source: 'Vermelho', 
-      calculation: `${rgbValues.r} → 7` 
-    },
-    { 
-      symbol: 'F2', 
-      greekName: 'O Portal', 
-      meaning: 'Oportunidades', 
-      source: 'Verde', 
-      calculation: `${rgbValues.g} → 9` 
-    },
-    { 
-      symbol: 'A1', 
-      greekName: 'O Sol', 
-      meaning: 'Sucesso', 
-      source: 'Azul', 
-      calculation: `${rgbValues.b} → 8` 
+    timestamp: Date.now(),
+    decks: {
+      riderWaite: 78,
+      cigano: 36
     }
-  ];
-  
-  const response = {
-    rgbValues: {
-      r: rgbValues.r,
-      g: rgbValues.g,
-      b: rgbValues.b
-    },
-    cardNumbers: {
-      red: 7,
-      green: 9,
-      blue: 8
-    },
-    cards: cards,
-    colorAnalysis: {
-      dominantColor: 'Equilibrado',
-      emotionalState: 'Calma e harmonia',
-      energy: 'Energia moderada'
-    },
-    questionLevel: 3,
-    interpretation: '🔮 As cores revelam um momento de equilíbrio. As três cartas indicam transformação, novas oportunidades e sucesso.',
-    timestamp: Date.now()
-  };
-  
-  console.log('✅ Enviando resposta com', cards.length, 'cartas');
-  res.json(response);
+  });
 });
 
 app.post('/oracleConsultWithAudio', (req, res) => {
@@ -329,10 +289,12 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     'Amplitude', 'Fase'
   ];
   
-  // Gerar cartas com NUMEROLOGIA
+  // Gerar cartas com NUMEROLOGIA CORRIGIDA
   const cards = audioValues.map((value, index) => {
     const cardNumber = reduceToBase(value);
     const card = getCardFromDeck(cardNumber, selectedDeck);
+    
+    console.log(`  Carta ${index + 1}: Valor ${value} → Número ${cardNumber} → ${card.name}`);
     
     return {
       symbol: card.symbol,
@@ -376,12 +338,114 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   res.json(response);
 });
 
+app.post('/oracleConsult', (req, res) => {
+  console.log('✅ /oracleConsult chamado (sem imagem)');
+  const { question } = req.body;
+  
+  if (!question) {
+    return res.status(400).json({ error: 'Question required' });
+  }
+  
+  const cards = [
+    { symbol: 'X7', greekName: 'A Lua', meaning: 'Transformação e intuição' },
+    { symbol: 'F2', greekName: 'O Portal', meaning: 'Novas oportunidades' },
+    { symbol: 'A1', greekName: 'O Sol', meaning: 'Energia vital e sucesso' }
+  ];
+  
+  res.json({
+    level: 3,
+    bases: cards,
+    interpretation: 'As energias revelam uma pergunta sobre tendências. O caminho está claro.',
+    timestamp: Date.now()
+  });
+});
+
+app.post('/oracleConsultWithImage', (req, res) => {
+  console.log('✅ /oracleConsultWithImage chamado');
+  console.log('Body recebido:', JSON.stringify(req.body));
+  
+  const { question, rgbValues } = req.body;
+  
+  if (!question || !rgbValues) {
+    console.log('❌ Dados faltando!');
+    return res.status(400).json({ error: 'Missing data' });
+  }
+  
+  console.log(`RGB: R=${rgbValues.r}, G=${rgbValues.g}, B=${rgbValues.b}`);
+  
+  // Gerar cartas usando RGB com numerologia
+  const redCard = reduceToBase(rgbValues.r);
+  const greenCard = reduceToBase(rgbValues.g);
+  const blueCard = reduceToBase(rgbValues.b);
+  
+  // ImagemScreen sempre usa 3 cartas fixas (RGB)
+  const cards = [
+    { 
+      ...getCardFromDeck(redCard, 'RIDER_WAITE'),
+      source: 'Vermelho', 
+      calculation: `${rgbValues.r} → ${redCard}` 
+    },
+    { 
+      ...getCardFromDeck(greenCard, 'RIDER_WAITE'),
+      source: 'Verde', 
+      calculation: `${rgbValues.g} → ${greenCard}` 
+    },
+    { 
+      ...getCardFromDeck(blueCard, 'RIDER_WAITE'),
+      source: 'Azul', 
+      calculation: `${rgbValues.b} → ${blueCard}` 
+    }
+  ].map(card => ({
+    symbol: card.symbol,
+    greekName: card.name,
+    meaning: card.meaning,
+    source: card.source,
+    calculation: card.calculation
+  }));
+  
+  // Análise de cor dominante
+  const max = Math.max(rgbValues.r, rgbValues.g, rgbValues.b);
+  let dominantColor = 'Equilibrado';
+  if (rgbValues.r === max && rgbValues.r > rgbValues.g + 30) dominantColor = 'Vermelho (Paixão)';
+  else if (rgbValues.g === max && rgbValues.g > rgbValues.r + 30) dominantColor = 'Verde (Crescimento)';
+  else if (rgbValues.b === max && rgbValues.b > rgbValues.r + 30) dominantColor = 'Azul (Tranquilidade)';
+  
+  const response = {
+    rgbValues: {
+      r: rgbValues.r,
+      g: rgbValues.g,
+      b: rgbValues.b
+    },
+    cardNumbers: {
+      red: redCard,
+      green: greenCard,
+      blue: blueCard
+    },
+    cards: cards,
+    colorAnalysis: {
+      dominantColor: dominantColor,
+      emotionalState: 'Calma e harmonia',
+      energy: 'Energia moderada'
+    },
+    questionLevel: 3,
+    interpretation: `🔮 As cores revelam um momento de equilíbrio. As três cartas (${cards.map(c => c.greekName).join(', ')}) indicam transformação, novas oportunidades e sucesso.`,
+    timestamp: Date.now()
+  };
+  
+  console.log('✅ Enviando resposta com', cards.length, 'cartas');
+  res.json(response);
+});
+
 app.listen(PORT, () => {
-  console.log(`🔮 Servidor rodando na porta ${PORT}`);
-  console.log(`Endpoints disponíveis:`);
+  console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`);
+  console.log(`📡 Endpoints disponíveis:`);
   console.log(`  GET  /health`);
   console.log(`  POST /oracleConsult`);
   console.log(`  POST /oracleConsultWithImage`);
   console.log(`  POST /oracleConsultWithAudio`);
-  console.log(`🃏 Baralhos: Rider-Waite (78) + Cigano (36)`);
+  console.log(`🃏 Baralhos disponíveis:`);
+  console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
+  console.log(`  - Cigano: 36 cartas (Prático)`);
+  console.log(`✅ Sistema de detecção automática ativo`);
+  console.log(`✅ Análise de complexidade: 1-8 cartas dinâmicas`);
 });
