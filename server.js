@@ -268,7 +268,7 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   console.log('✅ /oracleConsultWithAudio chamado');
   console.log('Body recebido:', JSON.stringify(req.body));
   
-  const { question, audioValues, deckType } = req.body;
+  const { question, audioValues, deckType, zodiacSign } = req.body;  // ✅ ADICIONAR zodiacSign
   
   if (!question || !audioValues || !Array.isArray(audioValues)) {
     console.log('❌ Dados faltando ou inválidos!');
@@ -281,6 +281,12 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   const cardCount = audioValues.length;
   console.log(`🎙️ Gerando ${cardCount} cartas para: "${question}"`);
   console.log(`🃏 Baralho: ${selectedDeck}`);
+  
+  // ✅ NOVO: Log do signo
+  if (zodiacSign) {
+    console.log(`♈ Signo do usuário: ${zodiacSign}`);
+  }
+  
   console.log(`Valores de áudio: ${audioValues.join(', ')}`);
   
   const sourceNames = [
@@ -324,17 +330,28 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   const cardNames = cards.map(c => c.greekName).join(', ');
   const deckName = selectedDeck === 'RIDER_WAITE' ? 'Tarot Rider-Waite' : 'Baralho Cigano';
   
+  // ✅ NOVO: Adaptar interpretação baseado no signo
+  let interpretationPrefix = '';
+  if (zodiacSign) {
+    const communicationStyle = getZodiacCommunicationStyle(zodiacSign);
+    interpretationPrefix = `${getZodiacEmoji(zodiacSign)} Para ${zodiacSign}: ${communicationStyle}\n\n`;
+  }
+  
   const response = {
     audioValues: audioValues,
     deckType: selectedDeck,
+    zodiacSign: zodiacSign || null,  // ✅ NOVO: Retorna signo
     cards: cards,
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
-    interpretation: `🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`,
+    interpretation: `${interpretationPrefix}🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`,
     timestamp: Date.now()
   };
   
   console.log(`✅ Enviando resposta com ${cards.length} cartas do baralho ${selectedDeck}`);
+  if (zodiacSign) {
+    console.log(`♈ Adaptado para ${zodiacSign}`);
+  }
   res.json(response);
 });
 
