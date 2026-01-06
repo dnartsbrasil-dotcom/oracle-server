@@ -15,6 +15,100 @@ app.use((req, res, next) => {
 });
 
 // =============================================================================
+// ✅ SISTEMA DE SIGNOS - ADICIONADO!
+// =============================================================================
+
+function getZodiacEmoji(zodiacSign) {
+  const emojis = {
+    'Áries': '♈',
+    'Touro': '♉',
+    'Gêmeos': '♊',
+    'Câncer': '♋',
+    'Leão': '♌',
+    'Virgem': '♍',
+    'Libra': '♎',
+    'Escorpião': '♏',
+    'Sagitário': '♐',
+    'Capricórnio': '♑',
+    'Aquário': '♒',
+    'Peixes': '♓'
+  };
+  return emojis[zodiacSign] || '⭐';
+}
+
+function getZodiacCommunicationStyle(zodiacSign) {
+  const styles = {
+    'Áries': 'Direto e energético - vai direto ao ponto',
+    'Touro': 'Prático e sensorial - valoriza estabilidade',
+    'Gêmeos': 'Versátil e curioso - gosta de detalhes',
+    'Câncer': 'Emocional e intuitivo - conecta-se com sentimentos',
+    'Leão': 'Confiante e dramático - aprecia grandiosidade',
+    'Virgem': 'Analítico e detalhista - busca perfeição',
+    'Libra': 'Equilibrado e diplomático - pondera todos os lados',
+    'Escorpião': 'Intenso e profundo - vai à raiz das questões',
+    'Sagitário': 'Otimista e filosófico - visão ampla',
+    'Capricórnio': 'Estruturado e ambicioso - foco em resultados',
+    'Aquário': 'Original e humanitário - pensa fora da caixa',
+    'Peixes': 'Sensível e místico - conecta-se com o espiritual'
+  };
+  return styles[zodiacSign] || 'Interpretação personalizada';
+}
+
+function getZodiacInterpretationStyle(zodiacSign, cardCount) {
+  const styles = {
+    'Áries': cardCount >= 5 ? 
+      'Sua natureza impulsiva precisa de ação clara. As cartas revelam o caminho direto.' :
+      'Para Áries: Resposta rápida e objetiva.',
+    
+    'Touro': cardCount >= 5 ?
+      'Sua busca por estabilidade encontra fundamento sólido nestas cartas.' :
+      'Para Touro: Construa com paciência.',
+    
+    'Gêmeos': cardCount >= 5 ?
+      'Sua mente curiosa receberá múltiplas perspectivas através destas cartas.' :
+      'Para Gêmeos: Considere todas as possibilidades.',
+    
+    'Câncer': cardCount >= 5 ?
+      'Sua intuição emocional encontra ressonância profunda nas energias reveladas.' :
+      'Para Câncer: Confie em seus sentimentos.',
+    
+    'Leão': cardCount >= 5 ?
+      'Sua busca por brilho e reconhecimento está refletida nas cartas. Seja o protagonista.' :
+      'Para Leão: Assuma seu poder.',
+    
+    'Virgem': cardCount >= 5 ?
+      'Sua análise detalhista encontrará padrões precisos nas nuances reveladas.' :
+      'Para Virgem: Observe os detalhes.',
+    
+    'Libra': cardCount >= 5 ?
+      'Seu desejo de equilíbrio será harmonizado através da leitura completa.' :
+      'Para Libra: Busque o equilíbrio.',
+    
+    'Escorpião': cardCount >= 5 ?
+      'Sua intensidade encontrará profundidade nas camadas ocultas destas cartas.' :
+      'Para Escorpião: Mergulhe fundo.',
+    
+    'Sagitário': cardCount >= 5 ?
+      'Sua visão expansiva abraçará o panorama completo revelado pelas cartas.' :
+      'Para Sagitário: Expanda seus horizontes.',
+    
+    'Capricórnio': cardCount >= 5 ?
+      'Sua ambição encontrará estrutura e estratégia nas orientações das cartas.' :
+      'Para Capricórnio: Construa seu império.',
+    
+    'Aquário': cardCount >= 5 ?
+      'Sua originalidade encontrará insights únicos nas conexões não convencionais.' :
+      'Para Aquário: Pense diferente.',
+    
+    'Peixes': cardCount >= 5 ?
+      'Sua sensibilidade mística se conectará com as energias transcendentais reveladas.' :
+      'Para Peixes: Flutue nas águas do destino.'
+  };
+  
+  return styles[zodiacSign] || 'Interpretação personalizada para você';
+}
+
+// =============================================================================
 // BARALHO RIDER-WAITE (Tarot - 78 cartas)
 // =============================================================================
 const RIDER_WAITE_DECK = {
@@ -167,7 +261,6 @@ function reduceToBase(num) {
 function detectDeckType(question) {
   const text = question.toLowerCase();
   
-  // ✅ LISTA COMPLETA DE PALAVRAS-CHAVE
   const riderWaiteKeywords = [
     'propósito', 'proposito', 'missão', 'missao',
     'espiritualidade', 'espiritual', 'alma', 'evolução', 'evolucao',
@@ -193,7 +286,6 @@ function detectDeckType(question) {
     'sonhei', 'sonho', 'sonhar', 'pesadelo'
   ];
   
-  // Padrões específicos forçam Rider-Waite
   const deepPatterns = [
     /(qual|onde está|onde esta).*(propósito|proposito|missão|missao)/,
     /(como|preciso).*(evoluir|crescer|despertar)/,
@@ -206,7 +298,6 @@ function detectDeckType(question) {
     return 'RIDER_WAITE';
   }
   
-  // Padrões específicos forçam Cigano
   const practicalPatterns = [
     /(vai|vou).*(dar certo|conseguir|ganhar|receber)/,
     /(quando|onde|como).*(vou|vai|acontece|consigo)/,
@@ -227,19 +318,16 @@ function detectDeckType(question) {
   return selected;
 }
 
-// ✅ CORREÇÃO: Ajuste correto de número
 function getCardFromDeck(cardNumber, deckType) {
   const deck = deckType === 'RIDER_WAITE' ? RIDER_WAITE_DECK : CIGANO_DECK;
   const maxCards = deckType === 'RIDER_WAITE' ? 78 : 36;
   
-  // ✅ CORREÇÃO: Ajustar corretamente para 1-based index
   let adjustedNumber = ((cardNumber - 1) % maxCards) + 1;
   
   if (deck[adjustedNumber]) {
     return deck[adjustedNumber];
   }
   
-  // Fallback mais inteligente
   console.log(`⚠️ Carta ${adjustedNumber} não encontrada, usando fallback`);
   return {
     symbol: `#${adjustedNumber}`,
@@ -260,7 +348,8 @@ app.get('/health', (req, res) => {
     decks: {
       riderWaite: 78,
       cigano: 36
-    }
+    },
+    zodiacSystem: 'enabled'
   });
 });
 
@@ -268,21 +357,19 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   console.log('✅ /oracleConsultWithAudio chamado');
   console.log('Body recebido:', JSON.stringify(req.body));
   
-  const { question, audioValues, deckType, zodiacSign } = req.body;  // ✅ ADICIONAR zodiacSign
+  const { question, audioValues, deckType, zodiacSign } = req.body;
   
   if (!question || !audioValues || !Array.isArray(audioValues)) {
     console.log('❌ Dados faltando ou inválidos!');
     return res.status(400).json({ error: 'Missing or invalid data' });
   }
   
-  // Detectar baralho se não especificado
   const selectedDeck = deckType || detectDeckType(question);
-  
   const cardCount = audioValues.length;
+  
   console.log(`🎙️ Gerando ${cardCount} cartas para: "${question}"`);
   console.log(`🃏 Baralho: ${selectedDeck}`);
   
-  // ✅ NOVO: Log do signo
   if (zodiacSign) {
     console.log(`♈ Signo do usuário: ${zodiacSign}`);
   }
@@ -295,7 +382,6 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     'Amplitude', 'Fase'
   ];
   
-  // Gerar cartas com NUMEROLOGIA CORRIGIDA
   const cards = audioValues.map((value, index) => {
     const cardNumber = reduceToBase(value);
     const card = getCardFromDeck(cardNumber, selectedDeck);
@@ -466,3 +552,4 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema de detecção automática ativo`);
   console.log(`✅ Análise de complexidade: 1-8 cartas dinâmicas`);
 });
+
