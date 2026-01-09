@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 });
 
 // =============================================================================
-// ✅ SISTEMA DE SIGNOS - ADICIONADO!
+// ✅ SISTEMA DE SIGNOS
 // =============================================================================
 
 function getZodiacEmoji(zodiacSign) {
@@ -54,59 +54,69 @@ function getZodiacCommunicationStyle(zodiacSign) {
   return styles[zodiacSign] || 'Interpretação personalizada';
 }
 
-function getZodiacInterpretationStyle(zodiacSign, cardCount) {
-  const styles = {
-    'Áries': cardCount >= 5 ? 
-      'Sua natureza impulsiva precisa de ação clara. As cartas revelam o caminho direto.' :
-      'Para Áries: Resposta rápida e objetiva.',
-    
-    'Touro': cardCount >= 5 ?
-      'Sua busca por estabilidade encontra fundamento sólido nestas cartas.' :
-      'Para Touro: Construa com paciência.',
-    
-    'Gêmeos': cardCount >= 5 ?
-      'Sua mente curiosa receberá múltiplas perspectivas através destas cartas.' :
-      'Para Gêmeos: Considere todas as possibilidades.',
-    
-    'Câncer': cardCount >= 5 ?
-      'Sua intuição emocional encontra ressonância profunda nas energias reveladas.' :
-      'Para Câncer: Confie em seus sentimentos.',
-    
-    'Leão': cardCount >= 5 ?
-      'Sua busca por brilho e reconhecimento está refletida nas cartas. Seja o protagonista.' :
-      'Para Leão: Assuma seu poder.',
-    
-    'Virgem': cardCount >= 5 ?
-      'Sua análise detalhista encontrará padrões precisos nas nuances reveladas.' :
-      'Para Virgem: Observe os detalhes.',
-    
-    'Libra': cardCount >= 5 ?
-      'Seu desejo de equilíbrio será harmonizado através da leitura completa.' :
-      'Para Libra: Busque o equilíbrio.',
-    
-    'Escorpião': cardCount >= 5 ?
-      'Sua intensidade encontrará profundidade nas camadas ocultas destas cartas.' :
-      'Para Escorpião: Mergulhe fundo.',
-    
-    'Sagitário': cardCount >= 5 ?
-      'Sua visão expansiva abraçará o panorama completo revelado pelas cartas.' :
-      'Para Sagitário: Expanda seus horizontes.',
-    
-    'Capricórnio': cardCount >= 5 ?
-      'Sua ambição encontrará estrutura e estratégia nas orientações das cartas.' :
-      'Para Capricórnio: Construa seu império.',
-    
-    'Aquário': cardCount >= 5 ?
-      'Sua originalidade encontrará insights únicos nas conexões não convencionais.' :
-      'Para Aquário: Pense diferente.',
-    
-    'Peixes': cardCount >= 5 ?
-      'Sua sensibilidade mística se conectará com as energias transcendentais reveladas.' :
-      'Para Peixes: Flutue nas águas do destino.'
-  };
+// =============================================================================
+// 🧠 BARALHO PSIQUE (Tarot Psicanalítico - 36 cartas)
+// Sistema DECIFRA: 6 posições fixas para análise psicológica profunda
+// =============================================================================
+const PSIQUE_DECK = {
+  // GRUPO 1: Estruturas da Mente (1-6)
+  1: { symbol: '🎭', name: 'O Consciente', meaning: 'Aquilo que a pessoa mostra ao mundo', group: 'Estruturas da Mente' },
+  2: { symbol: '🚪', name: 'O Pré-Consciente', meaning: 'O que está prestes a emergir', group: 'Estruturas da Mente' },
+  3: { symbol: '🌑', name: 'O Inconsciente', meaning: 'Desejos ocultos e reprimidos', group: 'Estruturas da Mente' },
+  4: { symbol: '🐺', name: 'O Id', meaning: 'Instintos, impulsos, prazer', group: 'Estruturas da Mente' },
+  5: { symbol: '⚖️', name: 'O Ego', meaning: 'Razão, controle, identidade', group: 'Estruturas da Mente' },
+  6: { symbol: '👁️', name: 'O Superego', meaning: 'Culpa, moral, autocobrança', group: 'Estruturas da Mente' },
   
-  return styles[zodiacSign] || 'Interpretação personalizada para você';
-}
+  // GRUPO 2: Fases do Desenvolvimento (7-12)
+  7: { symbol: '👄', name: 'A Fase Oral', meaning: 'Carência, dependência, afeto', group: 'Fases do Desenvolvimento' },
+  8: { symbol: '🔒', name: 'A Fase Anal', meaning: 'Poder, rigidez, dominação', group: 'Fases do Desenvolvimento' },
+  9: { symbol: '🪞', name: 'A Fase Fálica', meaning: 'Ego, sexualidade, identidade', group: 'Fases do Desenvolvimento' },
+  10: { symbol: '🤐', name: 'A Latência', meaning: 'Repressão emocional', group: 'Fases do Desenvolvimento' },
+  11: { symbol: '🤝', name: 'A Genital', meaning: 'Maturidade afetiva', group: 'Fases do Desenvolvimento' },
+  12: { symbol: '👶', name: 'A Regressão', meaning: 'Retorno a traumas antigos', group: 'Fases do Desenvolvimento' },
+  
+  // GRUPO 3: Estruturas Clínicas (13-18)
+  13: { symbol: '😰', name: 'A Neurose', meaning: 'Conflitos internos constantes', group: 'Estruturas Clínicas' },
+  14: { symbol: '🌀', name: 'A Psicose', meaning: 'Ruptura com a realidade', group: 'Estruturas Clínicas' },
+  15: { symbol: '⚡', name: 'A Perversão', meaning: 'Prazer no limite', group: 'Estruturas Clínicas' },
+  16: { symbol: '🧩', name: 'O Autismo', meaning: 'Isolamento psíquico', group: 'Estruturas Clínicas' },
+  17: { symbol: '💔', name: 'A Dissociação', meaning: 'Múltiplas camadas internas', group: 'Estruturas Clínicas' },
+  18: { symbol: '⚠️', name: 'O Trauma', meaning: 'Marcas emocionais profundas', group: 'Estruturas Clínicas' },
+  
+  // GRUPO 4: Correntes Teóricas (19-24)
+  19: { symbol: '🔍', name: 'Freud', meaning: 'Mergulho no inconsciente', group: 'Correntes Teóricas' },
+  20: { symbol: '🌟', name: 'Jung', meaning: 'Arquétipos e símbolos', group: 'Correntes Teóricas' },
+  21: { symbol: '🗝️', name: 'Lacan', meaning: 'Linguagem e desejo', group: 'Correntes Teóricas' },
+  22: { symbol: '🌙', name: 'Melanie Klein', meaning: 'Relações primárias', group: 'Correntes Teóricas' },
+  23: { symbol: '🤗', name: 'Winnicott', meaning: 'Afeto e vínculo', group: 'Correntes Teóricas' },
+  24: { symbol: '💪', name: 'Reich', meaning: 'Corpo e emoção reprimida', group: 'Correntes Teóricas' },
+  
+  // GRUPO 5: Mecanismos de Defesa (25-30)
+  25: { symbol: '🙈', name: 'A Negação', meaning: 'Recusa da realidade', group: 'Mecanismos de Defesa' },
+  26: { symbol: '🪞', name: 'A Projeção', meaning: 'Culpa jogada no outro', group: 'Mecanismos de Defesa' },
+  27: { symbol: '🔐', name: 'A Repressão', meaning: 'Emoções trancadas', group: 'Mecanismos de Defesa' },
+  28: { symbol: '⚖️', name: 'A Racionalização', meaning: 'Justificativas falsas', group: 'Mecanismos de Defesa' },
+  29: { symbol: '🏃', name: 'A Fuga', meaning: 'Evitar o confronto', group: 'Mecanismos de Defesa' },
+  30: { symbol: '🎨', name: 'A Sublimação', meaning: 'Transformar dor em criação', group: 'Mecanismos de Defesa' },
+  
+  // GRUPO 6: Tripé da Análise (31-36)
+  31: { symbol: '🪞', name: 'A Análise Pessoal', meaning: 'Autoconhecimento', group: 'Tripé da Análise' },
+  32: { symbol: '🧭', name: 'A Supervisão', meaning: 'Orientação', group: 'Tripé da Análise' },
+  33: { symbol: '📚', name: 'O Estudo', meaning: 'Conhecimento', group: 'Tripé da Análise' },
+  34: { symbol: '⛩️', name: 'O Setting', meaning: 'Espaço sagrado da análise', group: 'Tripé da Análise' },
+  35: { symbol: '🔗', name: 'A Transferência', meaning: 'Projeção emocional', group: 'Tripé da Análise' },
+  36: { symbol: '🌿', name: 'A Cura', meaning: 'Reconciliação interna', group: 'Tripé da Análise' }
+};
+
+// Posições do Sistema DECIFRA
+const DECIFRA_POSITIONS = [
+  { position: 1, name: 'INSTINTO', emoji: '1️⃣', description: 'O impulso primário - reação emocional automática' },
+  { position: 2, name: 'CONSCIÊNCIA', emoji: '2️⃣', description: 'A mente racional - pensamento lógico' },
+  { position: 3, name: 'RESULTADO', emoji: '3️⃣', description: 'A síntese entre instinto e consciência' },
+  { position: 4, name: 'FUTURO', emoji: '4️⃣', description: 'O desdobramento natural da situação' },
+  { position: 5, name: 'CONSELHO', emoji: '5️⃣', description: 'O ajuste de rota - orientação do oráculo' },
+  { position: 6, name: 'VAI SEGUIR?', emoji: '6️⃣', description: 'A verdade crua - tendência real' }
+];
 
 // =============================================================================
 // BARALHO RIDER-WAITE (Tarot - 78 cartas)
@@ -258,7 +268,21 @@ function reduceToBase(num) {
   return result === 0 ? 1 : result;
 }
 
-function detectDeckType(question) {
+function detectDeckType(question, requestedDeck) {
+  // Se o deck foi explicitamente solicitado, usa ele
+  if (requestedDeck === 'PSIQUE') {
+    console.log('🧠 Baralho solicitado: PSIQUE (Tarot Psicanalítico)');
+    return 'PSIQUE';
+  }
+  if (requestedDeck === 'RIDER_WAITE') {
+    console.log('🃏 Baralho solicitado: RIDER_WAITE');
+    return 'RIDER_WAITE';
+  }
+  if (requestedDeck === 'CIGANO') {
+    console.log('🃏 Baralho solicitado: CIGANO');
+    return 'CIGANO';
+  }
+  
   const text = question.toLowerCase();
   
   const riderWaiteKeywords = [
@@ -319,8 +343,18 @@ function detectDeckType(question) {
 }
 
 function getCardFromDeck(cardNumber, deckType) {
-  const deck = deckType === 'RIDER_WAITE' ? RIDER_WAITE_DECK : CIGANO_DECK;
-  const maxCards = deckType === 'RIDER_WAITE' ? 78 : 36;
+  let deck, maxCards;
+  
+  if (deckType === 'PSIQUE') {
+    deck = PSIQUE_DECK;
+    maxCards = 36;
+  } else if (deckType === 'RIDER_WAITE') {
+    deck = RIDER_WAITE_DECK;
+    maxCards = 78;
+  } else {
+    deck = CIGANO_DECK;
+    maxCards = 36;
+  }
   
   let adjustedNumber = ((cardNumber - 1) % maxCards) + 1;
   
@@ -332,7 +366,7 @@ function getCardFromDeck(cardNumber, deckType) {
   return {
     symbol: `#${adjustedNumber}`,
     name: `Arcano ${adjustedNumber}`,
-    meaning: `Energia vibracional da carta ${adjustedNumber} do ${deckType === 'RIDER_WAITE' ? 'Tarot' : 'Cigano'}`
+    meaning: `Energia vibracional da carta ${adjustedNumber} do ${deckType}`
   };
 }
 
@@ -346,10 +380,12 @@ app.get('/health', (req, res) => {
     status: 'online',
     timestamp: Date.now(),
     decks: {
+      psique: 36,
       riderWaite: 78,
       cigano: 36
     },
-    zodiacSystem: 'enabled'
+    zodiacSystem: 'enabled',
+    decifraSyst em: 'enabled'
   });
 });
 
@@ -364,7 +400,7 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     return res.status(400).json({ error: 'Missing or invalid data' });
   }
   
-  const selectedDeck = deckType || detectDeckType(question);
+  const selectedDeck = detectDeckType(question, deckType);
   const cardCount = audioValues.length;
   
   console.log(`🎙️ Gerando ${cardCount} cartas para: "${question}"`);
@@ -376,14 +412,25 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   
   console.log(`Valores de áudio: ${audioValues.join(', ')}`);
   
-  const sourceNames = [
-    'Graves', 'Médios', 'Agudos', 
-    'Harmônicos', 'Ressonância', 'Timbre',
-    'Amplitude', 'Fase'
-  ];
+  // Determinar nomes das fontes baseado no baralho
+  let sourceNames;
+  if (selectedDeck === 'PSIQUE') {
+    // Para PSIQUE: Sistema DECIFRA com 6 posições fixas
+    sourceNames = DECIFRA_POSITIONS.map(p => p.emoji + ' ' + p.name);
+  } else {
+    // Para outros baralhos: Frequências de áudio
+    sourceNames = [
+      'Graves', 'Médios', 'Agudos', 
+      'Harmônicos', 'Ressonância', 'Timbre',
+      'Amplitude', 'Fase', 'Textura', 'Envelope'
+    ];
+  }
   
   const cards = audioValues.map((value, index) => {
-    const cardNumber = reduceToBase(value);
+    const cardNumber = selectedDeck === 'PSIQUE' ? 
+      ((value - 1) % 36) + 1 : // Para PSIQUE: direto no range 1-36
+      reduceToBase(value);      // Para outros: redução numerológica
+    
     const card = getCardFromDeck(cardNumber, selectedDeck);
     
     console.log(`  Carta ${index + 1}: Valor ${value} → Número ${cardNumber} → ${card.name}`);
@@ -393,7 +440,8 @@ app.post('/oracleConsultWithAudio', (req, res) => {
       greekName: card.name,
       meaning: card.meaning,
       source: sourceNames[index] || `Frequência ${index + 1}`,
-      calculation: `${value} → ${cardNumber}`
+      calculation: `${value} → ${cardNumber}`,
+      group: card.group || undefined  // Apenas para PSIQUE
     };
   });
   
@@ -404,33 +452,65 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   };
   
   let levelDescription = '';
-  if (cardCount === 1) levelDescription = 'resposta direta';
-  else if (cardCount === 2) levelDescription = 'escolha clara';
-  else if (cardCount === 3) levelDescription = 'padrão vibracional único';
-  else if (cardCount === 4) levelDescription = 'contexto amplo';
-  else if (cardCount === 5) levelDescription = 'análise complexa';
-  else if (cardCount === 6) levelDescription = 'visão profunda';
-  else if (cardCount === 7) levelDescription = 'análise completa';
-  else levelDescription = 'máxima profundidade';
+  if (selectedDeck === 'PSIQUE') {
+    levelDescription = 'análise psicológica profunda através do Sistema DECIFRA';
+  } else {
+    if (cardCount === 1) levelDescription = 'resposta direta';
+    else if (cardCount === 2) levelDescription = 'escolha clara';
+    else if (cardCount === 3) levelDescription = 'padrão vibracional único';
+    else if (cardCount === 4) levelDescription = 'contexto amplo';
+    else if (cardCount === 5) levelDescription = 'análise complexa';
+    else if (cardCount === 6) levelDescription = 'visão profunda';
+    else if (cardCount === 7) levelDescription = 'análise completa';
+    else levelDescription = 'máxima profundidade';
+  }
   
   const cardNames = cards.map(c => c.greekName).join(', ');
-  const deckName = selectedDeck === 'RIDER_WAITE' ? 'Tarot Rider-Waite' : 'Baralho Cigano';
   
-  // ✅ NOVO: Adaptar interpretação baseado no signo
+  let deckName;
+  if (selectedDeck === 'PSIQUE') {
+    deckName = 'Tarot Psicanalítico (Sistema DECIFRA)';
+  } else if (selectedDeck === 'RIDER_WAITE') {
+    deckName = 'Tarot Rider-Waite';
+  } else {
+    deckName = 'Baralho Cigano';
+  }
+  
+  // Adaptar interpretação baseado no signo
   let interpretationPrefix = '';
   if (zodiacSign) {
     const communicationStyle = getZodiacCommunicationStyle(zodiacSign);
     interpretationPrefix = `${getZodiacEmoji(zodiacSign)} Para ${zodiacSign}: ${communicationStyle}\n\n`;
   }
   
+  // Interpretação específica para PSIQUE
+  let interpretation;
+  if (selectedDeck === 'PSIQUE') {
+    interpretation = `${interpretationPrefix}🧠 O ${deckName} revela ${levelDescription}.
+
+As 6 posições do Sistema DECIFRA revelam:
+
+1️⃣ INSTINTO → ${cards[0].greekName}: O impulso emocional automático
+2️⃣ CONSCIÊNCIA → ${cards[1].greekName}: O pensamento racional
+3️⃣ RESULTADO → ${cards[2].greekName}: O conflito entre razão e emoção
+4️⃣ FUTURO → ${cards[3].greekName}: A tendência natural se nada mudar
+5️⃣ CONSELHO → ${cards[4].greekName}: A orientação do oráculo
+6️⃣ VAI SEGUIR? → ${cards[5].greekName}: A verdade sobre sua tendência real
+
+Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DECIFRA mostra o conflito interno, o caminho e a verdade final.`;
+  } else {
+    interpretation = `${interpretationPrefix}🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`;
+  }
+  
   const response = {
     audioValues: audioValues,
     deckType: selectedDeck,
-    zodiacSign: zodiacSign || null,  // ✅ NOVO: Retorna signo
+    zodiacSign: zodiacSign || null,
     cards: cards,
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
-    interpretation: `${interpretationPrefix}🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`,
+    interpretation: interpretation,
+    decifraSyst em: selectedDeck === 'PSIQUE' ? DECIFRA_POSITIONS : undefined,
     timestamp: Date.now()
   };
   
@@ -547,9 +627,10 @@ app.listen(PORT, () => {
   console.log(`  POST /oracleConsultWithImage`);
   console.log(`  POST /oracleConsultWithAudio`);
   console.log(`🃏 Baralhos disponíveis:`);
+  console.log(`  - PSIQUE: 36 cartas (Tarot Psicanalítico - Sistema DECIFRA)`);
   console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
   console.log(`  - Cigano: 36 cartas (Prático)`);
   console.log(`✅ Sistema de detecção automática ativo`);
-  console.log(`✅ Análise de complexidade: 1-8 cartas dinâmicas`);
+  console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
+  console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
-
