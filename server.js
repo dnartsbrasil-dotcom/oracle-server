@@ -1,3 +1,4 @@
+
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -408,12 +409,11 @@ function detectDeckType(question, requestedDeck) {
 
 function getCardFromDeck(cardNumber, deckType) {
   let deck, maxCards;
-  let deck, maxCards;
   
   if (deckType === 'VESTIGIUM') {
     deck = VESTIGIUM_DECK;
     maxCards = 36;
-  } else
+  } else if (deckType === 'PSIQUE') {
     deck = PSIQUE_DECK;
     maxCards = 36;
   } else if (deckType === 'RIDER_WAITE') {
@@ -454,7 +454,7 @@ app.get('/health', (req, res) => {
       cigano: 36
     },
     zodiacSystem: 'enabled',
-    decifraSyst em: 'enabled'
+    decifraSystem: 'enabled'
   });
 });
 
@@ -487,7 +487,7 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   if (selectedDeck === 'VESTIGIUM') {
     // Para VESTIGIUM: Sistema de 4 Núcleos
     sourceNames = VESTIGIUM_NUCLEI.map(n => n.emoji + ' ' + n.name);
-  } else
+  } else if (selectedDeck === 'PSIQUE') {
     // Para PSIQUE: Sistema DECIFRA com 6 posições fixas
     sourceNames = DECIFRA_POSITIONS.map(p => p.emoji + ' ' + p.name);
   } else {
@@ -500,16 +500,19 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   }
   
   const cards = audioValues.map((value, index) => {
-    const cardNumber = selectedDeck === 'PSIQUE' ? 
     let cardNumber;
     
     if (selectedDeck === 'VESTIGIUM') {
       // Para VESTIGIUM: 1 carta de cada núcleo (1-9, 10-18, 19-27, 28-36)
       const nucleusBase = (index * 9) + 1;
       cardNumber = nucleusBase + ((value - 1) % 9);
-    } else
-      ((value - 1) % 36) + 1 : // Para PSIQUE: direto no range 1-36
-      reduceToBase(value);      // Para outros: redução numerológica
+    } else if (selectedDeck === 'PSIQUE') {
+      // Para PSIQUE: direto no range 1-36
+      cardNumber = ((value - 1) % 36) + 1;
+    } else {
+      // Para outros: redução numerológica
+      cardNumber = reduceToBase(value);
+    }
     
     const card = getCardFromDeck(cardNumber, selectedDeck);
     
@@ -577,7 +580,7 @@ Os 4 núcleos revelam:
 ⚖️ CONSEQUÊNCIA → ${cards[3].greekName}: ${cards[3].meaning}
 
 O Espelho Negro mostra o padrão completo - do que é visível até o desfecho inevitável.`;
-  } else
+  } else if (selectedDeck === 'PSIQUE') {
     interpretation = `${interpretationPrefix}🧠 O ${deckName} revela ${levelDescription}.
 
 As 6 posições do Sistema DECIFRA revelam:
@@ -602,7 +605,7 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
     interpretation: interpretation,
-    decifraSyst em: selectedDeck === 'PSIQUE' ? DECIFRA_POSITIONS : undefined,
+    decifraSystem: selectedDeck === 'PSIQUE' ? DECIFRA_POSITIONS : undefined,
     vestigiumNuclei: selectedDeck === 'VESTIGIUM' ? VESTIGIUM_NUCLEI : undefined,
     timestamp: Date.now()
   };
@@ -729,4 +732,3 @@ app.listen(PORT, () => {
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
   console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
-
