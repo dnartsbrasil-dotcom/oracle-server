@@ -112,6 +112,64 @@ const VESTIGIUM_NUCLEI = [
   { id: 4, name: 'CONSEQUÊNCIA', emoji: '⚖️', description: 'Onde isso leva' }
 ];
 
+// =============================================================================
+// 📖 BARALHO BIBLICO (Oráculo Bíblico - 36 cartas)
+// Psicologia da Alma: 4 grupos representando a jornada espiritual
+// =============================================================================
+const BIBLICO_DECK = {
+  // GRUPO 1: Almas Desconectadas (1-9)
+  1: { symbol: '🌱', name: 'O Inocente no Jardim', meaning: 'Inocência preciosa que precisa da proteção divina', group: 'Almas Desconectadas', verse: 'Gn 2:25' },
+  2: { symbol: '🙈', name: 'O Que Foge do Olhar', meaning: 'Vergonha que esconde, mas Deus já viu tudo', group: 'Almas Desconectadas', verse: 'Gn 3:10' },
+  3: { symbol: '💎', name: 'O Talentoso Rejeitado', meaning: 'Dor permitida para propósito maior', group: 'Almas Desconectadas', verse: 'Gn 45:5' },
+  4: { symbol: '🔥', name: 'O Chamado Relutante', meaning: 'Fraqueza é solo sagrado para Deus', group: 'Almas Desconectadas', verse: 'Êx 3:5' },
+  5: { symbol: '💧', name: 'O Sedento no Deserto', meaning: 'Secura não é abandono - a fonte está preparada', group: 'Almas Desconectadas', verse: 'Êx 17:6' },
+  6: { symbol: '⛲', name: 'A Buscadora de Poços', meaning: 'Não busque em poços secos - a Fonte está diante de você', group: 'Almas Desconectadas', verse: 'Jo 4:14' },
+  7: { symbol: '🤫', name: 'A Mulher Invisível', meaning: 'Silêncio sagrado - Deus transforma lágrimas', group: 'Almas Desconectadas', verse: '1 Sm 2:6' },
+  8: { symbol: '🪨', name: 'O Pequeno com Medo do Gigante', meaning: 'Pequenez é força - a batalha é do Senhor', group: 'Almas Desconectadas', verse: '1 Sm 17:45' },
+  9: { symbol: '👑', name: 'O Rei Perdido', meaning: 'Cuidado com a ilusão de controle', group: 'Almas Desconectadas', verse: '1 Sm 15:23' },
+  
+  // GRUPO 2: Líderes e Guerreiros (10-18)
+  10: { symbol: '📚', name: 'O Sábio Vazio', meaning: 'Nada preenche o vazio além do Criador', group: 'Líderes e Guerreiros', verse: 'Ec 12:13' },
+  11: { symbol: '🌾', name: 'A Estrangeira Leal', meaning: 'Sua fidelidade não passa despercebida', group: 'Líderes e Guerreiros', verse: 'Rt 2:12' },
+  12: { symbol: '🗡️', name: 'O Herói com Medo', meaning: 'Fraqueza é cenário perfeito para o poder de Deus', group: 'Líderes e Guerreiros', verse: 'Jz 6:16' },
+  13: { symbol: '⚔️', name: 'A Mãe em Israel', meaning: 'Chegou sua hora de liderar com justiça', group: 'Líderes e Guerreiros', verse: 'Jz 5:12' },
+  14: { symbol: '🐑', name: 'O Pastor no Vale', meaning: 'O Pastor caminha com você até na escuridão', group: 'Líderes e Guerreiros', verse: 'Sl 23:4' },
+  15: { symbol: '😴', name: 'O Profeta Esgotado', meaning: 'Após a batalha, vem o descanso divino', group: 'Líderes e Guerreiros', verse: '1 Rs 19:7' },
+  16: { symbol: '👸', name: 'A Rainha com Medo', meaning: 'Sua posição não é acaso - para tal tempo como este', group: 'Líderes e Guerreiros', verse: 'Et 4:14' },
+  17: { symbol: '🍷', name: 'O Que Jejua Sozinho', meaning: 'Deus quer seu coração, não performances', group: 'Líderes e Guerreiros', verse: 'Os 6:6' },
+  18: { symbol: '😢', name: 'O Vendido pelos Irmãos', meaning: 'Rejeição tinha propósito redentor', group: 'Líderes e Guerreiros', verse: 'Gn 50:20' },
+  
+  // GRUPO 3: Transformação e Encontro (19-27)
+  19: { symbol: '👁️', name: 'O Cego que Grita', meaning: 'Sua persistência será recompensada', group: 'Transformação e Encontro', verse: 'Mc 10:47' },
+  20: { symbol: '🍞', name: 'O Menino com Pães', meaning: 'Jesus multiplica o que você entrega', group: 'Transformação e Encontro', verse: 'Jo 6:9' },
+  21: { symbol: '🩸', name: 'A Mulher que Toca', meaning: 'Um gesto mínimo é suficiente para Jesus', group: 'Transformação e Encontro', verse: 'Mc 5:28' },
+  22: { symbol: '💧', name: 'A Pecadora Perdoada', meaning: 'Quem muito ama, muito é perdoado', group: 'Transformação e Encontro', verse: 'Lc 7:47' },
+  23: { symbol: '⛓️', name: 'O Possuído Livre', meaning: 'Sua libertação é para testemunhar', group: 'Transformação e Encontro', verse: 'Mc 5:19' },
+  24: { symbol: '💰', name: 'O Cobrador Redimido', meaning: 'Ninguém é irrelevante para Jesus', group: 'Transformação e Encontro', verse: 'Lc 19:9' },
+  25: { symbol: '🐓', name: 'O Discípulo Restaurado', meaning: 'Seu fracasso não cancela seu chamado', group: 'Transformação e Encontro', verse: 'Jo 21:17' },
+  26: { symbol: '⚡', name: 'O Perseguidor Transformado', meaning: 'Ninguém está além da graça divina', group: 'Transformação e Encontro', verse: '1 Co 15:10' },
+  27: { symbol: '⚓', name: 'O Náufrago com Esperança', meaning: 'Mesmo na tempestade, Deus garante sua missão', group: 'Transformação e Encontro', verse: 'At 27:25' },
+  
+  // GRUPO 4: Restauração Final (28-36)
+  28: { symbol: '🌅', name: 'O Exilado Visionário', meaning: 'O mundo parece caótico, mas Cristo já venceu', group: 'Restauração Final', verse: 'Ap 1:8' },
+  29: { symbol: '🕯️', name: 'A Noiva Vigilante', meaning: 'Mantenha seu coração cheio de óleo', group: 'Restauração Final', verse: 'Mt 25:13' },
+  30: { symbol: '🏺', name: 'O Vaso nas Mãos do Oleiro', meaning: 'Você não está quebrado demais para ser moldado', group: 'Restauração Final', verse: 'Jr 18:6' },
+  31: { symbol: '🩹', name: 'O Servo Ferido', meaning: 'Sua dor não é inútil - pode se tornar cura', group: 'Restauração Final', verse: 'Is 53:5' },
+  32: { symbol: '🤝', name: 'O Estrangeiro Compassivo', meaning: 'Às vezes você é a vítima, outras o samaritano', group: 'Restauração Final', verse: 'Lc 10:37' },
+  33: { symbol: '🌹', name: 'O Portador do Espinho', meaning: 'Sua limitação não é obstáculo - é onde a graça brilha', group: 'Restauração Final', verse: '2 Co 12:9' },
+  34: { symbol: '🏺', name: 'A Mulher com a Jarra', meaning: 'Sua história de dor pode se tornar testemunho', group: 'Restauração Final', verse: 'Jo 4:29' },
+  35: { symbol: '🐑', name: 'A Ovelha Perdida', meaning: 'Você vale a busca do Pastor', group: 'Restauração Final', verse: 'Lc 15:7' },
+  36: { symbol: '✨', name: 'A Nova Criação', meaning: 'Sua dor tem data de validade - eternidade já começou', group: 'Restauração Final', verse: 'Ap 21:4' }
+};
+
+// Grupos do Sistema BIBLICO
+const BIBLICO_GROUPS = [
+  { id: 1, name: 'ALMAS DESCONECTADAS', emoji: '🌱', description: 'Onde começamos' },
+  { id: 2, name: 'LÍDERES E GUERREIROS', emoji: '⚔️', description: 'Como lutamos' },
+  { id: 3, name: 'TRANSFORMAÇÃO E ENCONTRO', emoji: '✝️', description: 'Onde encontramos Cristo' },
+  { id: 4, name: 'RESTAURAÇÃO FINAL', emoji: '✨', description: 'Para onde vamos' }
+];
+
 // 🧠 BARALHO PSIQUE (Tarot Psicanalítico - 36 cartas)
 // Sistema DECIFRA: 6 posições fixas para análise psicológica profunda
 // =============================================================================
@@ -330,6 +388,10 @@ function detectDeckType(question, requestedDeck) {
     console.log('🔍 Baralho solicitado: VESTIGIUM (Tarot do Espelho Negro)');
     return 'VESTIGIUM';
   }
+  if (requestedDeck === 'BIBLICO') {
+    console.log('📖 Baralho solicitado: BIBLICO (Oráculo Bíblico)');
+    return 'BIBLICO';
+  }
   if (requestedDeck === 'PSIQUE') {
     console.log('🧠 Baralho solicitado: PSIQUE (Tarot Psicanalítico)');
     return 'PSIQUE';
@@ -408,6 +470,9 @@ function getCardFromDeck(cardNumber, deckType) {
   if (deckType === 'VESTIGIUM') {
     deck = VESTIGIUM_DECK;
     maxCards = 36;
+  } else if (deckType === 'BIBLICO') {
+    deck = BIBLICO_DECK;
+    maxCards = 36;
   } else if (deckType === 'PSIQUE') {
     deck = PSIQUE_DECK;
     maxCards = 36;
@@ -444,6 +509,7 @@ app.get('/health', (req, res) => {
     timestamp: Date.now(),
     decks: {
       vestigium: 36,
+      biblico: 36,
       psique: 36,
       riderWaite: 78,
       cigano: 36
@@ -479,6 +545,8 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   let sourceNames;
   if (selectedDeck === 'VESTIGIUM') {
     sourceNames = VESTIGIUM_NUCLEI.map(n => n.emoji + ' ' + n.name);
+  } else if (selectedDeck === 'BIBLICO') {
+    sourceNames = BIBLICO_GROUPS.map(g => g.emoji + ' ' + g.name);
   } else if (selectedDeck === 'PSIQUE') {
     sourceNames = DECIFRA_POSITIONS.map(p => p.emoji + ' ' + p.name);
   } else {
@@ -495,6 +563,9 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     if (selectedDeck === 'VESTIGIUM') {
       const nucleusBase = (index * 9) + 1;
       cardNumber = nucleusBase + ((value - 1) % 9);
+    } else if (selectedDeck === 'BIBLICO') {
+      const groupBase = (index * 9) + 1;
+      cardNumber = groupBase + ((value - 1) % 9);
     } else if (selectedDeck === 'PSIQUE') {
       cardNumber = ((value - 1) % 36) + 1;
     } else {
@@ -540,6 +611,8 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   let deckName;
   if (selectedDeck === 'VESTIGIUM') {
     deckName = 'Tarot do Espelho Negro (Sistema VESTIGIUM)';
+  } else if (selectedDeck === 'BIBLICO') {
+    deckName = 'Oráculo Bíblico (Sistema BIBLICO)';
   } else if (selectedDeck === 'PSIQUE') {
     deckName = 'Tarot Psicanalítico (Sistema DECIFRA)';
   } else if (selectedDeck === 'RIDER_WAITE') {
@@ -566,6 +639,17 @@ Os 4 núcleos revelam:
 ⚖️ CONSEQUÊNCIA → ${cards[3].greekName}: ${cards[3].meaning}
 
 O Espelho Negro mostra o padrão completo - do que é visível até o desfecho inevitável.`;
+  } else if (selectedDeck === 'BIBLICO') {
+    interpretation = `${interpretationPrefix}📖 O Oráculo Bíblico revela a jornada da alma através de 4 grupos.
+
+Os 4 grupos revelam:
+
+🌱 ALMAS DESCONECTADAS → ${cards[0].greekName}: ${cards[0].meaning}
+⚔️ LÍDERES E GUERREIROS → ${cards[1].greekName}: ${cards[1].meaning}
+✝️ TRANSFORMAÇÃO E ENCONTRO → ${cards[2].greekName}: ${cards[2].meaning}
+✨ RESTAURAÇÃO FINAL → ${cards[3].greekName}: ${cards[3].meaning}
+
+A Palavra mostra o caminho de volta a Deus - não por esforço, mas por encontro.`;
   } else if (selectedDeck === 'PSIQUE') {
     interpretation = `${interpretationPrefix}🧠 O ${deckName} revela ${levelDescription}.
 
@@ -591,6 +675,9 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
     interpretation: interpretation,
+    decifraSystem: selectedDeck === 'PSIQUE' ? DECIFRA_POSITIONS : undefined,
+    vestigiumNuclei: selectedDeck === 'VESTIGIUM' ? VESTIGIUM_NUCLEI : undefined,
+    biblicoGroups: selectedDeck === 'BIBLICO' ? BIBLICO_GROUPS : undefined,
     timestamp: Date.now()
   };
   
@@ -705,11 +792,13 @@ app.listen(PORT, () => {
   console.log(`  POST /oracleConsultWithAudio`);
   console.log(`🃏 Baralhos disponíveis:`);
   console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
+  console.log(`  - BIBLICO: 36 cartas (Oráculo Bíblico - 4 Grupos da Jornada)`);
   console.log(`  - PSIQUE: 36 cartas (Tarot Psicanalítico - Sistema DECIFRA)`);
   console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
   console.log(`  - Cigano: 36 cartas (Prático)`);
   console.log(`✅ Sistema de detecção automática ativo`);
   console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
+  console.log(`✅ Sistema BIBLICO: 4 grupos da jornada espiritual`);
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
