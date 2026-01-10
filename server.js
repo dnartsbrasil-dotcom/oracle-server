@@ -591,8 +591,6 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
     interpretation: interpretation,
-    decifraSystem: selectedDeck === 'PSIQUE' ? DECIFRA_POSITIONS : undefined,
-    vestigiumNuclei: selectedDeck === 'VESTIGIUM' ? VESTIGIUM_NUCLEI : undefined,
     timestamp: Date.now()
   };
   
