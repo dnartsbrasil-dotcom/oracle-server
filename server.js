@@ -55,6 +55,65 @@ function getZodiacCommunicationStyle(zodiacSign) {
 }
 
 // =============================================================================
+
+// =============================================================================
+// 🔍 BARALHO VESTIGIUM (Tarot do Espelho Negro - 36 cartas)
+// Oráculo Investigativo: 4 núcleos para análise profunda
+// =============================================================================
+const VESTIGIUM_DECK = {
+  // NÚCLEO 1: Observação (1-9) - O que está acontecendo
+  1: { symbol: '👁️', name: 'A Cena Observada', meaning: 'O visível: gestos, rotas, expressões, interações', nucleus: 'Observação' },
+  2: { symbol: '🌑', name: 'O Padrão de Ausência', meaning: 'Momentos de desaparecimento físico ou emocional', nucleus: 'Observação' },
+  3: { symbol: '📋', name: 'O Relato Inicial', meaning: 'A versão oficial dos fatos', nucleus: 'Observação' },
+  4: { symbol: '🔄', name: 'A Rotina Oculta', meaning: 'Hábitos não compartilhados, mas observáveis', nucleus: 'Observação' },
+  5: { symbol: '🚪', name: 'O Território Pessoal', meaning: 'Espaço físico ou digital protegido', nucleus: 'Observação' },
+  6: { symbol: '🗺️', name: 'O Mapa de Hábitos', meaning: 'Sequência previsível de ações', nucleus: 'Observação' },
+  7: { symbol: '🤐', name: 'O Silêncio Entre as Linhas', meaning: 'O que não é dito, mas está presente', nucleus: 'Observação' },
+  8: { symbol: '🫱', name: 'O Testemunho do Corpo', meaning: 'Tensão muscular, microexpressões, postura', nucleus: 'Observação' },
+  9: { symbol: '📱', name: 'O Arquivo Público', meaning: 'O que está nas redes e registros acessíveis', nucleus: 'Observação' },
+  
+  // NÚCLEO 2: Psicologia (10-18) - O que motiva
+  10: { symbol: '😔', name: 'A Culpa Disfarçada', meaning: 'Culpa mascarada como preocupação, amor ou raiva', nucleus: 'Psicologia' },
+  11: { symbol: '🔥', name: 'O Desejo Não Nomeado', meaning: 'Anseio profundo não admitido', nucleus: 'Psicologia' },
+  12: { symbol: '🪞', name: 'A Autoimagem Fraturada', meaning: 'Identidade instável: vítima, salvador ou vilão', nucleus: 'Psicologia' },
+  13: { symbol: '😰', name: 'A Insegurança Silenciosa', meaning: 'Medo de não ser suficiente', nucleus: 'Psicologia' },
+  14: { symbol: '🎮', name: 'A Necessidade de Controle', meaning: 'Impulso de gerenciar para sentir segurança', nucleus: 'Psicologia' },
+  15: { symbol: '👏', name: 'A Fome de Validação', meaning: 'Busca incessante por aprovação externa', nucleus: 'Psicologia' },
+  16: { symbol: '💔', name: 'O Medo do Abandono', meaning: 'Terror de ser deixado', nucleus: 'Psicologia' },
+  17: { symbol: '🧊', name: 'A Raiva Congelada', meaning: 'Ódio antigo não expresso', nucleus: 'Psicologia' },
+  18: { symbol: '🎭', name: 'O Vazio Disfarçado de Amor', meaning: 'Relação mantida por medo da solidão', nucleus: 'Psicologia' },
+  
+  // NÚCLEO 3: Estratégia (19-27) - Como a pessoa age
+  19: { symbol: '📄', name: 'O Alibi', meaning: 'Explicação preparada para justificar ações', nucleus: 'Estratégia' },
+  20: { symbol: '⚖️', name: 'A Contradição Sutil', meaning: 'Incoerência entre discurso e ação', nucleus: 'Estratégia' },
+  21: { symbol: '🎲', name: 'O Jogo Duplo', meaning: 'Comportamentos diferentes com pessoas diferentes', nucleus: 'Estratégia' },
+  22: { symbol: '📰', name: 'A Versão Oficial', meaning: 'Narrativa imposta para encerrar conflitos', nucleus: 'Estratégia' },
+  23: { symbol: '📝', name: 'O Controle Narrativo', meaning: 'Definir como os fatos serão lembrados', nucleus: 'Estratégia' },
+  24: { symbol: '🔭', name: 'A Vigilância Silenciosa', meaning: 'Observação constante disfarçada', nucleus: 'Estratégia' },
+  25: { symbol: '💋', name: 'A Sedução como Tática', meaning: 'Uso de charme para obter informação', nucleus: 'Estratégia' },
+  26: { symbol: '😢', name: 'A Vítima Estratégica', meaning: 'Papel de vítima para evitar responsabilidade', nucleus: 'Estratégia' },
+  27: { symbol: '🔇', name: 'O Silêncio como Arma', meaning: 'Retenção de comunicação para controlar', nucleus: 'Estratégia' },
+  
+  // NÚCLEO 4: Consequência (28-36) - Onde isso leva
+  28: { symbol: '🎭', name: 'A Queda da Máscara', meaning: 'Fachada desmorona e verdade surge', nucleus: 'Consequência' },
+  29: { symbol: '😵', name: 'O Esgotamento Emocional', meaning: 'Colapso após manter realidade falsa', nucleus: 'Consequência' },
+  30: { symbol: '💥', name: 'A Quebra de Confiança', meaning: 'Ruptura silenciosa do vínculo', nucleus: 'Consequência' },
+  31: { symbol: '⚡', name: 'O Confronto Inevitável', meaning: 'Encontro direto com a verdade adiada', nucleus: 'Consequência' },
+  32: { symbol: '📁', name: 'O Arquivo Final', meaning: 'Registro definitivo sem revisão', nucleus: 'Consequência' },
+  33: { symbol: '🖤', name: 'O Espelho Negro', meaning: 'Visão clara da sombra sua e do outro', nucleus: 'Consequência' },
+  34: { symbol: '⭕', name: 'O Ciclo que se Fecha', meaning: 'Padrão repetitivo interrompido', nucleus: 'Consequência' },
+  35: { symbol: '🔁', name: 'A Lição Não Aprendida', meaning: 'Mesmo erro em novo contexto', nucleus: 'Consequência' },
+  36: { symbol: '✅', name: 'O Caso Arquivado', meaning: 'Encerramento com integridade', nucleus: 'Consequência' }
+};
+
+// Núcleos do Sistema VESTIGIUM
+const VESTIGIUM_NUCLEI = [
+  { id: 1, name: 'OBSERVAÇÃO', emoji: '👁️', description: 'O que está acontecendo' },
+  { id: 2, name: 'PSICOLOGIA', emoji: '🧠', description: 'O que motiva' },
+  { id: 3, name: 'ESTRATÉGIA', emoji: '🕵️', description: 'Como a pessoa age' },
+  { id: 4, name: 'CONSEQUÊNCIA', emoji: '⚖️', description: 'Onde isso leva' }
+];
+
 // 🧠 BARALHO PSIQUE (Tarot Psicanalítico - 36 cartas)
 // Sistema DECIFRA: 6 posições fixas para análise psicológica profunda
 // =============================================================================
@@ -270,6 +329,11 @@ function reduceToBase(num) {
 
 function detectDeckType(question, requestedDeck) {
   // Se o deck foi explicitamente solicitado, usa ele
+  // Se o deck foi explicitamente solicitado, usa ele
+  if (requestedDeck === 'VESTIGIUM') {
+    console.log('🔍 Baralho solicitado: VESTIGIUM (Tarot do Espelho Negro)');
+    return 'VESTIGIUM';
+  }
   if (requestedDeck === 'PSIQUE') {
     console.log('🧠 Baralho solicitado: PSIQUE (Tarot Psicanalítico)');
     return 'PSIQUE';
@@ -344,8 +408,12 @@ function detectDeckType(question, requestedDeck) {
 
 function getCardFromDeck(cardNumber, deckType) {
   let deck, maxCards;
+  let deck, maxCards;
   
-  if (deckType === 'PSIQUE') {
+  if (deckType === 'VESTIGIUM') {
+    deck = VESTIGIUM_DECK;
+    maxCards = 36;
+  } else
     deck = PSIQUE_DECK;
     maxCards = 36;
   } else if (deckType === 'RIDER_WAITE') {
@@ -381,6 +449,7 @@ app.get('/health', (req, res) => {
     timestamp: Date.now(),
     decks: {
       psique: 36,
+      vestigium: 36,
       riderWaite: 78,
       cigano: 36
     },
@@ -415,6 +484,10 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   // Determinar nomes das fontes baseado no baralho
   let sourceNames;
   if (selectedDeck === 'PSIQUE') {
+  if (selectedDeck === 'VESTIGIUM') {
+    // Para VESTIGIUM: Sistema de 4 Núcleos
+    sourceNames = VESTIGIUM_NUCLEI.map(n => n.emoji + ' ' + n.name);
+  } else
     // Para PSIQUE: Sistema DECIFRA com 6 posições fixas
     sourceNames = DECIFRA_POSITIONS.map(p => p.emoji + ' ' + p.name);
   } else {
@@ -428,6 +501,13 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   
   const cards = audioValues.map((value, index) => {
     const cardNumber = selectedDeck === 'PSIQUE' ? 
+    let cardNumber;
+    
+    if (selectedDeck === 'VESTIGIUM') {
+      // Para VESTIGIUM: 1 carta de cada núcleo (1-9, 10-18, 19-27, 28-36)
+      const nucleusBase = (index * 9) + 1;
+      cardNumber = nucleusBase + ((value - 1) % 9);
+    } else
       ((value - 1) % 36) + 1 : // Para PSIQUE: direto no range 1-36
       reduceToBase(value);      // Para outros: redução numerológica
     
@@ -486,6 +566,18 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   // Interpretação específica para PSIQUE
   let interpretation;
   if (selectedDeck === 'PSIQUE') {
+  if (selectedDeck === 'VESTIGIUM') {
+    interpretation = `${interpretationPrefix}🔍 O Tarot do Espelho Negro revela análise investigativa através de 4 núcleos.
+
+Os 4 núcleos revelam:
+
+👁️ OBSERVAÇÃO → ${cards[0].greekName}: ${cards[0].meaning}
+🧠 PSICOLOGIA → ${cards[1].greekName}: ${cards[1].meaning}
+🕵️ ESTRATÉGIA → ${cards[2].greekName}: ${cards[2].meaning}
+⚖️ CONSEQUÊNCIA → ${cards[3].greekName}: ${cards[3].meaning}
+
+O Espelho Negro mostra o padrão completo - do que é visível até o desfecho inevitável.`;
+  } else
     interpretation = `${interpretationPrefix}🧠 O ${deckName} revela ${levelDescription}.
 
 As 6 posições do Sistema DECIFRA revelam:
@@ -511,6 +603,7 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
     questionLevel: cardCount,
     interpretation: interpretation,
     decifraSyst em: selectedDeck === 'PSIQUE' ? DECIFRA_POSITIONS : undefined,
+    vestigiumNuclei: selectedDeck === 'VESTIGIUM' ? VESTIGIUM_NUCLEI : undefined,
     timestamp: Date.now()
   };
   
@@ -629,8 +722,11 @@ app.listen(PORT, () => {
   console.log(`🃏 Baralhos disponíveis:`);
   console.log(`  - PSIQUE: 36 cartas (Tarot Psicanalítico - Sistema DECIFRA)`);
   console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
+  console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
   console.log(`  - Cigano: 36 cartas (Prático)`);
   console.log(`✅ Sistema de detecção automática ativo`);
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
+  console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
+
