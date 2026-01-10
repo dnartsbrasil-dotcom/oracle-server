@@ -1,4 +1,3 @@
-
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -56,8 +55,6 @@ function getZodiacCommunicationStyle(zodiacSign) {
 }
 
 // =============================================================================
-
-// =============================================================================
 // 🔍 BARALHO VESTIGIUM (Tarot do Espelho Negro - 36 cartas)
 // Oráculo Investigativo: 4 núcleos para análise profunda
 // =============================================================================
@@ -79,7 +76,7 @@ const VESTIGIUM_DECK = {
   12: { symbol: '🪞', name: 'A Autoimagem Fraturada', meaning: 'Identidade instável: vítima, salvador ou vilão', nucleus: 'Psicologia' },
   13: { symbol: '😰', name: 'A Insegurança Silenciosa', meaning: 'Medo de não ser suficiente', nucleus: 'Psicologia' },
   14: { symbol: '🎮', name: 'A Necessidade de Controle', meaning: 'Impulso de gerenciar para sentir segurança', nucleus: 'Psicologia' },
-  15: { symbol: '👏', name: 'A Fome de Validação', meaning: 'Busca incessante por aprovação externa', nucleus: 'Psicologia' },
+  15: { symbol: '👍', name: 'A Fome de Validação', meaning: 'Busca incessante por aprovação externa', nucleus: 'Psicologia' },
   16: { symbol: '💔', name: 'O Medo do Abandono', meaning: 'Terror de ser deixado', nucleus: 'Psicologia' },
   17: { symbol: '🧊', name: 'A Raiva Congelada', meaning: 'Ódio antigo não expresso', nucleus: 'Psicologia' },
   18: { symbol: '🎭', name: 'O Vazio Disfarçado de Amor', meaning: 'Relação mantida por medo da solidão', nucleus: 'Psicologia' },
@@ -274,7 +271,7 @@ const RIDER_WAITE_DECK = {
 // BARALHO CIGANO (Lenormand - 36 cartas)
 // =============================================================================
 const CIGANO_DECK = {
-  1: { symbol: '🐎', name: 'Cavaleiro', meaning: 'Notícias, movimento, homem jovem' },
+  1: { symbol: '🎠', name: 'Cavaleiro', meaning: 'Notícias, movimento, homem jovem' },
   2: { symbol: '🍀', name: 'Trevo', meaning: 'Sorte, oportunidade breve' },
   3: { symbol: '⛵', name: 'Navio', meaning: 'Viagem, comércio, distância' },
   4: { symbol: '🏠', name: 'Casa', meaning: 'Lar, família, segurança' },
@@ -285,7 +282,7 @@ const CIGANO_DECK = {
   9: { symbol: '💐', name: 'Buquê', meaning: 'Presente, convite, alegria' },
   10: { symbol: '⚔️', name: 'Foice', meaning: 'Corte rápido, decisão súbita' },
   11: { symbol: '🔨', name: 'Chicote', meaning: 'Conflito, discussão, esforço' },
-  12: { symbol: '🐦', name: 'Pássaros', meaning: 'Conversa, ansiedade, casal' },
+  12: { symbol: '🦜', name: 'Pássaros', meaning: 'Conversa, ansiedade, casal' },
   13: { symbol: '👶', name: 'Criança', meaning: 'Início, ingenuidade, filho' },
   14: { symbol: '🦊', name: 'Raposa', meaning: 'Astúcia, trabalho, emprego' },
   15: { symbol: '🐻', name: 'Urso', meaning: 'Força, autoridade, chefe, poder' },
@@ -329,8 +326,6 @@ function reduceToBase(num) {
 }
 
 function detectDeckType(question, requestedDeck) {
-  // Se o deck foi explicitamente solicitado, usa ele
-  // Se o deck foi explicitamente solicitado, usa ele
   if (requestedDeck === 'VESTIGIUM') {
     console.log('🔍 Baralho solicitado: VESTIGIUM (Tarot do Espelho Negro)');
     return 'VESTIGIUM';
@@ -448,8 +443,8 @@ app.get('/health', (req, res) => {
     status: 'online',
     timestamp: Date.now(),
     decks: {
-      psique: 36,
       vestigium: 36,
+      psique: 36,
       riderWaite: 78,
       cigano: 36
     },
@@ -481,17 +476,12 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   
   console.log(`Valores de áudio: ${audioValues.join(', ')}`);
   
-  // Determinar nomes das fontes baseado no baralho
   let sourceNames;
-  if (selectedDeck === 'PSIQUE') {
   if (selectedDeck === 'VESTIGIUM') {
-    // Para VESTIGIUM: Sistema de 4 Núcleos
     sourceNames = VESTIGIUM_NUCLEI.map(n => n.emoji + ' ' + n.name);
   } else if (selectedDeck === 'PSIQUE') {
-    // Para PSIQUE: Sistema DECIFRA com 6 posições fixas
     sourceNames = DECIFRA_POSITIONS.map(p => p.emoji + ' ' + p.name);
   } else {
-    // Para outros baralhos: Frequências de áudio
     sourceNames = [
       'Graves', 'Médios', 'Agudos', 
       'Harmônicos', 'Ressonância', 'Timbre',
@@ -503,14 +493,11 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     let cardNumber;
     
     if (selectedDeck === 'VESTIGIUM') {
-      // Para VESTIGIUM: 1 carta de cada núcleo (1-9, 10-18, 19-27, 28-36)
       const nucleusBase = (index * 9) + 1;
       cardNumber = nucleusBase + ((value - 1) % 9);
     } else if (selectedDeck === 'PSIQUE') {
-      // Para PSIQUE: direto no range 1-36
       cardNumber = ((value - 1) % 36) + 1;
     } else {
-      // Para outros: redução numerológica
       cardNumber = reduceToBase(value);
     }
     
@@ -524,7 +511,7 @@ app.post('/oracleConsultWithAudio', (req, res) => {
       meaning: card.meaning,
       source: sourceNames[index] || `Frequência ${index + 1}`,
       calculation: `${value} → ${cardNumber}`,
-      group: card.group || undefined  // Apenas para PSIQUE
+      group: card.group || undefined
     };
   });
   
@@ -551,7 +538,9 @@ app.post('/oracleConsultWithAudio', (req, res) => {
   const cardNames = cards.map(c => c.greekName).join(', ');
   
   let deckName;
-  if (selectedDeck === 'PSIQUE') {
+  if (selectedDeck === 'VESTIGIUM') {
+    deckName = 'Tarot do Espelho Negro (Sistema VESTIGIUM)';
+  } else if (selectedDeck === 'PSIQUE') {
     deckName = 'Tarot Psicanalítico (Sistema DECIFRA)';
   } else if (selectedDeck === 'RIDER_WAITE') {
     deckName = 'Tarot Rider-Waite';
@@ -559,16 +548,13 @@ app.post('/oracleConsultWithAudio', (req, res) => {
     deckName = 'Baralho Cigano';
   }
   
-  // Adaptar interpretação baseado no signo
   let interpretationPrefix = '';
   if (zodiacSign) {
     const communicationStyle = getZodiacCommunicationStyle(zodiacSign);
     interpretationPrefix = `${getZodiacEmoji(zodiacSign)} Para ${zodiacSign}: ${communicationStyle}\n\n`;
   }
   
-  // Interpretação específica para PSIQUE
   let interpretation;
-  if (selectedDeck === 'PSIQUE') {
   if (selectedDeck === 'VESTIGIUM') {
     interpretation = `${interpretationPrefix}🔍 O Tarot do Espelho Negro revela análise investigativa através de 4 núcleos.
 
@@ -652,12 +638,10 @@ app.post('/oracleConsultWithImage', (req, res) => {
   
   console.log(`RGB: R=${rgbValues.r}, G=${rgbValues.g}, B=${rgbValues.b}`);
   
-  // Gerar cartas usando RGB com numerologia
   const redCard = reduceToBase(rgbValues.r);
   const greenCard = reduceToBase(rgbValues.g);
   const blueCard = reduceToBase(rgbValues.b);
   
-  // ImagemScreen sempre usa 3 cartas fixas (RGB)
   const cards = [
     { 
       ...getCardFromDeck(redCard, 'RIDER_WAITE'),
@@ -682,7 +666,6 @@ app.post('/oracleConsultWithImage', (req, res) => {
     calculation: card.calculation
   }));
   
-  // Análise de cor dominante
   const max = Math.max(rgbValues.r, rgbValues.g, rgbValues.b);
   let dominantColor = 'Equilibrado';
   if (rgbValues.r === max && rgbValues.r > rgbValues.g + 30) dominantColor = 'Vermelho (Paixão)';
@@ -723,12 +706,12 @@ app.listen(PORT, () => {
   console.log(`  POST /oracleConsultWithImage`);
   console.log(`  POST /oracleConsultWithAudio`);
   console.log(`🃏 Baralhos disponíveis:`);
+  console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
   console.log(`  - PSIQUE: 36 cartas (Tarot Psicanalítico - Sistema DECIFRA)`);
   console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
-  console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
   console.log(`  - Cigano: 36 cartas (Prático)`);
   console.log(`✅ Sistema de detecção automática ativo`);
+  console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
-  console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
