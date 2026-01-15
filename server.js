@@ -689,6 +689,7 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
 });
 
 
+
 app.post('/oracleConsult', (req, res) => {
   console.log('✅ /oracleConsult chamado (sem imagem)');
   const { question } = req.body;
@@ -697,27 +698,33 @@ app.post('/oracleConsult', (req, res) => {
     return res.status(400).json({ error: 'Question required' });
   }
   
+  // Gerar 4 hashes diferentes
   const hash1 = question.length % 36 + 1;
   const hash2 = question.charCodeAt(0) % 36 + 1;
   const hash3 = question.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0) % 36 + 1;
+  const hash4 = question.split('').reduce((sum, c, i) => sum + c.charCodeAt(0) * (i + 1), 0) % 36 + 1;
   
-  const cards = [
-    getCardFromDeck(hash1, 'CIGANO'),
-    getCardFromDeck(hash2, 'CIGANO'),
-    getCardFromDeck(hash3, 'CIGANO')
-  ].map(card => ({
-    symbol: card.symbol,
-    greekName: card.name,
-    meaning: card.meaning
-  }));
+  const cardNumbers = [hash1, hash2, hash3, hash4];
+  
+  const cards = cardNumbers.map(num => {
+    const card = getCardFromDeck(num, 'CIGANO');
+    return {
+      symbol: card.symbol,
+      codedName: `Carta ${num}: ${card.name}`,
+      greekName: card.name,
+      meaning: card.meaning,
+      cardNumber: num
+    };
+  });
   
   res.json({
-    level: 3,
+    level: 4,
     bases: cards,
-    interpretation: `As três cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
+    interpretation: `As quatro cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
     timestamp: Date.now()
   });
 });
+
 
 app.post('/oracleConsultWithImage', (req, res) => {
   console.log('✅ /oracleConsultWithImage chamado');
@@ -811,5 +818,6 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
+
 
 
