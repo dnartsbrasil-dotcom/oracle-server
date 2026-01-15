@@ -688,6 +688,7 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
   res.json(response);
 });
 
+
 app.post('/oracleConsult', (req, res) => {
   console.log('✅ /oracleConsult chamado (sem imagem)');
   const { question } = req.body;
@@ -696,7 +697,6 @@ app.post('/oracleConsult', (req, res) => {
     return res.status(400).json({ error: 'Question required' });
   }
   
-  // Gerar valores baseados na pergunta (simples)
   const hash1 = question.length % 36 + 1;
   const hash2 = question.charCodeAt(0) % 36 + 1;
   const hash3 = question.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0) % 36 + 1;
@@ -717,8 +717,6 @@ app.post('/oracleConsult', (req, res) => {
     interpretation: `As três cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
     timestamp: Date.now()
   });
-});
-
 });
 
 app.post('/oracleConsultWithImage', (req, res) => {
@@ -813,3 +811,4 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
+
