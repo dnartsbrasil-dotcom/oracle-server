@@ -696,18 +696,29 @@ app.post('/oracleConsult', (req, res) => {
     return res.status(400).json({ error: 'Question required' });
   }
   
+  // Gerar valores baseados na pergunta (simples)
+  const hash1 = question.length % 36 + 1;
+  const hash2 = question.charCodeAt(0) % 36 + 1;
+  const hash3 = question.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0) % 36 + 1;
+  
   const cards = [
-    { symbol: 'X7', greekName: 'A Lua', meaning: 'Transformação e intuição' },
-    { symbol: 'F2', greekName: 'O Portal', meaning: 'Novas oportunidades' },
-    { symbol: 'A1', greekName: 'O Sol', meaning: 'Energia vital e sucesso' }
-  ];
+    getCardFromDeck(hash1, 'CIGANO'),
+    getCardFromDeck(hash2, 'CIGANO'),
+    getCardFromDeck(hash3, 'CIGANO')
+  ].map(card => ({
+    symbol: card.symbol,
+    greekName: card.name,
+    meaning: card.meaning
+  }));
   
   res.json({
     level: 3,
-    bases: cards,
-    interpretation: 'As energias revelam uma pergunta sobre tendências. O caminho está claro.',
+    cards: cards,
+    interpretation: `As três cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
     timestamp: Date.now()
   });
+});
+
 });
 
 app.post('/oracleConsultWithImage', (req, res) => {
