@@ -729,17 +729,17 @@ app.post('/oracleConsultWithImage', (req, res) => {
   
   const cards = [
     { 
-      ...getCardFromDeck(redCard, 'RIDER_WAITE'),
+      ...getCardFromDeck(redCard, 'CIGANO'),
       source: 'Vermelho', 
       calculation: `${rgbValues.r} → ${redCard}` 
     },
     { 
-      ...getCardFromDeck(greenCard, 'RIDER_WAITE'),
+      ...getCardFromDeck(greenCard, 'CIGANO'),
       source: 'Verde', 
       calculation: `${rgbValues.g} → ${greenCard}` 
     },
     { 
-      ...getCardFromDeck(blueCard, 'RIDER_WAITE'),
+      ...getCardFromDeck(blueCard, 'CIGANO'),
       source: 'Azul', 
       calculation: `${rgbValues.b} → ${blueCard}` 
     }
