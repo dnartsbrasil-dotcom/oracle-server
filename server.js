@@ -671,7 +671,7 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
     audioValues: audioValues,
     deckType: selectedDeck,
     zodiacSign: zodiacSign || null,
-    bases: cards,
+    cards: cards,
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
     interpretation: interpretation,
@@ -719,7 +719,7 @@ app.post('/oracleConsult', (req, res) => {
   
   res.json({
     level: 4,
-    bases: cards,
+    cards: cards,
     interpretation: `As quatro cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
     timestamp: Date.now()
   });
@@ -744,33 +744,34 @@ app.post('/oracleConsultWithImage', (req, res) => {
   const blueCard = reduceToBase(rgbValues.b);
   
   const cards = [
+  const cards = [
     { 
       ...getCardFromDeck(redCard, 'CIGANO'),
       source: 'Vermelho', 
-      calculation: `${rgbValues.r} → ${redCard}` 
+      calculation: `${rgbValues.r} → ${redCard}`,
+      cardNumber: redCard
     },
     { 
       ...getCardFromDeck(greenCard, 'CIGANO'),
       source: 'Verde', 
-      calculation: `${rgbValues.g} → ${greenCard}` 
+      calculation: `${rgbValues.g} → ${greenCard}`,
+      cardNumber: greenCard
     },
     { 
       ...getCardFromDeck(blueCard, 'CIGANO'),
       source: 'Azul', 
-      calculation: `${rgbValues.b} → ${blueCard}` 
+      calculation: `${rgbValues.b} → ${blueCard}`,
+      cardNumber: blueCard
     }
   ].map(card => ({
     symbol: card.symbol,
+    codedName: `Carta ${card.cardNumber}: ${card.name}`,
     greekName: card.name,
     meaning: card.meaning,
     source: card.source,
-    calculation: card.calculation
+    calculation: card.calculation,
+    cardNumber: card.cardNumber
   }));
-  
-  const max = Math.max(rgbValues.r, rgbValues.g, rgbValues.b);
-  let dominantColor = 'Equilibrado';
-  if (rgbValues.r === max && rgbValues.r > rgbValues.g + 30) dominantColor = 'Vermelho (Paixão)';
-  else if (rgbValues.g === max && rgbValues.g > rgbValues.r + 30) dominantColor = 'Verde (Crescimento)';
   else if (rgbValues.b === max && rgbValues.b > rgbValues.r + 30) dominantColor = 'Azul (Tranquilidade)';
   
   const response = {
@@ -784,7 +785,7 @@ app.post('/oracleConsultWithImage', (req, res) => {
       green: greenCard,
       blue: blueCard
     },
-    bases: cards,
+    cards: cards,
     colorAnalysis: {
       dominantColor: dominantColor,
       emotionalState: 'Calma e harmonia',
@@ -818,6 +819,7 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
+
 
 
 
