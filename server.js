@@ -671,7 +671,7 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
     audioValues: audioValues,
     deckType: selectedDeck,
     zodiacSign: zodiacSign || null,
-    cards: cards,
+    bases: cards,
     audioAnalysis: audioAnalysis,
     questionLevel: cardCount,
     interpretation: interpretation,
@@ -713,7 +713,7 @@ app.post('/oracleConsult', (req, res) => {
   
   res.json({
     level: 3,
-    cards: cards,
+    bases: cards,
     interpretation: `As três cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
     timestamp: Date.now()
   });
@@ -777,7 +777,7 @@ app.post('/oracleConsultWithImage', (req, res) => {
       green: greenCard,
       blue: blueCard
     },
-    cards: cards,
+    bases: cards,
     colorAnalysis: {
       dominantColor: dominantColor,
       emotionalState: 'Calma e harmonia',
@@ -811,4 +811,5 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
+
 
