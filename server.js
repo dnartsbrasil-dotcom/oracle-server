@@ -688,8 +688,6 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
   res.json(response);
 });
 
-
-
 app.post('/oracleConsult', (req, res) => {
   console.log('✅ /oracleConsult chamado (sem imagem)');
   const { question } = req.body;
@@ -698,33 +696,28 @@ app.post('/oracleConsult', (req, res) => {
     return res.status(400).json({ error: 'Question required' });
   }
   
-  // Gerar 4 hashes diferentes
   const hash1 = question.length % 36 + 1;
   const hash2 = question.charCodeAt(0) % 36 + 1;
   const hash3 = question.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0) % 36 + 1;
   const hash4 = question.split('').reduce((sum, c, i) => sum + c.charCodeAt(0) * (i + 1), 0) % 36 + 1;
   
-  const cardNumbers = [hash1, hash2, hash3, hash4];
-  
-  const cards = cardNumbers.map(num => {
+  const cards = [hash1, hash2, hash3, hash4].map(num => {
     const card = getCardFromDeck(num, 'CIGANO');
     return {
       symbol: card.symbol,
       codedName: `Carta ${num}: ${card.name}`,
       greekName: card.name,
-      meaning: card.meaning,
-      cardNumber: num
+      meaning: card.meaning
     };
   });
   
   res.json({
-    level: 4,
-    cards: cards,
-    interpretation: `As quatro cartas (${cards.map(c => c.greekName).join(', ')}) revelam o caminho.`,
+    level: 3,
+    bases: cards,
+    interpretation: 'As energias revelam uma pergunta sobre tendências. O caminho está claro.',
     timestamp: Date.now()
   });
 });
-
 
 app.post('/oracleConsultWithImage', (req, res) => {
   console.log('✅ /oracleConsultWithImage chamado');
@@ -744,34 +737,37 @@ app.post('/oracleConsultWithImage', (req, res) => {
   const blueCard = reduceToBase(rgbValues.b);
   
   const cards = [
-  const cards = [
     { 
       ...getCardFromDeck(redCard, 'CIGANO'),
       source: 'Vermelho', 
-      calculation: `${rgbValues.r} → ${redCard}`,
-      cardNumber: redCard
+      calculation: `${rgbValues.r} → ${redCard}` 
     },
     { 
       ...getCardFromDeck(greenCard, 'CIGANO'),
       source: 'Verde', 
-      calculation: `${rgbValues.g} → ${greenCard}`,
-      cardNumber: greenCard
+      calculation: `${rgbValues.g} → ${greenCard}` 
     },
     { 
       ...getCardFromDeck(blueCard, 'CIGANO'),
       source: 'Azul', 
-      calculation: `${rgbValues.b} → ${blueCard}`,
-      cardNumber: blueCard
+      calculation: `${rgbValues.b} → ${blueCard}` 
     }
-  ].map(card => ({
-    symbol: card.symbol,
-    codedName: `Carta ${card.cardNumber}: ${card.name}`,
-    greekName: card.name,
-    meaning: card.meaning,
-    source: card.source,
-    calculation: card.calculation,
-    cardNumber: card.cardNumber
-  }));
+  ].map((card, idx) => {
+    const nums = [redCard, greenCard, blueCard];
+    return {
+      symbol: card.symbol,
+      codedName: `Carta ${nums[idx]}: ${card.name}`,
+      greekName: card.name,
+      meaning: card.meaning,
+      source: card.source,
+      calculation: card.calculation
+    };
+  });
+  
+  const max = Math.max(rgbValues.r, rgbValues.g, rgbValues.b);
+  let dominantColor = 'Equilibrado';
+  if (rgbValues.r === max && rgbValues.r > rgbValues.g + 30) dominantColor = 'Vermelho (Paixão)';
+  else if (rgbValues.g === max && rgbValues.g > rgbValues.r + 30) dominantColor = 'Verde (Crescimento)';
   else if (rgbValues.b === max && rgbValues.b > rgbValues.r + 30) dominantColor = 'Azul (Tranquilidade)';
   
   const response = {
