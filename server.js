@@ -170,6 +170,7 @@ const BIBLICO_GROUPS = [
   { id: 4, name: 'RESTAURAÇÃO FINAL', emoji: '✨', description: 'Para onde vamos' }
 ];
 
+// =============================================================================
 // 🧠 BARALHO PSIQUE (Tarot Psicanalítico - 36 cartas)
 // Sistema DECIFRA: 6 posições fixas para análise psicológica profunda
 // =============================================================================
@@ -519,7 +520,8 @@ app.get('/health', (req, res) => {
       cigano: 36
     },
     zodiacSystem: 'enabled',
-    decifraSystem: 'enabled'
+    decifraSystem: 'enabled',
+    imageAnalysis: '6 cards enabled'
   });
 });
 
@@ -723,11 +725,14 @@ app.post('/oracleConsult', (req, res) => {
   });
 });
 
+// =============================================================================
+// ✅ ENDPOINT COM 6 CARTAS PARA ANÁLISE DE IMAGEM
+// =============================================================================
 app.post('/oracleConsultWithImage', (req, res) => {
   console.log('✅ /oracleConsultWithImage chamado');
   console.log('Body recebido:', JSON.stringify(req.body));
   
-  const { question, rgbValues } = req.body;
+  const { question, rgbValues, aiContext } = req.body;
   
   if (!question || !rgbValues) {
     console.log('❌ Dados faltando!');
@@ -736,43 +741,149 @@ app.post('/oracleConsultWithImage', (req, res) => {
   
   console.log(`RGB: R=${rgbValues.r}, G=${rgbValues.g}, B=${rgbValues.b}`);
   
+  // Detecta se tem análise facial
+  const hasFaceAnalysis = aiContext && aiContext.faceCount > 0;
+  const isCouple = hasFaceAnalysis && aiContext.faceCount === 2;
+  
+  if (hasFaceAnalysis) {
+    console.log(`👤 Análise facial: ${aiContext.faceCount} pessoa(s)`);
+    console.log(`😊 Emoção detectada: ${aiContext.person1Emotion}`);
+    console.log(`🧠 Estado interno: ${aiContext.internal1State}`);
+  }
+  
+  // ✅ GERAR 6 CARTAS
   const redCard = reduceToBase(rgbValues.r);
   const greenCard = reduceToBase(rgbValues.g);
   const blueCard = reduceToBase(rgbValues.b);
   
-  const cards = [
-    { 
-      ...getCardFromDeck(redCard, 'CIGANO'),
-      source: 'Vermelho', 
-      calculation: `${rgbValues.r} → ${redCard}` 
-    },
-    { 
-      ...getCardFromDeck(greenCard, 'CIGANO'),
-      source: 'Verde', 
-      calculation: `${rgbValues.g} → ${greenCard}` 
-    },
-    { 
-      ...getCardFromDeck(blueCard, 'CIGANO'),
-      source: 'Azul', 
-      calculation: `${rgbValues.b} → ${blueCard}` 
-    }
-  ].map((card, idx) => {
-    const nums = [redCard, greenCard, blueCard];
+  // Cartas adicionais baseadas em combinações RGB
+  const card4 = reduceToBase(rgbValues.r + rgbValues.g);
+  const card5 = reduceToBase(rgbValues.g + rgbValues.b);
+  const card6 = reduceToBase(rgbValues.r + rgbValues.b);
+  
+  const cardNumbers = [redCard, greenCard, blueCard, card4, card5, card6];
+  const sources = [
+    'Vermelho (Antes da foto)',
+    'Verde (Motivo de tirar)',
+    'Azul (Quis transmitir)',
+    'R+G (Pessoas entenderam)',
+    'G+B (Acha que pensaram)',
+    'R+B (Depois da foto)'
+  ];
+  
+  const cards = cardNumbers.map((num, idx) => {
+    const card = getCardFromDeck(num, 'CIGANO');
     return {
       symbol: card.symbol,
-      codedName: `Carta ${nums[idx]}: ${card.name}`,
       greekName: card.name,
       meaning: card.meaning,
-      source: card.source,
-      calculation: card.calculation
+      source: sources[idx],
+      calculation: `Carta ${num}`
     };
   });
   
-  const max = Math.max(rgbValues.r, rgbValues.g, rgbValues.b);
-  let dominantColor = 'Equilibrado';
-  if (rgbValues.r === max && rgbValues.r > rgbValues.g + 30) dominantColor = 'Vermelho (Paixão)';
-  else if (rgbValues.g === max && rgbValues.g > rgbValues.r + 30) dominantColor = 'Verde (Crescimento)';
-  else if (rgbValues.b === max && rgbValues.b > rgbValues.r + 30) dominantColor = 'Azul (Tranquilidade)';
+  // ✅ MONTAR INTERPRETAÇÃO COM 6 CARTAS
+  let interpretation = `📸 **A CENA:**\n`;
+  
+  if (hasFaceAnalysis) {
+    if (isCouple) {
+      interpretation += `Casal detectado:\n`;
+      interpretation += `• Pessoa 1: ${aiContext.person1Emotion} (${aiContext.internal1State})\n`;
+      interpretation += `• Pessoa 2: ${aiContext.person2Emotion || 'detectado'} (${aiContext.internal2State || 'analisando'})\n`;
+      interpretation += `A dinâmica emocional entre vocês revelada pelas cartas.\n\n`;
+    } else {
+      interpretation += `Uma pessoa ${aiContext.person1Emotion}, estado interno ${aiContext.internal1State}.\n`;
+      interpretation += `A foto parece ${aiContext.person1Emotion}... mas a alma está em ${aiContext.internal1State}.\n\n`;
+    }
+  } else {
+    interpretation += `Imagem carregada. As 6 cartas revelam a energia invisível por trás da foto.\n\n`;
+  }
+  
+  interpretation += `🔹 **CARTA 1 — O que estava fazendo antes da foto:** ${cards[0].symbol} ${cards[0].greekName}\n`;
+  interpretation += `${cards[0].meaning}\n\n`;
+  
+  interpretation += `Interpretação:\n`;
+  interpretation += `Antes do clique, a energia era de movimento e preparação.\n`;
+  interpretation += `O ${cards[0].greekName} revela: "${cards[0].meaning}"\n\n`;
+  
+  interpretation += `🔹 **CARTA 2 — O que fez tirar a foto:** ${cards[1].symbol} ${cards[1].greekName}\n`;
+  interpretation += `${cards[1].meaning}\n\n`;
+  
+  interpretation += `Interpretação:\n`;
+  interpretation += `O impulso de capturar esse momento veio de dentro.\n`;
+  interpretation += `O ${cards[1].greekName} mostra: desejo de registrar, de guardar, de marcar.\n\n`;
+  
+  interpretation += `🔹 **CARTA 3 — O que quis transmitir:** ${cards[2].symbol} ${cards[2].greekName}\n`;
+  interpretation += `${cards[2].meaning}\n\n`;
+  
+  interpretation += `Interpretação:\n`;
+  interpretation += `A mensagem que quis passar para o mundo.\n`;
+  interpretation += `O ${cards[2].greekName} revela a imagem construída.\n\n`;
+  
+  interpretation += `🔹 **CARTA 4 — O que as pessoas entenderam:** ${cards[3].symbol} ${cards[3].greekName}\n`;
+  interpretation += `${cards[3].meaning}\n\n`;
+  
+  interpretation += `Interpretação:\n`;
+  interpretation += `Como a energia foi absorvida por quem viu.\n`;
+  interpretation += `O ${cards[3].greekName} mostra a leitura coletiva.\n\n`;
+  
+  interpretation += `🔹 **CARTA 5 — O que acredita que pensaram:** ${cards[4].symbol} ${cards[4].greekName}\n`;
+  interpretation += `${cards[4].meaning}\n\n`;
+  
+  interpretation += `Interpretação:\n`;
+  interpretation += `Sua expectativa, seus medos, sua vaidade ou insegurança.\n`;
+  interpretation += `O ${cards[4].greekName} revela como imagina que foi julgado.\n\n`;
+  
+  interpretation += `🔹 **CARTA 6 — O que fez depois da foto:** ${cards[5].symbol} ${cards[5].greekName}\n`;
+  interpretation += `${cards[5].meaning}\n\n`;
+  
+  interpretation += `Interpretação:\n`;
+  interpretation += `O desdobramento energético do momento.\n`;
+  interpretation += `O ${cards[5].greekName} mostra: satisfação, arrependimento ou vazio.\n\n`;
+  
+  interpretation += `💬 **Palavra da Vovó (com ternura realista):**\n`;
+  interpretation += `"Filho(a), essa foto não é só imagem.\n`;
+  interpretation += `É alma capturada num instante.\n\n`;
+  
+  interpretation += `O ${cards[0].greekName} preparou.\n`;
+  interpretation += `O ${cards[1].greekName} impulsionou.\n`;
+  interpretation += `O ${cards[2].greekName} construiu.\n`;
+  interpretation += `O ${cards[3].greekName} interpretou.\n`;
+  interpretation += `O ${cards[4].greekName} imaginou.\n`;
+  interpretation += `E o ${cards[5].greekName}?\n`;
+  interpretation += `Mostrou o que veio depois.\n\n`;
+  
+  if (hasFaceAnalysis) {
+    interpretation += `E quem vê só a expressão ${aiContext.person1Emotion}...\n`;
+    interpretation += `Não vê o ${aiContext.internal1State} que sustenta o silêncio."\n\n`;
+  } else {
+    interpretation += `E quem vê só a foto...\n`;
+    interpretation += `Não vê a história que ela guarda."\n\n`;
+  }
+  
+  interpretation += `✅ **Resumo simbólico:**\n`;
+  interpretation += `| Momento | Energia | Verdade |\n`;
+  interpretation += `|---------|---------|----------|\n`;
+  interpretation += `| Antes | ${cards[0].greekName} | ${cards[0].meaning} |\n`;
+  interpretation += `| Durante (motivo) | ${cards[1].greekName} | ${cards[1].meaning} |\n`;
+  interpretation += `| Durante (transmitir) | ${cards[2].greekName} | ${cards[2].meaning} |\n`;
+  interpretation += `| Leitura coletiva | ${cards[3].greekName} | ${cards[3].meaning} |\n`;
+  interpretation += `| Expectativa | ${cards[4].greekName} | ${cards[4].meaning} |\n`;
+  interpretation += `| Depois | ${cards[5].greekName} | ${cards[5].meaning} |\n\n`;
+  
+  interpretation += `🌙 **Conclusão final:**\n`;
+  interpretation += `Não julgue pela foto.\n`;
+  interpretation += `Julgue pela alma que ela carrega.\n\n`;
+  
+  if (hasFaceAnalysis) {
+    interpretation += `E quem lê cartas no rosto...\n`;
+    interpretation += `Vê o que os olhos escondem.\n\n`;
+  }
+  
+  interpretation += `Se quiser saber mais sobre o que a foto revela, ou se há outras cartas guiando essa história, é só perguntar.\n`;
+  interpretation += `A Vovó já guardou as cartas...\n`;
+  interpretation += `Não pra esconder —\n`;
+  interpretation += `Pra revelar o que merece ser visto. 🖤`;
   
   const response = {
     rgbValues: {
@@ -783,20 +894,28 @@ app.post('/oracleConsultWithImage', (req, res) => {
     cardNumbers: {
       red: redCard,
       green: greenCard,
-      blue: blueCard
+      blue: blueCard,
+      card4: card4,
+      card5: card5,
+      card6: card6
     },
     cards: cards,
     colorAnalysis: {
-      dominantColor: dominantColor,
-      emotionalState: 'Calma e harmonia',
-      energy: 'Energia moderada'
+      dominantColor: 'Análise de imagem (6 cartas)',
+      emotionalState: hasFaceAnalysis ? aiContext.person1Emotion : 'Detectado via RGB',
+      energy: hasFaceAnalysis ? `${aiContext.faceCount} pessoa(s) - ${aiContext.internal1State}` : 'Energia da imagem'
     },
-    questionLevel: 3,
-    interpretation: `🔮 As cores revelam um momento de equilíbrio. As três cartas (${cards.map(c => c.greekName).join(', ')}) indicam transformação, novas oportunidades e sucesso.`,
+    questionLevel: 6,
+    interpretation: interpretation,
+    faceAnalysis: hasFaceAnalysis ? {
+      faceCount: aiContext.faceCount,
+      person1: aiContext.person1Emotion,
+      internal1: aiContext.internal1State
+    } : null,
     timestamp: Date.now()
   };
   
-  console.log('✅ Enviando resposta com', cards.length, 'cartas');
+  console.log('✅ Enviando resposta com 6 cartas para análise de imagem');
   res.json(response);
 });
 
@@ -805,7 +924,7 @@ app.listen(PORT, () => {
   console.log(`📡 Endpoints disponíveis:`);
   console.log(`  GET  /health`);
   console.log(`  POST /oracleConsult`);
-  console.log(`  POST /oracleConsultWithImage`);
+  console.log(`  POST /oracleConsultWithImage (6 cartas)`);
   console.log(`  POST /oracleConsultWithAudio`);
   console.log(`🃏 Baralhos disponíveis:`);
   console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
@@ -817,8 +936,10 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
   console.log(`✅ Sistema BIBLICO: 4 grupos da jornada espiritual`);
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
-  console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
+  console.log(`✅ Análise de imagem: 6 cartas estruturadas`);
+  console.log(`✅ Detecção facial: suportado via aiContext`);
 });
+
 
 
 
