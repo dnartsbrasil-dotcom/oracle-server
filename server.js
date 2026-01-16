@@ -377,7 +377,7 @@ function sumDigits(num) {
 
 function reduceToBase(num) {
   let result = num;
-  while (result > 78) {
+  while (result > 36) {
     result = sumDigits(result);
   }
   return result === 0 ? 1 : result;
@@ -484,7 +484,11 @@ function getCardFromDeck(cardNumber, deckType) {
     maxCards = 36;
   }
   
-  let adjustedNumber = ((cardNumber - 1) % maxCards) + 1;
+  let adjustedNumber = cardNumber;
+  while (adjustedNumber > maxCards) {
+    adjustedNumber = sumDigits(adjustedNumber);
+  }
+  if (adjustedNumber === 0) adjustedNumber = 1;
   
   if (deck[adjustedNumber]) {
     return deck[adjustedNumber];
@@ -815,6 +819,7 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de complexidade: 1-10 cartas dinâmicas`);
 });
+
 
 
 
