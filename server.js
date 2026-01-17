@@ -919,6 +919,317 @@ app.post('/oracleConsultWithImage', (req, res) => {
   res.json(response);
 });
 
+// =============================================================================
+// 📝 ANÁLISE DE FRASES COM DETECÇÃO DE COERÊNCIA ENERGÉTICA
+// =============================================================================
+
+// Banco de palavras-chave (Análise Superficial)
+const POSITIVE_KEYWORDS = {
+  'feliz': { sentiment: 'positivo', category: 'elogio', intensity: 0.8 },
+  'alegria': { sentiment: 'positivo', category: 'elogio', intensity: 0.9 },
+  'parabéns': { sentiment: 'positivo', category: 'elogio', intensity: 0.7 },
+  'sucesso': { sentiment: 'positivo', category: 'elogio', intensity: 0.8 },
+  'ótimo': { sentiment: 'positivo', category: 'elogio', intensity: 0.7 },
+  'maravilhoso': { sentiment: 'positivo', category: 'elogio', intensity: 0.9 },
+  'amo': { sentiment: 'positivo', category: 'amor', intensity: 1.0 },
+  'amor': { sentiment: 'positivo', category: 'amor', intensity: 1.0 },
+  'carinho': { sentiment: 'positivo', category: 'amor', intensity: 0.8 },
+  'querido': { sentiment: 'positivo', category: 'amor', intensity: 0.7 },
+  'obrigado': { sentiment: 'positivo', category: 'gratidao', intensity: 0.8 },
+  'grato': { sentiment: 'positivo', category: 'gratidao', intensity: 0.8 },
+  'agradeço': { sentiment: 'positivo', category: 'gratidao', intensity: 0.9 },
+  'paz': { sentiment: 'positivo', category: 'bem-estar', intensity: 0.8 },
+  'luz': { sentiment: 'positivo', category: 'bem-estar', intensity: 0.7 },
+  'bênção': { sentiment: 'positivo', category: 'bem-estar', intensity: 0.9 },
+  'bem': { sentiment: 'positivo', category: 'bem-estar', intensity: 0.6 }
+};
+
+const NEGATIVE_KEYWORDS = {
+  'ódio': { sentiment: 'negativo', category: 'raiva', intensity: 1.0 },
+  'raiva': { sentiment: 'negativo', category: 'raiva', intensity: 0.9 },
+  'inveja': { sentiment: 'negativo', category: 'raiva', intensity: 0.8 },
+  'ciúme': { sentiment: 'negativo', category: 'raiva', intensity: 0.8 },
+  'triste': { sentiment: 'negativo', category: 'tristeza', intensity: 0.8 },
+  'tristeza': { sentiment: 'negativo', category: 'tristeza', intensity: 0.8 },
+  'chorar': { sentiment: 'negativo', category: 'tristeza', intensity: 0.7 },
+  'choro': { sentiment: 'negativo', category: 'tristeza', intensity: 0.7 },
+  'dor': { sentiment: 'negativo', category: 'tristeza', intensity: 0.9 },
+  'sofrer': { sentiment: 'negativo', category: 'tristeza', intensity: 0.9 },
+  'medo': { sentiment: 'negativo', category: 'medo', intensity: 0.8 },
+  'pavor': { sentiment: 'negativo', category: 'medo', intensity: 0.9 },
+  'terror': { sentiment: 'negativo', category: 'medo', intensity: 1.0 },
+  'assustado': { sentiment: 'negativo', category: 'medo', intensity: 0.7 },
+  'rejeição': { sentiment: 'negativo', category: 'rejeicao', intensity: 0.9 },
+  'abandono': { sentiment: 'negativo', category: 'rejeicao', intensity: 0.9 },
+  'sozinho': { sentiment: 'negativo', category: 'rejeicao', intensity: 0.7 }
+};
+
+// Polaridade das cartas
+const CARD_POLARITY_MAP = {
+  1: { polarity: 'positiva', tone: 'movimento' },
+  2: { polarity: 'positiva', tone: 'sorte' },
+  3: { polarity: 'neutra', tone: 'viagem' },
+  4: { polarity: 'positiva', tone: 'seguranca' },
+  5: { polarity: 'positiva', tone: 'saude' },
+  6: { polarity: 'negativa', tone: 'confusao' },
+  7: { polarity: 'negativa', tone: 'traicao' },
+  8: { polarity: 'negativa', tone: 'fim' },
+  9: { polarity: 'positiva', tone: 'presente' },
+  10: { polarity: 'neutra', tone: 'corte' },
+  11: { polarity: 'negativa', tone: 'conflito' },
+  12: { polarity: 'neutra', tone: 'conversa' },
+  13: { polarity: 'positiva', tone: 'inicio' },
+  14: { polarity: 'neutra', tone: 'astucia' },
+  15: { polarity: 'positiva', tone: 'forca' },
+  16: { polarity: 'positiva', tone: 'guia' },
+  17: { polarity: 'positiva', tone: 'mudanca' },
+  18: { polarity: 'positiva', tone: 'amizade' },
+  19: { polarity: 'neutra', tone: 'isolamento' },
+  20: { polarity: 'positiva', tone: 'social' },
+  21: { polarity: 'negativa', tone: 'obstaculo' },
+  22: { polarity: 'neutra', tone: 'escolha' },
+  23: { polarity: 'negativa', tone: 'perda' },
+  24: { polarity: 'positiva', tone: 'amor' },
+  25: { polarity: 'positiva', tone: 'compromisso' },
+  26: { polarity: 'neutra', tone: 'segredo' },
+  27: { polarity: 'neutra', tone: 'mensagem' },
+  28: { polarity: 'neutra', tone: 'masculino' },
+  29: { polarity: 'neutra', tone: 'feminino' },
+  30: { polarity: 'positiva', tone: 'paz' },
+  31: { polarity: 'positiva', tone: 'sucesso' },
+  32: { polarity: 'neutra', tone: 'emocao' },
+  33: { polarity: 'positiva', tone: 'solucao' },
+  34: { polarity: 'positiva', tone: 'dinheiro' },
+  35: { polarity: 'positiva', tone: 'estabilidade' },
+  36: { polarity: 'negativa', tone: 'fardo' }
+};
+
+function detectPunctuation(text) {
+  const trimmed = text.trim();
+  const lastChar = trimmed[trimmed.length - 1];
+  
+  if (lastChar === '!') return { hasPunctuation: true, type: 'exclamation' };
+  if (lastChar === '?') return { hasPunctuation: true, type: 'question' };
+  if (lastChar === '.') return { hasPunctuation: true, type: 'period' };
+  if (trimmed.endsWith('...') || trimmed.endsWith('…')) return { hasPunctuation: true, type: 'ellipsis' };
+  
+  return { hasPunctuation: false, type: null };
+}
+
+function analyzeSurface(frase) {
+  const words = frase.toLowerCase().split(/\s+/);
+  
+  let positiveScore = 0;
+  let negativeScore = 0;
+  let detectedKeywords = [];
+  
+  for (let word of words) {
+    if (POSITIVE_KEYWORDS[word]) {
+      const kw = POSITIVE_KEYWORDS[word];
+      positiveScore += kw.intensity;
+      detectedKeywords.push({ word, ...kw });
+    }
+    
+    if (NEGATIVE_KEYWORDS[word]) {
+      const kw = NEGATIVE_KEYWORDS[word];
+      negativeScore += kw.intensity;
+      detectedKeywords.push({ word, ...kw });
+    }
+  }
+  
+  let tone;
+  if (positiveScore > negativeScore * 1.5) {
+    tone = 'positivo';
+  } else if (negativeScore > positiveScore * 1.5) {
+    tone = 'negativo';
+  } else if (positiveScore > 0 && negativeScore > 0) {
+    tone = 'misto';
+  } else {
+    tone = 'neutro';
+  }
+  
+  return {
+    keywords: detectedKeywords,
+    positiveScore,
+    negativeScore,
+    tone
+  };
+}
+
+function analyzeEnergy(frase) {
+  const limpo = frase
+    .replace(/[.!?…,;:\"'\-]/g, '')
+    .replace(/\s+/g, '')
+    .toUpperCase();
+  
+  const arithmiMap = {
+    'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8, 'I': 9,
+    'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 6, 'P': 7, 'Q': 8, 'R': 9,
+    'S': 1, 'T': 2, 'U': 3, 'V': 4, 'W': 5, 'X': 6, 'Y': 7, 'Z': 8
+  };
+  
+  let soma = 0;
+  for (let letra of limpo) {
+    soma += arithmiMap[letra] || 0;
+  }
+  
+  const cartaNumero = reduceToBase(soma);
+  const carta = getCardFromDeck(cartaNumero, 'CIGANO');
+  const polarityData = CARD_POLARITY_MAP[cartaNumero] || { polarity: 'neutra', tone: 'desconhecido' };
+  
+  return {
+    essence: limpo,
+    totalSum: soma,
+    cardNumber: cartaNumero,
+    cardName: carta.name,
+    polarity: polarityData.polarity,
+    tone: polarityData.tone,
+    hidden: carta.meaning
+  };
+}
+
+function compareAnalyses(surface, energy) {
+  const surfaceTone = surface.tone;
+  const energyPolarity = energy.polarity;
+  
+  let coherence;
+  let warning;
+  
+  if (surfaceTone === 'positivo' && energyPolarity === 'positiva') {
+    coherence = 'COERENTE';
+    warning = null;
+  } else if (surfaceTone === 'negativo' && energyPolarity === 'negativa') {
+    coherence = 'COERENTE';
+    warning = null;
+  } else if (surfaceTone === 'neutro' || energyPolarity === 'neutra') {
+    coherence = 'PARCIAL';
+    warning = 'A energia é neutra ou ambígua';
+  } else if (surfaceTone === 'misto') {
+    coherence = 'PARCIAL';
+    warning = 'Sentimentos contraditórios detectados';
+  } else {
+    coherence = 'INCOERENTE';
+    warning = 'ALERTA: A frase NÃO está energéticamente coerente!';
+  }
+  
+  return { status: coherence, surfaceTone, energyPolarity, warning };
+}
+
+function generateVovoWisdom(frase, surface, energy, coherence) {
+  if (coherence.status === 'COERENTE') {
+    return `"Filho(a), sua frase é verdadeira.\n\nVocê disse: "${frase}"\nE a carta ${energy.cardName} confirma:\nNão há máscaras. Não há fingimento.\nO que você sente, você falou.\n\nE isso, meu filho(a), é coragem.\nÉ integridade.\n\nContinue assim - falando o que o coração dita."`;
+  }
+  
+  if (coherence.status === 'INCOERENTE') {
+    let wisdom = `"Filho(a), a ${energy.cardName} não mente.\n\n`;
+    wisdom += `Você disse: "${frase}"\n`;
+    wisdom += `Mas sua alma revelou: ${energy.hidden}\n\n`;
+    
+    if (surface.tone === 'positivo' && energy.polarity === 'negativa') {
+      wisdom += `Palavras positivas... mas energia pesada.\n`;
+      wisdom += `Você tentou disfarçar o que sente.\n`;
+      wisdom += `Talvez por educação. Talvez por medo.\n`;
+      wisdom += `Mas a ${energy.cardName} mostra o que você esconde.\n\n`;
+      wisdom += `Não se culpe - somos assim.\n`;
+      wisdom += `Mas saiba: quem você engana não é o outro.\n`;
+      wisdom += `É você mesmo."\n`;
+    } else if (surface.tone === 'negativo' && energy.polarity === 'positiva') {
+      wisdom += `Palavras duras... mas alma suave.\n`;
+      wisdom += `Você reclama, mas por dentro ainda tem esperança.\n`;
+      wisdom += `A ${energy.cardName} revela: você não desistiu.\n\n`;
+      wisdom += `Às vezes reclamamos pra não chorar.\n`;
+      wisdom += `Às vezes brigamos pra não admitir que ainda amamos.\n\n`;
+      wisdom += `Sua frase parece raiva,\n`;
+      wisdom += `mas sua alma ainda acredita."\n`;
+    } else {
+      wisdom += `Há algo não dito nessa frase.\n`;
+      wisdom += `Algo que você sente mas não falou.\n\n`;
+      wisdom += `A ${energy.cardName} pede: seja honesto.\n`;
+      wisdom += `Primeiro com você.\n`;
+      wisdom += `Depois com o mundo."\n`;
+    }
+    
+    return wisdom;
+  }
+  
+  return `"Filho(a), sua frase tem duas camadas.\n\nO que você disse: "${frase}"\nO que a ${energy.cardName} mostra: ${energy.hidden}\n\nNão é mentira. Não é verdade completa.\nÉ... complexo.\n\nE a vida é assim mesmo.\nNem tudo é preto ou branco.\n\nSó cuide pra complexidade não virar confusão.\nE pra dúvida não virar paralisia."`;
+}
+
+app.post('/analyzeFrase', (req, res) => {
+  console.log('✅ /analyzeFrase chamado');
+  
+  const { frase } = req.body;
+  
+  if (!frase || typeof frase !== 'string') {
+    return res.status(400).json({ error: 'Frase inválida' });
+  }
+  
+  console.log(`📝 Analisando frase: "${frase}"`);
+  
+  const punctuation = detectPunctuation(frase);
+  
+  if (!punctuation.hasPunctuation) {
+    return res.json({
+      error: 'not_a_phrase',
+      message: 'Por favor, escreva uma frase completa com pontuação.\n\nExemplos:\n• Silêncio!\n• Que alegria!\n• O amor vence.'
+    });
+  }
+  
+  const surfaceAnalysis = analyzeSurface(frase);
+  console.log(`📊 Superfície: ${surfaceAnalysis.tone}`);
+  
+  const energyAnalysis = analyzeEnergy(frase);
+  console.log(`🔮 Carta: ${energyAnalysis.cardName} (${energyAnalysis.polarity})`);
+  
+  const coherence = compareAnalyses(surfaceAnalysis, energyAnalysis);
+  console.log(`⚡ Coerência: ${coherence.status}`);
+  
+  let interpretation = `📝 ANÁLISE DA FRASE\n\n`;
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `📖 ANÁLISE DA SUPERFÍCIE:\n\n`;
+  interpretation += `Frase: "${frase}"\n\n`;
+  interpretation += `Tom emocional: ${surfaceAnalysis.tone}\n`;
+  
+  if (surfaceAnalysis.keywords.length > 0) {
+    interpretation += `Palavras-chave: ${surfaceAnalysis.keywords.map(k => k.word).join(', ')}\n`;
+  }
+  
+  interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `🔮 ANÁLISE ENERGÉTICA:\n\n`;
+  interpretation += `Essência: ${energyAnalysis.essence}\n`;
+  interpretation += `Soma: ${energyAnalysis.totalSum}\n`;
+  interpretation += `Carta: #${energyAnalysis.cardNumber} - ${energyAnalysis.cardName}\n`;
+  interpretation += `Polaridade: ${energyAnalysis.polarity}\n`;
+  interpretation += `Significado: ${energyAnalysis.hidden}\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `⚡ COMPARAÇÃO: ${coherence.status}\n\n`;
+  interpretation += `Superfície: ${surfaceAnalysis.tone}\n`;
+  interpretation += `Energia: ${energyAnalysis.polarity}\n\n`;
+  
+  if (coherence.warning) {
+    interpretation += `${coherence.status === 'INCOERENTE' ? '❌' : '⚠️'} ${coherence.warning}\n\n`;
+  } else {
+    interpretation += `✅ A frase está energéticamente alinhada!\n\n`;
+  }
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `💬 PALAVRA DA VOVÓ:\n\n`;
+  interpretation += generateVovoWisdom(frase, surfaceAnalysis, energyAnalysis, coherence);
+  
+  const response = {
+    frase: frase,
+    surface: surfaceAnalysis,
+    energy: energyAnalysis,
+    coherence: coherence,
+    interpretation: interpretation,
+    timestamp: Date.now()
+  };
+  
+  console.log('✅ Análise completa enviada');
+  res.json(response);
+});
+
 app.listen(PORT, () => {
   console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`);
   console.log(`📡 Endpoints disponíveis:`);
@@ -926,6 +1237,7 @@ app.listen(PORT, () => {
   console.log(`  POST /oracleConsult`);
   console.log(`  POST /oracleConsultWithImage (6 cartas)`);
   console.log(`  POST /oracleConsultWithAudio`);
+  console.log(`  POST /analyzeFrase (análise de coerência) ✨ NOVO`);
   console.log(`🃏 Baralhos disponíveis:`);
   console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
   console.log(`  - BIBLICO: 36 cartas (Oráculo Bíblico - 4 Grupos da Jornada)`);
@@ -938,6 +1250,7 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de imagem: 6 cartas estruturadas`);
   console.log(`✅ Detecção facial: suportado via aiContext`);
+  console.log(`✅ Análise de frases: coerência energética ✨`);
 });
 
 
