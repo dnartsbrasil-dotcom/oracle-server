@@ -1155,14 +1155,12 @@ function generateVovoWisdom(frase, surface, energy, coherence) {
   return `"Filho(a), sua frase tem duas camadas.\n\nO que você disse: "${frase}"\nO que a ${energy.cardName} mostra: ${energy.hidden}\n\nNão é mentira. Não é verdade completa.\nÉ... complexo.\n\nE a vida é assim mesmo.\nNem tudo é preto ou branco.\n\nSó cuide pra complexidade não virar confusão.\nE pra dúvida não virar paralisia."`;
 }
 
-
 // =============================================================================
-// 📝 ANÁLISE DE FRASE - VERSÃO SIMPLES (SEM IA)
+// 📝 ANÁLISE DE FRASE - SISTEMA 4 CARTAS
 // =============================================================================
 
-function calculateSingleCard(text) {
+function calculateCardFromText(text) {
   const clean = text.replace(/[^a-zA-Z]/g, '').toUpperCase();
-  
   const letterValues = {
     'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8, 'I': 9,
     'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 6, 'P': 7, 'Q': 8, 'R': 9,
@@ -1181,6 +1179,37 @@ function calculateSingleCard(text) {
   return sum === 0 ? 1 : sum;
 }
 
+function splitFraseInto4Parts(frase) {
+  const words = frase.trim().split(/\s+/);
+  const totalWords = words.length;
+  
+  if (totalWords <= 4) {
+    return {
+      parte1: words[0] || '',
+      parte2: words[1] || words[0] || '',
+      parte3: words[2] || words[0] || '',
+      parte4: words[3] || words[0] || ''
+    };
+  }
+  
+  const wordsPerPart = Math.floor(totalWords / 4);
+  const remainder = totalWords % 4;
+  
+  let idx = 0;
+  const parte1 = words.slice(idx, idx + wordsPerPart + (remainder > 0 ? 1 : 0)).join(' ');
+  idx += wordsPerPart + (remainder > 0 ? 1 : 0);
+  
+  const parte2 = words.slice(idx, idx + wordsPerPart + (remainder > 1 ? 1 : 0)).join(' ');
+  idx += wordsPerPart + (remainder > 1 ? 1 : 0);
+  
+  const parte3 = words.slice(idx, idx + wordsPerPart + (remainder > 2 ? 1 : 0)).join(' ');
+  idx += wordsPerPart + (remainder > 2 ? 1 : 0);
+  
+  const parte4 = words.slice(idx).join(' ');
+  
+  return { parte1, parte2, parte3, parte4 };
+}
+
 const CARD_POLARITY = {
   1: 'positiva', 2: 'positiva', 3: 'neutra', 4: 'positiva', 5: 'positiva',
   6: 'negativa', 7: 'negativa', 8: 'negativa', 9: 'positiva', 10: 'neutra',
@@ -1192,47 +1221,40 @@ const CARD_POLARITY = {
   36: 'negativa'
 };
 
-function analyzeCoherenceSimple(frase, cardNumber) {
-  const positiveWords = ['feliz', 'amor', 'alegria', 'bom', 'ótimo', 'maravilhoso', 'bem', 'amo', 'gosto', 'adoro'];
-  const negativeWords = ['triste', 'raiva', 'ruim', 'mal', 'péssimo', 'ódio', 'medo', 'chato', 'horrível'];
+function analyzeCoherenceSimple(frase, card1Polarity) {
+  const positiveWords = ['feliz', 'amor', 'alegria', 'bom', 'ótimo', 'maravilhoso', 'bem', 'amo', 'gosto', 'adoro', 'obrigado'];
+  const negativeWords = ['triste', 'raiva', 'ruim', 'mal', 'péssimo', 'ódio', 'medo', 'chato', 'horrível', 'desculpa'];
   
   const textLower = frase.toLowerCase();
   const hasPositive = positiveWords.some(word => textLower.includes(word));
   const hasNegative = negativeWords.some(word => textLower.includes(word));
   
   const frasePolarity = hasPositive ? 'positiva' : (hasNegative ? 'negativa' : 'neutra');
-  const cardPolarity = CARD_POLARITY[cardNumber] || 'neutra';
   
-  let status, message, analysis;
+  let status, message;
   
-  if (cardPolarity === 'neutra') {
+  if (card1Polarity === 'neutra') {
     status = 'NEUTRA';
-    message = '⚪ A carta é neutra';
-    analysis = 'A carta não indica tendência clara';
-  } else if (frasePolarity === cardPolarity) {
+    message = 'A intenção real é neutra';
+  } else if (frasePolarity === card1Polarity) {
     status = 'COERENTE';
-    message = '✅ Frase coerente com a carta';
-    analysis = `Suas palavras ${frasePolarity}s combinam com a energia ${cardPolarity} da carta.`;
+    message = `Suas palavras ${frasePolarity}s combinam com sua intenção ${card1Polarity}`;
   } else {
     status = 'INCOERENTE';
-    message = '❌ Frase incoerente com a carta';
-    
-    if (frasePolarity === 'positiva' && cardPolarity === 'negativa') {
-      analysis = '⚠️ Você usou palavras positivas, mas a carta revela energia negativa. Há algo não dito.';
-    } else if (frasePolarity === 'negativa' && cardPolarity === 'positiva') {
-      analysis = '⚠️ Suas palavras são negativas, mas a carta mostra energia positiva. Talvez você reclame mas ainda tem esperança.';
+    if (frasePolarity === 'positiva' && card1Polarity === 'negativa') {
+      message = 'Você escreveu palavras positivas, mas sua intenção real é negativa';
+    } else if (frasePolarity === 'negativa' && card1Polarity === 'positiva') {
+      message = 'Você escreveu palavras negativas, mas sua intenção real é positiva';
     } else {
-      analysis = 'Há uma diferença entre o que você disse e a energia da carta.';
+      message = 'Há diferença entre o que você escreveu e sua intenção real';
     }
   }
   
   return {
     status: status,
     message: message,
-    analysis: analysis,
     frasePolarity: frasePolarity,
-    cardPolarity: cardPolarity,
-    confidence: 0.7
+    card1Polarity: card1Polarity
   };
 }
 
@@ -1248,37 +1270,106 @@ app.post('/analyzeFrase', (req, res) => {
   console.log(`📝 Analisando: "${frase}"`);
   
   try {
-    const cardNumber = calculateSingleCard(frase);
-    const cardData = getCardFromDeck(cardNumber, 'CIGANO');
-    const coherence = analyzeCoherenceSimple(frase, cardNumber);
+    // CARTA 1: Intenção Real (soma total)
+    const card1Number = calculateCardFromText(frase);
+    const card1Data = getCardFromDeck(card1Number, 'CIGANO');
+    const card1Polarity = CARD_POLARITY[card1Number] || 'neutra';
     
-    const interpretation = `📝 ANÁLISE DA FRASE\n\n` +
+    // Dividir frase em 4 partes
+    const parts = splitFraseInto4Parts(frase);
+    
+    // CARTA 2: O que levou a escrever
+    const card2Number = calculateCardFromText(parts.parte1);
+    const card2Data = getCardFromDeck(card2Number, 'CIGANO');
+    
+    // CARTA 3: Significado da mensagem
+    const card3Number = calculateCardFromText(parts.parte2 + parts.parte3);
+    const card3Data = getCardFromDeck(card3Number, 'CIGANO');
+    
+    // CARTA 4: Como a pessoa entendeu
+    const card4Number = calculateCardFromText(parts.parte4);
+    const card4Data = getCardFromDeck(card4Number, 'CIGANO');
+    
+    console.log(`🃏 Carta 1 (Intenção): #${card1Number} - ${card1Data.name}`);
+    console.log(`🃏 Carta 2 (Levou): #${card2Number} - ${card2Data.name}`);
+    console.log(`🃏 Carta 3 (Significado): #${card3Number} - ${card3Data.name}`);
+    console.log(`🃏 Carta 4 (Entendimento): #${card4Number} - ${card4Data.name}`);
+    
+    // Análise de coerência
+    const coherence = analyzeCoherenceSimple(frase, card1Polarity);
+    console.log(`⚡ Coerência: ${coherence.status}`);
+    
+    // Interpretação
+    const interpretation = 
+      `📝 ANÁLISE DA FRASE\n\n` +
       `"${frase}"\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `🃏 CARTA: ${cardData.symbol} ${cardData.name}\n` +
-      `${cardData.meaning}\n` +
-      `Polaridade: ${coherence.cardPolarity}\n\n` +
+      `🃏 CARTA 1 - INTENÇÃO REAL:\n` +
+      `${card1Data.symbol} #${card1Number} - ${card1Data.name}\n` +
+      `${card1Data.meaning}\n` +
+      `Energia: ${card1Polarity}\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `⚡ COERÊNCIA: ${coherence.status}\n` +
-      `${coherence.message}\n\n` +
-      `${coherence.analysis}`;
+      `🃏 CARTA 2 - O QUE LEVOU A ESCREVER:\n` +
+      `${card2Data.symbol} #${card2Number} - ${card2Data.name}\n` +
+      `${card2Data.meaning}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA 3 - SIGNIFICADO DA MENSAGEM:\n` +
+      `${card3Data.symbol} #${card3Number} - ${card3Data.name}\n` +
+      `${card3Data.meaning}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA 4 - COMO FOI ENTENDIDO:\n` +
+      `${card4Data.symbol} #${card4Number} - ${card4Data.name}\n` +
+      `${card4Data.meaning}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `⚡ ANÁLISE DE COERÊNCIA:\n\n` +
+      `Status: ${coherence.status}\n` +
+      `${coherence.message}`;
     
     res.json({
       frase: frase,
-      card: {
-        number: cardNumber,
-        name: cardData.name,
-        symbol: cardData.symbol,
-        meaning: cardData.meaning,
-        polarity: coherence.cardPolarity
-      },
+      cards: [
+        {
+          position: 1,
+          title: 'Intenção Real',
+          number: card1Number,
+          name: card1Data.name,
+          symbol: card1Data.symbol,
+          meaning: card1Data.meaning,
+          polarity: card1Polarity
+        },
+        {
+          position: 2,
+          title: 'O que levou a escrever',
+          number: card2Number,
+          name: card2Data.name,
+          symbol: card2Data.symbol,
+          meaning: card2Data.meaning,
+          polarity: CARD_POLARITY[card2Number] || 'neutra'
+        },
+        {
+          position: 3,
+          title: 'Significado da mensagem',
+          number: card3Number,
+          name: card3Data.name,
+          symbol: card3Data.symbol,
+          meaning: card3Data.meaning,
+          polarity: CARD_POLARITY[card3Number] || 'neutra'
+        },
+        {
+          position: 4,
+          title: 'Como foi entendido',
+          number: card4Number,
+          name: card4Data.name,
+          symbol: card4Data.symbol,
+          meaning: card4Data.meaning,
+          polarity: CARD_POLARITY[card4Number] || 'neutra'
+        }
+      ],
       coherence: {
         status: coherence.status,
         message: coherence.message,
-        analysis: coherence.analysis,
         frasePolarity: coherence.frasePolarity,
-        cardPolarity: coherence.cardPolarity,
-        confidence: coherence.confidence
+        intentionPolarity: coherence.card1Polarity
       },
       interpretation: interpretation,
       timestamp: Date.now()
@@ -1294,7 +1385,6 @@ app.post('/analyzeFrase', (req, res) => {
     });
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`);
