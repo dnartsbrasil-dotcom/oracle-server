@@ -4,22 +4,6 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
-// =============================================================================
-// 🤖 IA LOCAL - IMPORTS E INICIALIZAÇÃO
-// =============================================================================
-
-const { pipeline } = require('@xenova/transformers');
-let sentimentClassifier = null;
-
-async function initSentimentAnalyzer() {
-  if (!sentimentClassifier) {
-    console.log('🤖 Carregando modelo de análise de sentimento...');
-    sentimentClassifier = await pipeline('sentiment-analysis');
-    console.log('✅ Modelo carregado!');
-  }
-  return sentimentClassifier;
-}
-
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -1173,7 +1157,7 @@ function generateVovoWisdom(frase, surface, energy, coherence) {
 
 
 // =============================================================================
-// 🔢 FUNÇÕES PARA ANÁLISE DE FRASE COM IA
+// 📝 ANÁLISE DE FRASE - VERSÃO SIMPLES (SEM IA)
 // =============================================================================
 
 function calculateSingleCard(text) {
@@ -1208,225 +1192,78 @@ const CARD_POLARITY = {
   36: 'negativa'
 };
 
-function getCardPolarity(cardNumber) {
-  return CARD_POLARITY[cardNumber] || 'neutra';
-}
-
-async function analyzeCoherence(frase, cardNumber, cardData) {
-  try {
-    const classifier = await initSentimentAnalyzer();
-    const result = await classifier(frase);
-    const sentiment = result[0];
-    
-    const frasePolarity = sentiment.label === 'POSITIVE' ? 'positiva' : 'negativa';
-    const fraseConfidence = sentiment.score;
-    const cardPolarity = getCardPolarity(cardNumber);
-    
-    console.log(`🤖 IA detectou: ${sentiment.label} (${(fraseConfidence * 100).toFixed(1)}%)`);
-    console.log(`🃏 Carta: ${cardData.name} (${cardPolarity})`);
-    
-    let coherenceStatus, coherenceMessage, analysis;
-    
-    if (cardPolarity === 'neutra') {
-      coherenceStatus = 'NEUTRA';
-      coherenceMessage = '⚪ A carta é neutra - não há conflito direto';
-      analysis = `A ${cardData.name} é uma carta neutra. Ela não confirma nem contradiz o tom emocional da sua frase.`;
-    } else if (frasePolarity === cardPolarity) {
-      coherenceStatus = 'COERENTE';
-      coherenceMessage = '✅ Frase coerente com a energia da carta';
-      analysis = `Há alinhamento entre o que você disse e o que a carta revela. Suas palavras ${frasePolarity}s combinam com a energia ${cardPolarity} da ${cardData.name}.`;
-    } else {
-      coherenceStatus = 'INCOERENTE';
-      coherenceMessage = '❌ Frase incoerente com a energia da carta';
-      
-      if (frasePolarity === 'positiva' && cardPolarity === 'negativa') {
-        analysis = `⚠️ CONTRADIÇÃO DETECTADA:\n\nVocê usou palavras ${frasePolarity}s, mas a ${cardData.name} revela energia ${cardPolarity}.\n\nO que você DISSE não combina com o que você SENTE.\nTalvez esteja tentando disfarçar algo.\nTalvez esteja sendo educado quando deveria ser honesto.\n\nA carta não mente.`;
-      } else {
-        analysis = `⚠️ CONTRADIÇÃO DETECTADA:\n\nVocê usou palavras ${frasePolarity}s, mas a ${cardData.name} revela energia ${cardPolarity}.\n\nTalvez você reclame quando por dentro ainda tem esperança.\nTalvez você brigue quando por dentro ainda ama.\n\nSua frase parece dura, mas sua alma é suave.`;
-      }
-    }
-    
-    return {
-      status: coherenceStatus,
-      message: coherenceMessage,
-      analysis: analysis,
-      frasePolarity: frasePolarity,
-      fraseConfidence: fraseConfidence,
-      cardPolarity: cardPolarity
-    };
-  } catch (error) {
-    console.error('❌ Erro na análise de IA:', error);
-    
-    const positiveWords = ['feliz', 'amor', 'alegria', 'bom', 'ótimo', 'maravilhoso', 'bem'];
-    const negativeWords = ['triste', 'raiva', 'ruim', 'mal', 'péssimo', 'ódio', 'medo'];
-    
-    const textLower = frase.toLowerCase();
-    const hasPositive = positiveWords.some(word => textLower.includes(word));
-    const hasNegative = negativeWords.some(word => textLower.includes(word));
-    
-    const frasePolarity = hasPositive ? 'positiva' : (hasNegative ? 'negativa' : 'neutra');
-    const cardPolarity = getCardPolarity(cardNumber);
-    
-    return {
-      status: frasePolarity === cardPolarity ? 'COERENTE' : 'INCOERENTE',
-      message: frasePolarity === cardPolarity ? '✅ Coerente' : '❌ Incoerente',
-      analysis: 'Análise básica (IA não disponível)',
-      frasePolarity: frasePolarity,
-      fraseConfidence: 0.5,
-      cardPolarity: cardPolarity
-    };
-  }
-}
-
-function generateInterpretation(frase, cardData, coherence) {
-  let interpretation = `📝 ANÁLISE DA FRASE\n\n`;
-  interpretation += `Frase: "${frase}"\n\n`;
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+function analyzeCoherenceSimple(frase, cardNumber) {
+  const positiveWords = ['feliz', 'amor', 'alegria', 'bom', 'ótimo', 'maravilhoso', 'bem', 'amo', 'gosto', 'adoro'];
+  const negativeWords = ['triste', 'raiva', 'ruim', 'mal', 'péssimo', 'ódio', 'medo', 'chato', 'horrível'];
   
-  interpretation += `🃏 CARTA REVELADA:\n\n`;
-  interpretation += `${cardData.symbol} #${cardData.number} - ${cardData.name}\n`;
-  interpretation += `Significado: ${cardData.meaning}\n`;
-  interpretation += `Polaridade: ${coherence.cardPolarity}\n\n`;
+  const textLower = frase.toLowerCase();
+  const hasPositive = positiveWords.some(word => textLower.includes(word));
+  const hasNegative = negativeWords.some(word => textLower.includes(word));
   
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  const frasePolarity = hasPositive ? 'positiva' : (hasNegative ? 'negativa' : 'neutra');
+  const cardPolarity = CARD_POLARITY[cardNumber] || 'neutra';
   
-  interpretation += `🤖 ANÁLISE DA FRASE:\n\n`;
-  interpretation += `Tom detectado: ${coherence.frasePolarity}\n`;
-  interpretation += `Confiança: ${(coherence.fraseConfidence * 100).toFixed(1)}%\n\n`;
+  let status, message, analysis;
   
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  
-  interpretation += `⚡ ANÁLISE DE COERÊNCIA:\n\n`;
-  interpretation += `Status: ${coherence.status}\n`;
-  interpretation += `${coherence.message}\n\n`;
-  interpretation += `${coherence.analysis}\n\n`;
-  
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  
-  interpretation += `💬 PALAVRA DA VOVÓ:\n\n`;
-  
-  if (coherence.status === 'COERENTE') {
-    interpretation += `"Filho(a), a ${cardData.name} confirma suas palavras.\n\n`;
-    interpretation += `O que você disse combina com o que você sente.\n`;
-    interpretation += `Isso é raro e precioso.\n\n`;
-    interpretation += `Continue sendo honesto(a) assim.\n`;
-    interpretation += `Com você mesmo.\n`;
-    interpretation += `E com os outros."`;
-  } else if (coherence.status === 'INCOERENTE') {
-    interpretation += `"Filho(a), a ${cardData.name} não mente.\n\n`;
-    interpretation += `Você disse "${frase}"\n`;
-    interpretation += `Mas a carta revela outra história.\n\n`;
-    
-    if (coherence.frasePolarity === 'positiva' && coherence.cardPolarity === 'negativa') {
-      interpretation += `Suas palavras são ${coherence.frasePolarity}s...\n`;
-      interpretation += `Mas sua energia é ${coherence.cardPolarity}.\n\n`;
-      interpretation += `Talvez por educação.\n`;
-      interpretation += `Talvez por medo de magoar.\n`;
-      interpretation += `Talvez por hábito de esconder o que sente.\n\n`;
-      interpretation += `Mas a carta vê através das palavras.\n`;
-      interpretation += `E mostra: você não está bem."\n`;
-    } else {
-      interpretation += `Você reclama... mas por dentro ainda acredita.\n`;
-      interpretation += `Você briga... mas por dentro ainda ama.\n\n`;
-      interpretation += `A ${cardData.name} revela:\n`;
-      interpretation += `Você não desistiu.\n`;
-      interpretation += `Ainda há esperança aí dentro."`;
-    }
+  if (cardPolarity === 'neutra') {
+    status = 'NEUTRA';
+    message = '⚪ A carta é neutra';
+    analysis = 'A carta não indica tendência clara';
+  } else if (frasePolarity === cardPolarity) {
+    status = 'COERENTE';
+    message = '✅ Frase coerente com a carta';
+    analysis = `Suas palavras ${frasePolarity}s combinam com a energia ${cardPolarity} da carta.`;
   } else {
-    interpretation += `"Filho(a), a ${cardData.name} é neutra.\n\n`;
-    interpretation += `Ela não confirma nem contradiz suas palavras.\n`;
-    interpretation += `Apenas observa.\n\n`;
-    interpretation += `Às vezes a vida é assim mesmo.\n`;
-    interpretation += `Nem tudo é preto ou branco."`;
+    status = 'INCOERENTE';
+    message = '❌ Frase incoerente com a carta';
+    
+    if (frasePolarity === 'positiva' && cardPolarity === 'negativa') {
+      analysis = '⚠️ Você usou palavras positivas, mas a carta revela energia negativa. Há algo não dito.';
+    } else if (frasePolarity === 'negativa' && cardPolarity === 'positiva') {
+      analysis = '⚠️ Suas palavras são negativas, mas a carta mostra energia positiva. Talvez você reclame mas ainda tem esperança.';
+    } else {
+      analysis = 'Há uma diferença entre o que você disse e a energia da carta.';
+    }
   }
   
-  return interpretation;
+  return {
+    status: status,
+    message: message,
+    analysis: analysis,
+    frasePolarity: frasePolarity,
+    cardPolarity: cardPolarity,
+    confidence: 0.7
+  };
 }
 
-app.post('/analyzeFrase', async (req, res) => {
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔍 DEBUG: /analyzeFrase chamado');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+app.post('/analyzeFrase', (req, res) => {
+  console.log('✅ /analyzeFrase chamado');
   
   const { frase } = req.body;
   
-  // CHECK 1: Validar frase
-  console.log('CHECK 1: Validando frase...');
   if (!frase || typeof frase !== 'string') {
-    console.log('❌ ERRO: Frase inválida!');
     return res.status(400).json({ error: 'Frase inválida' });
   }
-  console.log(`✅ Frase válida: "${frase}"`);
+  
+  console.log(`📝 Analisando: "${frase}"`);
   
   try {
-    // CHECK 2: Calcular carta
-    console.log('CHECK 2: Calculando carta...');
-    let cardNumber;
-    try {
-      cardNumber = calculateSingleCard(frase);
-      console.log(`✅ Carta calculada: #${cardNumber}`);
-    } catch (error) {
-      console.log('❌ ERRO ao calcular carta:', error.message);
-      throw new Error(`Erro no cálculo: ${error.message}`);
-    }
+    const cardNumber = calculateSingleCard(frase);
+    const cardData = getCardFromDeck(cardNumber, 'CIGANO');
+    const coherence = analyzeCoherenceSimple(frase, cardNumber);
     
-    // CHECK 3: Verificar se getCardFromDeck existe
-    console.log('CHECK 3: Verificando função getCardFromDeck...');
-    if (typeof getCardFromDeck !== 'function') {
-      console.log('❌ ERRO: getCardFromDeck não existe!');
-      throw new Error('Função getCardFromDeck não encontrada');
-    }
-    console.log('✅ Função getCardFromDeck existe');
+    const interpretation = `📝 ANÁLISE DA FRASE\n\n` +
+      `"${frase}"\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA: ${cardData.symbol} ${cardData.name}\n` +
+      `${cardData.meaning}\n` +
+      `Polaridade: ${coherence.cardPolarity}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `⚡ COERÊNCIA: ${coherence.status}\n` +
+      `${coherence.message}\n\n` +
+      `${coherence.analysis}`;
     
-    // CHECK 4: Pegar dados da carta
-    console.log('CHECK 4: Pegando dados da carta...');
-    let cardData;
-    try {
-      cardData = getCardFromDeck(cardNumber, 'CIGANO');
-      console.log(`✅ Carta encontrada: ${cardData.name}`);
-      console.log(`   Symbol: ${cardData.symbol}`);
-      console.log(`   Meaning: ${cardData.meaning}`);
-    } catch (error) {
-      console.log('❌ ERRO ao pegar carta:', error.message);
-      throw new Error(`Erro ao pegar carta: ${error.message}`);
-    }
-    
-    // CHECK 5: Verificar se analyzeCoherence existe
-    console.log('CHECK 5: Verificando função analyzeCoherence...');
-    if (typeof analyzeCoherence !== 'function') {
-      console.log('❌ ERRO: analyzeCoherence não existe!');
-      throw new Error('Função analyzeCoherence não encontrada');
-    }
-    console.log('✅ Função analyzeCoherence existe');
-    
-    // CHECK 6: Analisar coerência
-    console.log('CHECK 6: Analisando coerência com IA...');
-    let coherence;
-    try {
-      coherence = await analyzeCoherence(frase, cardNumber, cardData);
-      console.log(`✅ Coerência analisada: ${coherence.status}`);
-      console.log(`   Frase: ${coherence.frasePolarity}`);
-      console.log(`   Carta: ${coherence.cardPolarity}`);
-    } catch (error) {
-      console.log('❌ ERRO na análise de coerência:', error.message);
-      console.log('Stack:', error.stack);
-      throw new Error(`Erro na IA: ${error.message}`);
-    }
-    
-    // CHECK 7: Gerar interpretação
-    console.log('CHECK 7: Gerando interpretação...');
-    let interpretation;
-    try {
-      interpretation = generateInterpretation(frase, cardData, coherence);
-      console.log(`✅ Interpretação gerada (${interpretation.length} caracteres)`);
-    } catch (error) {
-      console.log('❌ ERRO ao gerar interpretação:', error.message);
-      throw new Error(`Erro na interpretação: ${error.message}`);
-    }
-    
-    // CHECK 8: Montar resposta
-    console.log('CHECK 8: Montando resposta...');
-    const response = {
+    res.json({
       frase: frase,
       card: {
         number: cardNumber,
@@ -1441,30 +1278,43 @@ app.post('/analyzeFrase', async (req, res) => {
         analysis: coherence.analysis,
         frasePolarity: coherence.frasePolarity,
         cardPolarity: coherence.cardPolarity,
-        confidence: coherence.fraseConfidence
+        confidence: coherence.confidence
       },
       interpretation: interpretation,
       timestamp: Date.now()
-    };
+    });
     
-    console.log('✅ Resposta montada com sucesso!');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🎉 SUCESSO TOTAL!');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
-    res.json(response);
+    console.log('✅ Análise enviada');
     
   } catch (error) {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💥 ERRO CAPTURADO:');
-    console.log('   Mensagem:', error.message);
-    console.log('   Stack:', error.stack);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+    console.error('❌ Erro:', error);
     res.status(500).json({ 
-      error: 'Erro ao analisar frase',
-      message: error.message,
-      stack: error.stack // Temporário para debug
+      error: 'Erro ao analisar',
+      message: error.message 
     });
   }
+});
+
+
+app.listen(PORT, () => {
+  console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`);
+  console.log(`📡 Endpoints disponíveis:`);
+  console.log(`  GET  /health`);
+  console.log(`  POST /oracleConsult`);
+  console.log(`  POST /oracleConsultWithImage (6 cartas)`);
+  console.log(`  POST /oracleConsultWithAudio`);
+  console.log(`  POST /analyzeFrase (análise de coerência) ✨ NOVO`);
+  console.log(`🃏 Baralhos disponíveis:`);
+  console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
+  console.log(`  - BIBLICO: 36 cartas (Oráculo Bíblico - 4 Grupos da Jornada)`);
+  console.log(`  - PSIQUE: 36 cartas (Tarot Psicanalítico - Sistema DECIFRA)`);
+  console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
+  console.log(`  - Cigano: 36 cartas (Prático)`);
+  console.log(`✅ Sistema de detecção automática ativo`);
+  console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
+  console.log(`✅ Sistema BIBLICO: 4 grupos da jornada espiritual`);
+  console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
+  console.log(`✅ Análise de imagem: 6 cartas estruturadas`);
+  console.log(`✅ Detecção facial: suportado via aiContext`);
+  console.log(`✅ Análise de frases: coerência energética ✨`);
 });
