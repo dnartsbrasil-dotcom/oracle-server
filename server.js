@@ -1344,28 +1344,88 @@ function generateInterpretation(frase, cardData, coherence) {
 }
 
 app.post('/analyzeFrase', async (req, res) => {
-  console.log('✅ /analyzeFrase chamado');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔍 DEBUG: /analyzeFrase chamado');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
   const { frase } = req.body;
   
+  // CHECK 1: Validar frase
+  console.log('CHECK 1: Validando frase...');
   if (!frase || typeof frase !== 'string') {
+    console.log('❌ ERRO: Frase inválida!');
     return res.status(400).json({ error: 'Frase inválida' });
   }
-  
-  console.log(`📝 Analisando frase: "${frase}"`);
+  console.log(`✅ Frase válida: "${frase}"`);
   
   try {
-    const cardNumber = calculateSingleCard(frase);
-    const cardData = getCardFromDeck(cardNumber, 'CIGANO');
+    // CHECK 2: Calcular carta
+    console.log('CHECK 2: Calculando carta...');
+    let cardNumber;
+    try {
+      cardNumber = calculateSingleCard(frase);
+      console.log(`✅ Carta calculada: #${cardNumber}`);
+    } catch (error) {
+      console.log('❌ ERRO ao calcular carta:', error.message);
+      throw new Error(`Erro no cálculo: ${error.message}`);
+    }
     
-    console.log(`🃏 Carta calculada: #${cardNumber} - ${cardData.name}`);
+    // CHECK 3: Verificar se getCardFromDeck existe
+    console.log('CHECK 3: Verificando função getCardFromDeck...');
+    if (typeof getCardFromDeck !== 'function') {
+      console.log('❌ ERRO: getCardFromDeck não existe!');
+      throw new Error('Função getCardFromDeck não encontrada');
+    }
+    console.log('✅ Função getCardFromDeck existe');
     
-    const coherence = await analyzeCoherence(frase, cardNumber, cardData);
+    // CHECK 4: Pegar dados da carta
+    console.log('CHECK 4: Pegando dados da carta...');
+    let cardData;
+    try {
+      cardData = getCardFromDeck(cardNumber, 'CIGANO');
+      console.log(`✅ Carta encontrada: ${cardData.name}`);
+      console.log(`   Symbol: ${cardData.symbol}`);
+      console.log(`   Meaning: ${cardData.meaning}`);
+    } catch (error) {
+      console.log('❌ ERRO ao pegar carta:', error.message);
+      throw new Error(`Erro ao pegar carta: ${error.message}`);
+    }
     
-    console.log(`⚡ Coerência: ${coherence.status}`);
+    // CHECK 5: Verificar se analyzeCoherence existe
+    console.log('CHECK 5: Verificando função analyzeCoherence...');
+    if (typeof analyzeCoherence !== 'function') {
+      console.log('❌ ERRO: analyzeCoherence não existe!');
+      throw new Error('Função analyzeCoherence não encontrada');
+    }
+    console.log('✅ Função analyzeCoherence existe');
     
-    const interpretation = generateInterpretation(frase, cardData, coherence);
+    // CHECK 6: Analisar coerência
+    console.log('CHECK 6: Analisando coerência com IA...');
+    let coherence;
+    try {
+      coherence = await analyzeCoherence(frase, cardNumber, cardData);
+      console.log(`✅ Coerência analisada: ${coherence.status}`);
+      console.log(`   Frase: ${coherence.frasePolarity}`);
+      console.log(`   Carta: ${coherence.cardPolarity}`);
+    } catch (error) {
+      console.log('❌ ERRO na análise de coerência:', error.message);
+      console.log('Stack:', error.stack);
+      throw new Error(`Erro na IA: ${error.message}`);
+    }
     
+    // CHECK 7: Gerar interpretação
+    console.log('CHECK 7: Gerando interpretação...');
+    let interpretation;
+    try {
+      interpretation = generateInterpretation(frase, cardData, coherence);
+      console.log(`✅ Interpretação gerada (${interpretation.length} caracteres)`);
+    } catch (error) {
+      console.log('❌ ERRO ao gerar interpretação:', error.message);
+      throw new Error(`Erro na interpretação: ${error.message}`);
+    }
+    
+    // CHECK 8: Montar resposta
+    console.log('CHECK 8: Montando resposta...');
     const response = {
       frase: frase,
       card: {
@@ -1387,40 +1447,64 @@ app.post('/analyzeFrase', async (req, res) => {
       timestamp: Date.now()
     };
     
-    console.log('✅ Análise completa enviada');
+    console.log('✅ Resposta montada com sucesso!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🎉 SUCESSO TOTAL!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     res.json(response);
     
   } catch (error) {
-    console.error('❌ Erro na análise:', error);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💥 ERRO CAPTURADO:');
+    console.log('   Mensagem:', error.message);
+    console.log('   Stack:', error.stack);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     res.status(500).json({ 
       error: 'Erro ao analisar frase',
-      message: error.message 
+      message: error.message,
+      stack: error.stack // Temporário para debug
     });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`);
-  console.log(`📡 Endpoints disponíveis:`);
-  console.log(`  GET  /health`);
-  console.log(`  POST /oracleConsult`);
-  console.log(`  POST /oracleConsultWithImage (6 cartas)`);
-  console.log(`  POST /oracleConsultWithAudio`);
-  console.log(`  POST /analyzeFrase (análise de coerência) ✨ NOVO`);
-  console.log(`🃏 Baralhos disponíveis:`);
-  console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
-  console.log(`  - BIBLICO: 36 cartas (Oráculo Bíblico - 4 Grupos da Jornada)`);
-  console.log(`  - PSIQUE: 36 cartas (Tarot Psicanalítico - Sistema DECIFRA)`);
-  console.log(`  - Rider-Waite: 78 cartas (Espiritual)`);
-  console.log(`  - Cigano: 36 cartas (Prático)`);
-  console.log(`✅ Sistema de detecção automática ativo`);
-  console.log(`✅ Sistema VESTIGIUM: 4 núcleos investigativos`);
-  console.log(`✅ Sistema BIBLICO: 4 grupos da jornada espiritual`);
-  console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
-  console.log(`✅ Análise de imagem: 6 cartas estruturadas`);
-  console.log(`✅ Detecção facial: suportado via aiContext`);
-  console.log(`✅ Análise de frases: coerência energética ✨`);
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
