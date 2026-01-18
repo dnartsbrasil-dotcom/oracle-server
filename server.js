@@ -4,6 +4,22 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
+// =============================================================================
+// 🤖 IA LOCAL - IMPORTS E INICIALIZAÇÃO
+// =============================================================================
+
+const { pipeline } = require('@xenova/transformers');
+let sentimentClassifier = null;
+
+async function initSentimentAnalyzer() {
+  if (!sentimentClassifier) {
+    console.log('🤖 Carregando modelo de análise de sentimento...');
+    sentimentClassifier = await pipeline('sentiment-analysis');
+    console.log('✅ Modelo carregado!');
+  }
+  return sentimentClassifier;
+}
+
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -1155,7 +1171,179 @@ function generateVovoWisdom(frase, surface, energy, coherence) {
   return `"Filho(a), sua frase tem duas camadas.\n\nO que você disse: "${frase}"\nO que a ${energy.cardName} mostra: ${energy.hidden}\n\nNão é mentira. Não é verdade completa.\nÉ... complexo.\n\nE a vida é assim mesmo.\nNem tudo é preto ou branco.\n\nSó cuide pra complexidade não virar confusão.\nE pra dúvida não virar paralisia."`;
 }
 
-app.post('/analyzeFrase', (req, res) => {
+
+// =============================================================================
+// 🔢 FUNÇÕES PARA ANÁLISE DE FRASE COM IA
+// =============================================================================
+
+function calculateSingleCard(text) {
+  const clean = text.replace(/[^a-zA-Z]/g, '').toUpperCase();
+  
+  const letterValues = {
+    'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8, 'I': 9,
+    'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 6, 'P': 7, 'Q': 8, 'R': 9,
+    'S': 1, 'T': 2, 'U': 3, 'V': 4, 'W': 5, 'X': 6, 'Y': 7, 'Z': 8
+  };
+  
+  let sum = 0;
+  for (let letter of clean) {
+    sum += letterValues[letter] || 0;
+  }
+  
+  while (sum > 36) {
+    sum = sum.toString().split('').reduce((acc, digit) => acc + parseInt(digit), 0);
+  }
+  
+  return sum === 0 ? 1 : sum;
+}
+
+const CARD_POLARITY = {
+  1: 'positiva', 2: 'positiva', 3: 'neutra', 4: 'positiva', 5: 'positiva',
+  6: 'negativa', 7: 'negativa', 8: 'negativa', 9: 'positiva', 10: 'neutra',
+  11: 'negativa', 12: 'neutra', 13: 'positiva', 14: 'neutra', 15: 'positiva',
+  16: 'positiva', 17: 'positiva', 18: 'positiva', 19: 'neutra', 20: 'positiva',
+  21: 'negativa', 22: 'neutra', 23: 'negativa', 24: 'positiva', 25: 'positiva',
+  26: 'neutra', 27: 'neutra', 28: 'neutra', 29: 'neutra', 30: 'positiva',
+  31: 'positiva', 32: 'neutra', 33: 'positiva', 34: 'positiva', 35: 'positiva',
+  36: 'negativa'
+};
+
+function getCardPolarity(cardNumber) {
+  return CARD_POLARITY[cardNumber] || 'neutra';
+}
+
+async function analyzeCoherence(frase, cardNumber, cardData) {
+  try {
+    const classifier = await initSentimentAnalyzer();
+    const result = await classifier(frase);
+    const sentiment = result[0];
+    
+    const frasePolarity = sentiment.label === 'POSITIVE' ? 'positiva' : 'negativa';
+    const fraseConfidence = sentiment.score;
+    const cardPolarity = getCardPolarity(cardNumber);
+    
+    console.log(`🤖 IA detectou: ${sentiment.label} (${(fraseConfidence * 100).toFixed(1)}%)`);
+    console.log(`🃏 Carta: ${cardData.name} (${cardPolarity})`);
+    
+    let coherenceStatus, coherenceMessage, analysis;
+    
+    if (cardPolarity === 'neutra') {
+      coherenceStatus = 'NEUTRA';
+      coherenceMessage = '⚪ A carta é neutra - não há conflito direto';
+      analysis = `A ${cardData.name} é uma carta neutra. Ela não confirma nem contradiz o tom emocional da sua frase.`;
+    } else if (frasePolarity === cardPolarity) {
+      coherenceStatus = 'COERENTE';
+      coherenceMessage = '✅ Frase coerente com a energia da carta';
+      analysis = `Há alinhamento entre o que você disse e o que a carta revela. Suas palavras ${frasePolarity}s combinam com a energia ${cardPolarity} da ${cardData.name}.`;
+    } else {
+      coherenceStatus = 'INCOERENTE';
+      coherenceMessage = '❌ Frase incoerente com a energia da carta';
+      
+      if (frasePolarity === 'positiva' && cardPolarity === 'negativa') {
+        analysis = `⚠️ CONTRADIÇÃO DETECTADA:\n\nVocê usou palavras ${frasePolarity}s, mas a ${cardData.name} revela energia ${cardPolarity}.\n\nO que você DISSE não combina com o que você SENTE.\nTalvez esteja tentando disfarçar algo.\nTalvez esteja sendo educado quando deveria ser honesto.\n\nA carta não mente.`;
+      } else {
+        analysis = `⚠️ CONTRADIÇÃO DETECTADA:\n\nVocê usou palavras ${frasePolarity}s, mas a ${cardData.name} revela energia ${cardPolarity}.\n\nTalvez você reclame quando por dentro ainda tem esperança.\nTalvez você brigue quando por dentro ainda ama.\n\nSua frase parece dura, mas sua alma é suave.`;
+      }
+    }
+    
+    return {
+      status: coherenceStatus,
+      message: coherenceMessage,
+      analysis: analysis,
+      frasePolarity: frasePolarity,
+      fraseConfidence: fraseConfidence,
+      cardPolarity: cardPolarity
+    };
+  } catch (error) {
+    console.error('❌ Erro na análise de IA:', error);
+    
+    const positiveWords = ['feliz', 'amor', 'alegria', 'bom', 'ótimo', 'maravilhoso', 'bem'];
+    const negativeWords = ['triste', 'raiva', 'ruim', 'mal', 'péssimo', 'ódio', 'medo'];
+    
+    const textLower = frase.toLowerCase();
+    const hasPositive = positiveWords.some(word => textLower.includes(word));
+    const hasNegative = negativeWords.some(word => textLower.includes(word));
+    
+    const frasePolarity = hasPositive ? 'positiva' : (hasNegative ? 'negativa' : 'neutra');
+    const cardPolarity = getCardPolarity(cardNumber);
+    
+    return {
+      status: frasePolarity === cardPolarity ? 'COERENTE' : 'INCOERENTE',
+      message: frasePolarity === cardPolarity ? '✅ Coerente' : '❌ Incoerente',
+      analysis: 'Análise básica (IA não disponível)',
+      frasePolarity: frasePolarity,
+      fraseConfidence: 0.5,
+      cardPolarity: cardPolarity
+    };
+  }
+}
+
+function generateInterpretation(frase, cardData, coherence) {
+  let interpretation = `📝 ANÁLISE DA FRASE\n\n`;
+  interpretation += `Frase: "${frase}"\n\n`;
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  
+  interpretation += `🃏 CARTA REVELADA:\n\n`;
+  interpretation += `${cardData.symbol} #${cardData.number} - ${cardData.name}\n`;
+  interpretation += `Significado: ${cardData.meaning}\n`;
+  interpretation += `Polaridade: ${coherence.cardPolarity}\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  
+  interpretation += `🤖 ANÁLISE DA FRASE:\n\n`;
+  interpretation += `Tom detectado: ${coherence.frasePolarity}\n`;
+  interpretation += `Confiança: ${(coherence.fraseConfidence * 100).toFixed(1)}%\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  
+  interpretation += `⚡ ANÁLISE DE COERÊNCIA:\n\n`;
+  interpretation += `Status: ${coherence.status}\n`;
+  interpretation += `${coherence.message}\n\n`;
+  interpretation += `${coherence.analysis}\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  
+  interpretation += `💬 PALAVRA DA VOVÓ:\n\n`;
+  
+  if (coherence.status === 'COERENTE') {
+    interpretation += `"Filho(a), a ${cardData.name} confirma suas palavras.\n\n`;
+    interpretation += `O que você disse combina com o que você sente.\n`;
+    interpretation += `Isso é raro e precioso.\n\n`;
+    interpretation += `Continue sendo honesto(a) assim.\n`;
+    interpretation += `Com você mesmo.\n`;
+    interpretation += `E com os outros."`;
+  } else if (coherence.status === 'INCOERENTE') {
+    interpretation += `"Filho(a), a ${cardData.name} não mente.\n\n`;
+    interpretation += `Você disse "${frase}"\n`;
+    interpretation += `Mas a carta revela outra história.\n\n`;
+    
+    if (coherence.frasePolarity === 'positiva' && coherence.cardPolarity === 'negativa') {
+      interpretation += `Suas palavras são ${coherence.frasePolarity}s...\n`;
+      interpretation += `Mas sua energia é ${coherence.cardPolarity}.\n\n`;
+      interpretation += `Talvez por educação.\n`;
+      interpretation += `Talvez por medo de magoar.\n`;
+      interpretation += `Talvez por hábito de esconder o que sente.\n\n`;
+      interpretation += `Mas a carta vê através das palavras.\n`;
+      interpretation += `E mostra: você não está bem."\n`;
+    } else {
+      interpretation += `Você reclama... mas por dentro ainda acredita.\n`;
+      interpretation += `Você briga... mas por dentro ainda ama.\n\n`;
+      interpretation += `A ${cardData.name} revela:\n`;
+      interpretation += `Você não desistiu.\n`;
+      interpretation += `Ainda há esperança aí dentro."`;
+    }
+  } else {
+    interpretation += `"Filho(a), a ${cardData.name} é neutra.\n\n`;
+    interpretation += `Ela não confirma nem contradiz suas palavras.\n`;
+    interpretation += `Apenas observa.\n\n`;
+    interpretation += `Às vezes a vida é assim mesmo.\n`;
+    interpretation += `Nem tudo é preto ou branco."`;
+  }
+  
+  return interpretation;
+}
+
+app.post('/analyzeFrase', async (req, res) => {
   console.log('✅ /analyzeFrase chamado');
   
   const { frase } = req.body;
@@ -1166,68 +1354,49 @@ app.post('/analyzeFrase', (req, res) => {
   
   console.log(`📝 Analisando frase: "${frase}"`);
   
-  const punctuation = detectPunctuation(frase);
-  
-  if (!punctuation.hasPunctuation) {
-    return res.json({
-      error: 'not_a_phrase',
-      message: 'Por favor, escreva uma frase completa com pontuação.\n\nExemplos:\n• Silêncio!\n• Que alegria!\n• O amor vence.'
+  try {
+    const cardNumber = calculateSingleCard(frase);
+    const cardData = getCardFromDeck(cardNumber, 'CIGANO');
+    
+    console.log(`🃏 Carta calculada: #${cardNumber} - ${cardData.name}`);
+    
+    const coherence = await analyzeCoherence(frase, cardNumber, cardData);
+    
+    console.log(`⚡ Coerência: ${coherence.status}`);
+    
+    const interpretation = generateInterpretation(frase, cardData, coherence);
+    
+    const response = {
+      frase: frase,
+      card: {
+        number: cardNumber,
+        name: cardData.name,
+        symbol: cardData.symbol,
+        meaning: cardData.meaning,
+        polarity: coherence.cardPolarity
+      },
+      coherence: {
+        status: coherence.status,
+        message: coherence.message,
+        analysis: coherence.analysis,
+        frasePolarity: coherence.frasePolarity,
+        cardPolarity: coherence.cardPolarity,
+        confidence: coherence.fraseConfidence
+      },
+      interpretation: interpretation,
+      timestamp: Date.now()
+    };
+    
+    console.log('✅ Análise completa enviada');
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ Erro na análise:', error);
+    res.status(500).json({ 
+      error: 'Erro ao analisar frase',
+      message: error.message 
     });
   }
-  
-  const surfaceAnalysis = analyzeSurface(frase);
-  console.log(`📊 Superfície: ${surfaceAnalysis.tone}`);
-  
-  const energyAnalysis = analyzeEnergy(frase);
-  console.log(`🔮 Carta: ${energyAnalysis.cardName} (${energyAnalysis.polarity})`);
-  
-  const coherence = compareAnalyses(surfaceAnalysis, energyAnalysis);
-  console.log(`⚡ Coerência: ${coherence.status}`);
-  
-  let interpretation = `📝 ANÁLISE DA FRASE\n\n`;
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `📖 ANÁLISE DA SUPERFÍCIE:\n\n`;
-  interpretation += `Frase: "${frase}"\n\n`;
-  interpretation += `Tom emocional: ${surfaceAnalysis.tone}\n`;
-  
-  if (surfaceAnalysis.keywords.length > 0) {
-    interpretation += `Palavras-chave: ${surfaceAnalysis.keywords.map(k => k.word).join(', ')}\n`;
-  }
-  
-  interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `🔮 ANÁLISE ENERGÉTICA:\n\n`;
-  interpretation += `Essência: ${energyAnalysis.essence}\n`;
-  interpretation += `Soma: ${energyAnalysis.totalSum}\n`;
-  interpretation += `Carta: #${energyAnalysis.cardNumber} - ${energyAnalysis.cardName}\n`;
-  interpretation += `Polaridade: ${energyAnalysis.polarity}\n`;
-  interpretation += `Significado: ${energyAnalysis.hidden}\n\n`;
-  
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `⚡ COMPARAÇÃO: ${coherence.status}\n\n`;
-  interpretation += `Superfície: ${surfaceAnalysis.tone}\n`;
-  interpretation += `Energia: ${energyAnalysis.polarity}\n\n`;
-  
-  if (coherence.warning) {
-    interpretation += `${coherence.status === 'INCOERENTE' ? '❌' : '⚠️'} ${coherence.warning}\n\n`;
-  } else {
-    interpretation += `✅ A frase está energéticamente alinhada!\n\n`;
-  }
-  
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `💬 PALAVRA DA VOVÓ:\n\n`;
-  interpretation += generateVovoWisdom(frase, surfaceAnalysis, energyAnalysis, coherence);
-  
-  const response = {
-    frase: frase,
-    surface: surfaceAnalysis,
-    energy: energyAnalysis,
-    coherence: coherence,
-    interpretation: interpretation,
-    timestamp: Date.now()
-  };
-  
-  console.log('✅ Análise completa enviada');
-  res.json(response);
 });
 
 app.listen(PORT, () => {
@@ -1252,7 +1421,6 @@ app.listen(PORT, () => {
   console.log(`✅ Detecção facial: suportado via aiContext`);
   console.log(`✅ Análise de frases: coerência energética ✨`);
 });
-
 
 
 
