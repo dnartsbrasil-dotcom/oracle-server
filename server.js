@@ -694,6 +694,139 @@ Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DEC
   res.json(response);
 });
 
+// =============================================================================
+// 🎙️ ANÁLISE DE ÁUDIO - SISTEMA 4 CARTAS
+// =============================================================================
+
+app.post('/analyzeAudioWith4Cards', (req, res) => {
+  console.log('✅ /analyzeAudioWith4Cards chamado');
+  
+  const { question, audioValues, deckType, zodiacSign } = req.body;
+  
+  if (!question || !audioValues || !Array.isArray(audioValues) || audioValues.length === 0) {
+    return res.status(400).json({ error: 'Dados inválidos' });
+  }
+  
+  console.log(`🎙️ Analisando áudio: ${audioValues.length} valores`);
+  console.log(`Valores: ${audioValues.join(', ')}`);
+  
+  const selectedDeck = deckType || 'CIGANO';
+  
+  // CARTA 1: SOMA TOTAL = TEOR GERAL DO ÁUDIO
+  const totalSum = audioValues.reduce((sum, val) => sum + val, 0);
+  const card1Number = reduceToBase(totalSum);
+  const card1 = getCardFromDeck(card1Number, selectedDeck);
+  
+  console.log(`🃏 CARTA 1 (Teor Total): Soma ${totalSum} → Carta ${card1Number} - ${card1.name}`);
+  
+  // Dividir áudio em 3 partes
+  const third = Math.floor(audioValues.length / 3);
+  const inicio = audioValues.slice(0, third);
+  const meio = audioValues.slice(third, third * 2);
+  const final = audioValues.slice(third * 2);
+  
+  // CARTA 2: INÍCIO = IDEIA INICIAL
+  const sumInicio = inicio.reduce((sum, val) => sum + val, 0);
+  const card2Number = reduceToBase(sumInicio);
+  const card2 = getCardFromDeck(card2Number, selectedDeck);
+  
+  console.log(`🃏 CARTA 2 (Início): Soma ${sumInicio} → Carta ${card2Number} - ${card2.name}`);
+  
+  // CARTA 3: MEIO = DESENVOLVIMENTO
+  const sumMeio = meio.reduce((sum, val) => sum + val, 0);
+  const card3Number = reduceToBase(sumMeio);
+  const card3 = getCardFromDeck(card3Number, selectedDeck);
+  
+  console.log(`🃏 CARTA 3 (Meio): Soma ${sumMeio} → Carta ${card3Number} - ${card3.name}`);
+  
+  // CARTA 4: FINAL = DESFECHO
+  const sumFinal = final.reduce((sum, val) => sum + val, 0);
+  const card4Number = reduceToBase(sumFinal);
+  const card4 = getCardFromDeck(card4Number, selectedDeck);
+  
+  console.log(`🃏 CARTA 4 (Final): Soma ${sumFinal} → Carta ${card4Number} - ${card4.name}`);
+  
+  // Interpretação
+  let interpretationPrefix = '';
+  if (zodiacSign) {
+    const communicationStyle = getZodiacCommunicationStyle(zodiacSign);
+    interpretationPrefix = `${getZodiacEmoji(zodiacSign)} Para ${zodiacSign}: ${communicationStyle}\n\n`;
+  }
+  
+  const interpretation = 
+    `${interpretationPrefix}🎙️ ANÁLISE DE ÁUDIO\n\n` +
+    `"${question}"\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `🃏 CARTA 1 - TEOR GERAL DO ÁUDIO:\n` +
+    `${card1.symbol} #${card1Number} - ${card1.name}\n` +
+    `${card1.meaning}\n` +
+    `Representa o tom geral de toda a conversa.\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `🃏 CARTA 2 - INÍCIO DA CONVERSA:\n` +
+    `${card2.symbol} #${card2Number} - ${card2.name}\n` +
+    `${card2.meaning}\n` +
+    `A ideia inicial, o que motivou a falar.\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `🃏 CARTA 3 - DESENVOLVIMENTO DA IDEIA:\n` +
+    `${card3.symbol} #${card3Number} - ${card3.name}\n` +
+    `${card3.meaning}\n` +
+    `O meio da conversa, como a ideia se desenvolveu.\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `🃏 CARTA 4 - DESFECHO:\n` +
+    `${card4.symbol} #${card4Number} - ${card4.name}\n` +
+    `${card4.meaning}\n` +
+    `A conclusão, onde a conversa chegou.`;
+  
+  res.json({
+    question: question,
+    audioValueCount: audioValues.length,
+    deckType: selectedDeck,
+    zodiacSign: zodiacSign || null,
+    cards: [
+      {
+        position: 1,
+        title: 'Teor Geral do Áudio',
+        number: card1Number,
+        name: card1.name,
+        symbol: card1.symbol,
+        meaning: card1.meaning,
+        calculation: `Soma total: ${totalSum} → ${card1Number}`
+      },
+      {
+        position: 2,
+        title: 'Início da Conversa',
+        number: card2Number,
+        name: card2.name,
+        symbol: card2.symbol,
+        meaning: card2.meaning,
+        calculation: `Início (${inicio.length} valores): ${sumInicio} → ${card2Number}`
+      },
+      {
+        position: 3,
+        title: 'Desenvolvimento da Ideia',
+        number: card3Number,
+        name: card3.name,
+        symbol: card3.symbol,
+        meaning: card3.meaning,
+        calculation: `Meio (${meio.length} valores): ${sumMeio} → ${card3Number}`
+      },
+      {
+        position: 4,
+        title: 'Desfecho',
+        number: card4Number,
+        name: card4.name,
+        symbol: card4.symbol,
+        meaning: card4.meaning,
+        calculation: `Final (${final.length} valores): ${sumFinal} → ${card4Number}`
+      }
+    ],
+    interpretation: interpretation,
+    timestamp: Date.now()
+  });
+  
+  console.log('✅ Análise de 4 cartas enviada');
+});
+
 app.post('/oracleConsult', (req, res) => {
   console.log('✅ /oracleConsult chamado (sem imagem)');
   const { question } = req.body;
@@ -1408,3 +1541,4 @@ app.listen(PORT, () => {
   console.log(`✅ Detecção facial: suportado via aiContext`);
   console.log(`✅ Análise de frases: coerência energética ✨`);
 });
+
