@@ -1,5 +1,4 @@
 const express = require('express');
-const { pipeline } = require('@xenova/transformers');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -1392,70 +1391,142 @@ function analyzeCoherenceSimple(frase, card1Polarity) {
   };
 }
 
-app.post('/analyzeFrase', async (req, res) => {
+app.post('/analyzeFrase', (req, res) => {
   console.log('✅ /analyzeFrase chamado');
-  const { frase } = req.body;
-  if (!frase || typeof frase !== 'string') return res.status(400).json({ error: 'Frase inválida' });
   
   try {
-    let frasePolarity = 'neutra';
-    let aiConfidence = 0;
-    let usingAI = false;
+    const { frase } = req.body;
+    console.log('📝 Frase recebida:', frase);
     
-    if (sentimentModel) {
-      try {
-        const aiResult = await sentimentModel(frase);
-        frasePolarity = mapSentimentToPolaridade(aiResult[0].label);
-        aiConfidence = (aiResult[0].score * 100).toFixed(1);
-        usingAI = true;
-      } catch (e) {
-        const fb = analyzeCoherenceSimple(frase, 'neutra');
-        frasePolarity = fb.frasePolarity;
-      }
-    } else {
-      const fb = analyzeCoherenceSimple(frase, 'neutra');
-      frasePolarity = fb.frasePolarity;
+    if (!frase || typeof frase !== 'string') {
+      console.log('❌ Frase inválida');
+      return res.status(400).json({ error: 'Frase inválida' });
     }
     
+    console.log('🎯 Iniciando análise...');
+    
+    // CARTA 1
+    console.log('🃏 Calculando carta 1...');
     const card1Number = calculateCardFromText(frase);
+    console.log('   Carta 1 número:', card1Number);
     const card1Data = getCardFromDeck(card1Number, 'CIGANO');
+    console.log('   Carta 1 data:', card1Data.name);
     const card1Polarity = CARD_POLARITY[card1Number] || 'neutra';
+    console.log('   Carta 1 polaridade:', card1Polarity);
+    
+    // Dividir frase
+    console.log('✂️ Dividindo frase...');
     const parts = splitFraseInto4Parts(frase);
+    console.log('   Partes:', parts);
+    
+    // CARTA 2
+    console.log('🃏 Calculando carta 2...');
     const card2Number = calculateCardFromText(parts.parte1);
     const card2Data = getCardFromDeck(card2Number, 'CIGANO');
+    
+    // CARTA 3
+    console.log('🃏 Calculando carta 3...');
     const card3Number = calculateCardFromText(parts.parte2 + parts.parte3);
     const card3Data = getCardFromDeck(card3Number, 'CIGANO');
+    
+    // CARTA 4
+    console.log('🃏 Calculando carta 4...');
     const card4Number = calculateCardFromText(parts.parte4);
     const card4Data = getCardFromDeck(card4Number, 'CIGANO');
     
-    let coherenceStatus = 'NEUTRA', coherenceMessage = 'Intenção neutra';
-    if (card1Polarity !== 'neutra') {
-      if (frasePolarity === card1Polarity) {
-        coherenceStatus = 'COERENTE';
-        coherenceMessage = usingAI ? `Palavras ${frasePolarity}s combinam (IA: ${aiConfidence}%)` : `Palavras ${frasePolarity}s combinam`;
-      } else {
-        coherenceStatus = 'INCOERENTE';
-        coherenceMessage = `Diferença entre escrito (${frasePolarity}) e intenção (${card1Polarity})`;
-      }
-    }
+    console.log('🔍 Analisando coerência...');
+    const coherence = analyzeCoherenceSimple(frase, card1Polarity);
+    console.log('   Coerência:', coherence.status);
     
-    const iaSection = usingAI ? `🤖 IA: ${frasePolarity.toUpperCase()} (${aiConfidence}%)\n\n` : '';
-    const interpretation = `📝 "${frase}"\n\n${iaSection}🃏 #${card1Number} ${card1Data.name}\n${card1Data.meaning}\n\n⚡ ${coherenceStatus}: ${coherenceMessage}`;
+    console.log('📄 Montando interpretação...');
+    const interpretation = 
+      `📝 ANÁLISE DA FRASE\n\n` +
+      `"${frase}"\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA 1 - INTENÇÃO REAL:\n` +
+      `${card1Data.symbol} #${card1Number} - ${card1Data.name}\n` +
+      `${card1Data.meaning}\n` +
+      `Energia: ${card1Polarity}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA 2 - O QUE LEVOU A ESCREVER:\n` +
+      `${card2Data.symbol} #${card2Number} - ${card2Data.name}\n` +
+      `${card2Data.meaning}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA 3 - SIGNIFICADO DA MENSAGEM:\n` +
+      `${card3Data.symbol} #${card3Number} - ${card3Data.name}\n` +
+      `${card3Data.meaning}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🃏 CARTA 4 - COMO FOI ENTENDIDO:\n` +
+      `${card4Data.symbol} #${card4Number} - ${card4Data.name}\n` +
+      `${card4Data.meaning}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `⚡ ANÁLISE DE COERÊNCIA:\n\n` +
+      `Status: ${coherence.status}\n` +
+      `${coherence.message}`;
     
-    const resp = {
-      frase, cards: [
-        {position:1,title:'Intenção Real',number:card1Number,name:card1Data.name,symbol:card1Data.symbol,meaning:card1Data.meaning,polarity:card1Polarity},
-        {position:2,title:'Levou a escrever',number:card2Number,name:card2Data.name,symbol:card2Data.symbol,meaning:card2Data.meaning,polarity:CARD_POLARITY[card2Number]||'neutra'},
-        {position:3,title:'Significado',number:card3Number,name:card3Data.name,symbol:card3Data.symbol,meaning:card3Data.meaning,polarity:CARD_POLARITY[card3Number]||'neutra'},
-        {position:4,title:'Entendido',number:card4Number,name:card4Data.name,symbol:card4Data.symbol,meaning:card4Data.meaning,polarity:CARD_POLARITY[card4Number]||'neutra'}
+    console.log('📦 Montando resposta JSON...');
+    const response = {
+      frase: frase,
+      cards: [
+        {
+          position: 1,
+          title: 'Intenção Real',
+          number: card1Number,
+          name: card1Data.name,
+          symbol: card1Data.symbol,
+          meaning: card1Data.meaning,
+          polarity: card1Polarity
+        },
+        {
+          position: 2,
+          title: 'O que levou a escrever',
+          number: card2Number,
+          name: card2Data.name,
+          symbol: card2Data.symbol,
+          meaning: card2Data.meaning,
+          polarity: CARD_POLARITY[card2Number] || 'neutra'
+        },
+        {
+          position: 3,
+          title: 'Significado da mensagem',
+          number: card3Number,
+          name: card3Data.name,
+          symbol: card3Data.symbol,
+          meaning: card3Data.meaning,
+          polarity: CARD_POLARITY[card3Number] || 'neutra'
+        },
+        {
+          position: 4,
+          title: 'Como foi entendido',
+          number: card4Number,
+          name: card4Data.name,
+          symbol: card4Data.symbol,
+          meaning: card4Data.meaning,
+          polarity: CARD_POLARITY[card4Number] || 'neutra'
+        }
       ],
-      coherence: {status:coherenceStatus,message:coherenceMessage,frasePolarity,intentionPolarity:card1Polarity},
-      interpretation, timestamp:Date.now()
+      coherence: {
+        status: coherence.status,
+        message: coherence.message,
+        frasePolarity: coherence.frasePolarity,
+        intentionPolarity: coherence.card1Polarity
+      },
+      interpretation: interpretation,
+      timestamp: Date.now()
     };
-    if (usingAI) resp.aiAnalysis = {sentiment:frasePolarity,confidence:aiConfidence,model:'BERT'};
-    res.json(resp);
+    
+    console.log('✅ Enviando resposta...');
+    res.json(response);
+    console.log('✅ Resposta enviada com sucesso!');
+    
   } catch (error) {
-    res.status(500).json({error:'Erro',message:error.message});
+    console.error('❌❌❌ ERRO CRÍTICO:', error.message);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({ 
+      error: 'Erro ao analisar',
+      message: error.message,
+      stack: error.stack
+    });
   }
 });
 
@@ -1482,6 +1553,7 @@ app.listen(PORT, () => {
   console.log(`✅ Detecção facial: suportado via aiContext`);
   console.log(`✅ Análise de frases: coerência energética ✨`);
 });
+
 
 
 
