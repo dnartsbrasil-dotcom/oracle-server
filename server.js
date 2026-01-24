@@ -1410,7 +1410,7 @@ app.post('/analyzeFrase', async (req, res) => {
     try {
       console.log('🌐 Chamando API Hugging Face...');
       const apiResponse = await fetch(
-        "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
+        "https://router.huggingface.co/hf-inference/models/nlptown/bert-base-multilingual-uncased-sentiment",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1532,6 +1532,7 @@ app.listen(PORT, () => {
   console.log(`✅ Detecção facial: suportado via aiContext`);
   console.log(`✅ Análise de frases: coerência energética ✨`);
 });
+
 
 
 
