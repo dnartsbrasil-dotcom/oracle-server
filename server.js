@@ -1413,7 +1413,10 @@ app.post('/analyzeFrase', async (req, res) => {
         "https://router.huggingface.co/hf-inference/models/nlptown/bert-base-multilingual-uncased-sentiment",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.HUGGINGFACE_TOKEN || ''}`
+          },
           body: JSON.stringify({ inputs: frase })
         }
       );
@@ -1532,6 +1535,7 @@ app.listen(PORT, () => {
   console.log(`✅ Detecção facial: suportado via aiContext`);
   console.log(`✅ Análise de frases: coerência energética ✨`);
 });
+
 
 
 
