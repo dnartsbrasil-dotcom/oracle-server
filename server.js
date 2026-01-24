@@ -1420,6 +1420,8 @@ app.post('/analyzeFrase', async (req, res) => {
       
       if (apiResponse.ok) {
         const apiResult = await apiResponse.json();
+        console.log(`📦 Resposta da API:`, JSON.stringify(apiResult).substring(0, 200));
+        
         const topResult = apiResult[0][0];
         
         // Mapear estrelas para polaridade
@@ -1434,9 +1436,12 @@ app.post('/analyzeFrase', async (req, res) => {
         aiConfidence = (topResult.score * 100).toFixed(1);
         usingAPI = true;
         console.log(`✅ API: ${frasePolarity} (${aiConfidence}%)`);
+      } else {
+        const errorText = await apiResponse.text();
+        console.log(`❌ API erro ${apiResponse.status}: ${errorText.substring(0, 100)}`);
       }
     } catch (apiError) {
-      console.log('⚠️ API falhou, usando fallback');
+      console.log('⚠️ API falhou:', apiError.message);
       const fallback = analyzeCoherenceSimple(frase, 'neutra');
       frasePolarity = fallback.frasePolarity;
     }
@@ -1527,6 +1532,7 @@ app.listen(PORT, () => {
   console.log(`✅ Detecção facial: suportado via aiContext`);
   console.log(`✅ Análise de frases: coerência energética ✨`);
 });
+
 
 
 
