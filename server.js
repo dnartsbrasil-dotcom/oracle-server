@@ -1513,6 +1513,334 @@ app.post('/analyzeFrase', async (req, res) => {
 });
 
 
+// =============================================================================
+// ⚽ SISTEMA DE FUTEBOL - ORÁCULO DE JOGOS
+// =============================================================================
+
+// Mapa de polaridade e significado das cartas para futebol
+const FOOTBALL_CARD_ENERGY = {
+  1: { energy: 'criacao', risk: 'baixo', meaning: 'Movimento rápido, notícias favoráveis' },
+  2: { energy: 'criacao', risk: 'baixo', meaning: 'Sorte momentânea, oportunidade breve' },
+  3: { energy: 'neutral', risk: 'medio', meaning: 'Jogo de fora, viagem, distância' },
+  4: { energy: 'criacao', risk: 'baixo', meaning: 'Segurança, base sólida' },
+  5: { energy: 'criacao', risk: 'baixo', meaning: 'Saúde, força constante' },
+  6: { energy: 'bloqueio', risk: 'alto', meaning: 'Confusão, incerteza, névoa' },
+  7: { energy: 'bloqueio', risk: 'alto', meaning: 'Traição, rival perigoso' },
+  8: { energy: 'bloqueio', risk: 'morrer_na_praia', meaning: '⚠️ FIM - Esforço sem conversão' },
+  9: { energy: 'criacao', risk: 'baixo', meaning: 'Presente, alegria, vitória' },
+  10: { energy: 'neutral', risk: 'medio', meaning: 'Corte súbito, decisão rápida' },
+  11: { energy: 'bloqueio', risk: 'alto', meaning: 'Conflito, discussão, desgaste' },
+  12: { energy: 'neutral', risk: 'medio', meaning: 'Conversa, negociação' },
+  13: { energy: 'criacao', risk: 'baixo', meaning: 'Início favorável, novidade' },
+  14: { energy: 'neutral', risk: 'medio', meaning: 'Astúcia, estratégia' },
+  15: { energy: 'criacao', risk: 'baixo', meaning: 'Força, poder, domínio' },
+  16: { energy: 'criacao', risk: 'baixo', meaning: 'Orientação divina, caminho claro' },
+  17: { energy: 'virada', risk: 'baixo', meaning: 'Mudança positiva, reação' },
+  18: { energy: 'criacao', risk: 'baixo', meaning: 'Lealdade, apoio da torcida' },
+  19: { energy: 'bloqueio', risk: 'medio', meaning: 'Isolamento, ego, orgulho' },
+  20: { energy: 'criacao', risk: 'baixo', meaning: 'Apoio público, festa' },
+  21: { energy: 'bloqueio', risk: 'alto', meaning: 'Obstáculo grande, muralha' },
+  22: { energy: 'neutral', risk: 'medio', meaning: 'Escolha crítica, bifurcação' },
+  23: { energy: 'bloqueio', risk: 'alto', meaning: 'Perda, desgaste, corrosão' },
+  24: { energy: 'criacao', risk: 'baixo', meaning: 'Amor verdadeiro, paixão' },
+  25: { energy: 'criacao', risk: 'baixo', meaning: 'Compromisso, contrato, aliança' },
+  26: { energy: 'neutral', risk: 'medio', meaning: 'Segredo, tática oculta' },
+  27: { energy: 'neutral', risk: 'medio', meaning: 'Mensagem, comunicação' },
+  28: { energy: 'neutral', risk: 'medio', meaning: 'Jogador homem' },
+  29: { energy: 'neutral', risk: 'medio', meaning: 'Jogadora mulher' },
+  30: { energy: 'criacao', risk: 'baixo', meaning: 'Paz, maturidade, experiência' },
+  31: { energy: 'criacao', risk: 'baixo', meaning: 'Sucesso brilhante, energia máxima' },
+  32: { energy: 'neutral', risk: 'medio', meaning: 'Emoção, reconhecimento' },
+  33: { energy: 'criacao', risk: 'baixo', meaning: 'Solução, chave da vitória' },
+  34: { energy: 'criacao', risk: 'baixo', meaning: 'Abundância, lucro' },
+  35: { energy: 'criacao', risk: 'baixo', meaning: 'Estabilidade, porto seguro' },
+  36: { energy: 'bloqueio', risk: 'alto', meaning: 'Fardo pesado, cruz, sofrimento' }
+};
+
+// Numerologia 1-9 significados
+const NUMEROLOGY_MEANINGS = {
+  1: 'Jogo de pioneirismo - quem toma iniciativa controla',
+  2: 'Jogo de parceria - trabalho coletivo define',
+  3: 'Jogo de criatividade - momento de ousadia',
+  4: 'Jogo de estrutura - disciplina e organização vencem',
+  5: 'Jogo de mudança - viradas inesperadas',
+  6: 'Jogo de equilíbrio - empate possível',
+  7: 'Jogo de tensão - decisão no limite',
+  8: 'Jogo de poder - força física prevalece',
+  9: 'Jogo de conclusão - desenlace definitivo'
+};
+
+function letterToNumber(char) {
+  const upper = char.toUpperCase();
+  if (upper < 'A' || upper > 'Z') return 0;
+  
+  const base = upper.charCodeAt(0) - 'A'.charCodeAt(0);
+  return (base % 9) + 1; // A=1, B=2...I=9, J=1, K=2...
+}
+
+function sumLetters(text) {
+  let sum = 0;
+  for (let char of text) {
+    sum += letterToNumber(char);
+  }
+  return sum;
+}
+
+function reduceToSingleDigit(num) {
+  while (num > 9) {
+    num = num.toString().split('').reduce((acc, d) => acc + parseInt(d), 0);
+  }
+  return num;
+}
+
+function reduceTo36(num) {
+  while (num > 36) {
+    num = sumDigits(num);
+  }
+  return num === 0 ? 1 : num;
+}
+
+function divideInto6Blocks(question) {
+  const total = question.length;
+  const baseSize = Math.floor(total / 6);
+  const remainder = total % 6;
+  
+  let blocks = [];
+  let start = 0;
+  
+  for (let i = 0; i < 6; i++) {
+    const size = baseSize + (i < remainder ? 1 : 0);
+    const block = question.substring(start, start + size);
+    blocks.push(block);
+    start += size;
+  }
+  
+  return blocks;
+}
+
+function blockToCard(block) {
+  const sum = sumLetters(block);
+  const cardNumber = reduceTo36(sum);
+  const card = getCardFromDeck(cardNumber, 'CIGANO');
+  const energy = FOOTBALL_CARD_ENERGY[cardNumber] || { energy: 'neutral', risk: 'medio', meaning: 'Energia neutra' };
+  
+  return {
+    block: block,
+    sum: sum,
+    number: cardNumber,
+    name: card.name,
+    symbol: card.symbol,
+    cardMeaning: card.meaning,
+    footballMeaning: energy.meaning,
+    energy: energy.energy,
+    risk: energy.risk,
+    isMorrerNaPraia: energy.risk === 'morrer_na_praia'
+  };
+}
+
+function analyzeTeamEnergy(cards) {
+  let criacao = 0;
+  let bloqueio = 0;
+  let virada = 0;
+  let morrerNaPraia = false;
+  
+  for (let card of cards) {
+    if (card.energy === 'criacao') criacao++;
+    else if (card.energy === 'bloqueio') bloqueio++;
+    else if (card.energy === 'virada') virada++;
+    
+    if (card.isMorrerNaPraia) morrerNaPraia = true;
+  }
+  
+  let dominantEnergy;
+  if (criacao > bloqueio) {
+    dominantEnergy = 'Energia de criação - avanço e conversão';
+  } else if (bloqueio > criacao) {
+    dominantEnergy = 'Energia de bloqueio - dificuldade e travamento';
+  } else {
+    dominantEnergy = 'Energia equilibrada - jogo disputado';
+  }
+  
+  let riskLevel;
+  if (morrerNaPraia) {
+    riskLevel = 'CRÍTICO - Caixão presente (morrer na praia)';
+  } else if (bloqueio >= 2) {
+    riskLevel = 'ALTO - múltiplos bloqueios';
+  } else if (bloqueio === 1) {
+    riskLevel = 'MÉDIO - um bloqueio detectado';
+  } else {
+    riskLevel = 'BAIXO - caminho livre';
+  }
+  
+  return {
+    criacao,
+    bloqueio,
+    virada,
+    morrerNaPraia,
+    dominantEnergy,
+    riskLevel
+  };
+}
+
+function generateOracleInterpretation(teamX, teamY, numerology, analysisX, analysisY) {
+  let interpretation = `⚽ ORÁCULO DE JOGOS - LEITURA SIMBÓLICA\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `🔢 NUMEROLOGIA DO JOGO: ${numerology.value}\n`;
+  interpretation += `${numerology.meaning}\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `🔵 ${teamX.name.toUpperCase()}\n\n`;
+  
+  for (let i = 0; i < teamX.cards.length; i++) {
+    const card = teamX.cards[i];
+    interpretation += `Carta ${i + 1}: ${card.symbol} ${card.name} (#${card.number})\n`;
+    interpretation += `${card.footballMeaning}\n`;
+    if (card.isMorrerNaPraia) {
+      interpretation += `⚠️ ALERTA: MORRER NA PRAIA - esforço sem conversão\n`;
+    }
+    interpretation += `\n`;
+  }
+  
+  interpretation += `Análise energética:\n`;
+  interpretation += `${analysisX.dominantEnergy}\n`;
+  interpretation += `Risco: ${analysisX.riskLevel}\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `🔴 ${teamY.name.toUpperCase()}\n\n`;
+  
+  for (let i = 0; i < teamY.cards.length; i++) {
+    const card = teamY.cards[i];
+    interpretation += `Carta ${i + 1}: ${card.symbol} ${card.name} (#${card.number})\n`;
+    interpretation += `${card.footballMeaning}\n`;
+    if (card.isMorrerNaPraia) {
+      interpretation += `⚠️ ALERTA: MORRER NA PRAIA - esforço sem conversão\n`;
+    }
+    interpretation += `\n`;
+  }
+  
+  interpretation += `Análise energética:\n`;
+  interpretation += `${analysisY.dominantEnergy}\n`;
+  interpretation += `Risco: ${analysisY.riskLevel}\n\n`;
+  
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `🔮 LEITURA FINAL:\n\n`;
+  
+  // Decisão oracular
+  if (analysisX.morrerNaPraia && !analysisY.morrerNaPraia) {
+    interpretation += `${teamX.name} enfrenta o Caixão - risco de perder mesmo jogando bem.\n`;
+    interpretation += `${teamY.name} com caminho mais livre.\n\n`;
+    interpretation += `Tendência: ${teamY.name} com vantagem energética.\n`;
+  } else if (analysisY.morrerNaPraia && !analysisX.morrerNaPraia) {
+    interpretation += `${teamY.name} enfrenta o Caixão - risco de perder mesmo jogando bem.\n`;
+    interpretation += `${teamX.name} com caminho mais livre.\n\n`;
+    interpretation += `Tendência: ${teamX.name} com vantagem energética.\n`;
+  } else if (analysisX.morrerNaPraia && analysisY.morrerNaPraia) {
+    interpretation += `Ambos os times enfrentam o Caixão.\n`;
+    interpretation += `Jogo de sofrimento mútuo.\n\n`;
+    interpretation += `Tendência: Empate ou vitória no detalhe.\n`;
+  } else if (analysisX.criacao > analysisY.criacao + 1) {
+    interpretation += `${teamX.name} apresenta energia de criação superior.\n`;
+    interpretation += `${teamY.name} com mais bloqueios.\n\n`;
+    interpretation += `Tendência: ${teamX.name} favorito.\n`;
+  } else if (analysisY.criacao > analysisX.criacao + 1) {
+    interpretation += `${teamY.name} apresenta energia de criação superior.\n`;
+    interpretation += `${teamX.name} com mais bloqueios.\n\n`;
+    interpretation += `Tendência: ${teamY.name} favorito.\n`;
+  } else {
+    interpretation += `Energias equilibradas.\n`;
+    interpretation += `Ambos com capacidade de criação e bloqueio.\n\n`;
+    interpretation += `Tendência: Jogo aberto, resultado indefinido.\n`;
+  }
+  
+  interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `💬 Nota do Oráculo:\n`;
+  interpretation += `Esta leitura considera apenas as energias simbólicas.\n`;
+  interpretation += `Não leva em conta estatísticas, elenco ou momento dos times.\n`;
+  interpretation += `O oráculo revela tendências, não certezas.\n`;
+  
+  return interpretation;
+}
+
+app.post('/oracleConsultFootball', (req, res) => {
+  console.log('✅ /oracleConsultFootball chamado');
+  
+  const { question } = req.body;
+  
+  if (!question || typeof question !== 'string') {
+    return res.status(400).json({ error: 'Pergunta inválida' });
+  }
+  
+  console.log(`⚽ Pergunta: "${question}"`);
+  
+  // Dividir em 6 blocos
+  const blocks = divideInto6Blocks(question);
+  console.log(`📦 Blocos: ${blocks.map(b => `"${b}"`).join(', ')}`);
+  
+  // Numerologia (1-9)
+  const totalSum = sumLetters(question);
+  const numerologyValue = reduceToSingleDigit(totalSum);
+  const numerology = {
+    value: numerologyValue,
+    meaning: NUMEROLOGY_MEANINGS[numerologyValue] || 'Temperamento indefinido'
+  };
+  console.log(`🔢 Numerologia: ${numerologyValue} - ${numerology.meaning}`);
+  
+  // Gerar cartas Time X (blocos 0, 1, 2)
+  const teamXCards = [
+    blockToCard(blocks[0]),
+    blockToCard(blocks[1]),
+    blockToCard(blocks[2])
+  ];
+  
+  // Gerar cartas Time Y (blocos 3, 4, 5)
+  const teamYCards = [
+    blockToCard(blocks[3]),
+    blockToCard(blocks[4]),
+    blockToCard(blocks[5])
+  ];
+  
+  // Análise energética
+  const analysisX = analyzeTeamEnergy(teamXCards);
+  const analysisY = analyzeTeamEnergy(teamYCards);
+  
+  console.log(`🔵 Time X: ${analysisX.dominantEnergy}`);
+  console.log(`🔴 Time Y: ${analysisY.dominantEnergy}`);
+  
+  // Tentar extrair nomes dos times (simples)
+  const teamXName = 'TIME 1 (primeiro mencionado)';
+  const teamYName = 'TIME 2 (segundo mencionado)';
+  
+  const teamX = {
+    name: teamXName,
+    blocks: [blocks[0], blocks[1], blocks[2]],
+    cards: teamXCards,
+    analysis: analysisX
+  };
+  
+  const teamY = {
+    name: teamYName,
+    blocks: [blocks[3], blocks[4], blocks[5]],
+    cards: teamYCards,
+    analysis: analysisY
+  };
+  
+  // Interpretação oracular
+  const interpretation = generateOracleInterpretation(teamX, teamY, numerology, analysisX, analysisY);
+  
+  const response = {
+    question: question,
+    numerology: numerology,
+    teamX: teamX,
+    teamY: teamY,
+    interpretation: interpretation,
+    timestamp: Date.now()
+  };
+  
+  console.log('✅ Leitura oracular enviada');
+  res.json(response);
+});
+
 app.listen(PORT, () => {
   console.log(`🔮 Servidor Oracle rodando na porta ${PORT}`);
   console.log(`📡 Endpoints disponíveis:`);
@@ -1520,7 +1848,8 @@ app.listen(PORT, () => {
   console.log(`  POST /oracleConsult`);
   console.log(`  POST /oracleConsultWithImage (6 cartas)`);
   console.log(`  POST /oracleConsultWithAudio`);
-  console.log(`  POST /analyzeFrase (análise de coerência) ✨ NOVO`);
+  console.log(`  POST /analyzeFrase (análise de coerência)`);
+  console.log(`  POST /oracleConsultFootball ⚽ NOVO`);
   console.log(`🃏 Baralhos disponíveis:`);
   console.log(`  - VESTIGIUM: 36 cartas (Oráculo Investigativo - 4 Núcleos)`);
   console.log(`  - BIBLICO: 36 cartas (Oráculo Bíblico - 4 Grupos da Jornada)`);
@@ -1533,7 +1862,8 @@ app.listen(PORT, () => {
   console.log(`✅ Sistema DECIFRA: 6 posições para análise psicológica`);
   console.log(`✅ Análise de imagem: 6 cartas estruturadas`);
   console.log(`✅ Detecção facial: suportado via aiContext`);
-  console.log(`✅ Análise de frases: coerência energética ✨`);
+  console.log(`✅ Análise de frases: coerência energética com IA`);
+  console.log(`✅ Oráculo de Futebol: 6 blocos + numerologia 1-9 ⚽`);
 });
 
 
