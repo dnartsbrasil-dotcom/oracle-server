@@ -670,32 +670,37 @@ As 6 posições do Sistema DECIFRA revelam:
 
 Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DECIFRA mostra o conflito interno, o caminho e a verdade final.`;
   } else {
-    // Para Cigano com 3 cartas → Interpretação Passado-Presente-Futuro
+    // Para Cigano com 3 cartas → Interpretação ORACULAR DECISIVA
     if (selectedDeck === 'CIGANO' && cardCount === 3) {
-      interpretation = `${interpretationPrefix}🔮 LEITURA DO CAMINHO
+      // Interpretação profunda de cada carta
+      const passadoInterpretacao = interpretarCartaOracular(cards[0], 'passado');
+      const presenteInterpretacao = interpretarCartaOracular(cards[1], 'presente');
+      const futuroInterpretacao = interpretarCartaOracular(cards[2], 'futuro');
+      
+      // Síntese conectando as 3 cartas
+      const sintese = gerarSinteseOracular(cards[0], cards[1], cards[2]);
+      
+      // Veredito simbólico
+      const veredito = gerarVeredito(cards[0], cards[1], cards[2]);
+      
+      interpretation = `${interpretationPrefix}🔮 LEITURA ORACULAR
 
-📜 PASSADO (O que trouxe até aqui):
-${cards[0].symbol} ${cards[0].greekName}
-${cards[0].meaning}
+📜 PASSADO — ${cards[0].greekName}
+${passadoInterpretacao}
 
-O que já foi vivido molda o presente. Esta carta revela a energia que você carrega.
+⏳ PRESENTE — ${cards[1].greekName}
+${presenteInterpretacao}
 
-⏳ PRESENTE (Onde você está agora):
-${cards[1].symbol} ${cards[1].greekName}
-${cards[1].meaning}
-
-Este é o momento de escolha. O presente é a ponte entre o que foi e o que será.
-
-🌟 FUTURO (Para onde você vai):
-${cards[2].symbol} ${cards[2].greekName}
-${cards[2].meaning}
-
-O destino se desenha. Esta carta mostra a tendência natural se você seguir o fluxo atual.
+🌟 FUTURO — ${cards[2].greekName}
+${futuroInterpretacao}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-💭 Síntese:
-Você carrega ${cards[0].greekName} do passado, vive ${cards[1].greekName} no presente, e caminha para ${cards[2].greekName} no futuro. O oráculo não dita destino — ele mostra caminhos. A escolha é sempre sua.`;
+🔮 Síntese do oráculo
+${sintese}
+
+🧿 Veredito simbólico
+${veredito}`;
     } else {
       // Outros casos (outros decks ou quantidade de cartas)
       interpretation = `${interpretationPrefix}🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`;
@@ -722,6 +727,409 @@ Você carrega ${cards[0].greekName} do passado, vive ${cards[1].greekName} no pr
   }
   res.json(response);
 });
+
+// =============================================================================
+// 🔮 INTERPRETAÇÃO ORACULAR PROFUNDA (SEM FRASES MOTIVACIONAIS)
+// =============================================================================
+
+// Interpretações profundas por carta e contexto
+function interpretarCartaOracular(card, posicao) {
+  const interpretacoesProfundas = {
+    'Cavaleiro': {
+      passado: 'O Cavaleiro fala de movimento que não parou. Notícias que chegaram, decisões que foram tomadas em velocidade. O caminho até aqui foi marcado por pressa, mudanças e mensagens que alteraram rotas.',
+      presente: 'O Cavaleiro traz movimento no agora. Há mensagens chegando, decisões sendo tomadas, caminhos se abrindo. A energia está em trânsito, em movimento constante.',
+      futuro: 'O Cavaleiro aponta chegada. Notícias virão, mudanças se aproximam, rotas serão alteradas. O que está parado vai se mover.'
+    },
+    'Trevo': {
+      passado: 'O Trevo revela sorte que já passou. Oportunidades que surgiram, momentos leves, soluções rápidas. O caminho foi facilitado por graça inesperada.',
+      presente: 'O Trevo traz leveza agora. Há sorte pequena, oportunidade breve, momento favorável. A energia está leve e fluida.',
+      futuro: 'O Trevo aponta solução rápida. A sorte vem, a oportunidade se abre, o caminho se facilita. Breve, mas real.'
+    },
+    'Navio': {
+      passado: 'O Navio mostra jornada longa. Distância percorrida, separações, viagens que moldaram. O caminho foi de longe, de espera, de navegação lenta.',
+      presente: 'O Navio indica distância no agora. Há separação, espera, jornada em curso. A energia está em movimento lento mas constante.',
+      futuro: 'O Navio aponta partida ou chegada. Viagem acontece, distância se estabelece ou se encerra. O movimento é inevitável.'
+    },
+    'Casa': {
+      passado: 'A Casa fala de raízes estabelecidas. Família, base, estrutura que sustentou. O caminho foi construído sobre fundação sólida.',
+      presente: 'A Casa traz estabilidade agora. Há base firme, família presente, estrutura que segura. A energia está ancorada.',
+      futuro: 'A Casa aponta permanência. O que vier ficará, a base se estabelece, raízes se aprofundam. Estrutura se solidifica.'
+    },
+    'Árvore': {
+      passado: 'A Árvore mostra crescimento lento. Saúde vivida, raízes antigas, processos que levaram tempo. O caminho foi de paciência forçada.',
+      presente: 'A Árvore indica saúde e tempo. Há processo lento, raiz profunda, crescimento gradual. A energia está firme mas demorada.',
+      futuro: 'A Árvore aponta longevidade. O que vier dura, a saúde se estabelece ou se cobra, raízes se aprofundam. Tempo longo.'
+    },
+    'Nuvens': {
+      passado: 'As Nuvens revelam confusão passada. Incerteza que prevaleceu, clareza que faltou, névoa que cobriu. O caminho foi nebuloso.',
+      presente: 'As Nuvens trazem dúvida agora. Há confusão ativa, clareza que falta, névoa que impede visão. A energia está obscura.',
+      futuro: 'As Nuvens apontam incerteza à frente. Confusão virá, clareza demorará, névoa permanecerá. A visão será limitada.'
+    },
+    'Cobra': {
+      passado: 'A Cobra fala de manobras nos bastidores. Articulações ocultas, estratégias sinuosas, conflitos velados. O caminho foi marcado por jogos de poder e inimigos disfarçados.',
+      presente: 'A Cobra indica traição ou estratégia no agora. Há manobras acontecendo, conflitos velados, alianças questionáveis. A energia está torcida.',
+      futuro: 'A Cobra aponta complicação à frente. Traição pode vir, conflito se estabelece, caminhos tortos prevalecem. A sinuosidade vence a linha reta.'
+    },
+    'Caixão': {
+      passado: 'O Caixão mostra fim que já ocorreu. Ciclo encerrado, morte simbólica, transformação forçada. O caminho passou por perda definitiva.',
+      presente: 'O Caixão traz encerramento no agora. Há fim acontecendo, ciclo se fechando, morte simbólica em curso. A energia está em dissolução.',
+      futuro: 'O Caixão aponta término inevitável. O fim virá, o ciclo se encerra, a transformação se completa. Não há retorno.'
+    },
+    'Buquê': {
+      passado: 'O Buquê revela beleza que foi. Presentes recebidos, momentos de alegria, reconhecimento que chegou. O caminho foi ornamentado.',
+      presente: 'O Buquê traz beleza agora. Há presente chegando, alegria presente, reconhecimento vindo. A energia está florida.',
+      futuro: 'O Buquê aponta dádiva à frente. Presente virá, beleza se estabelece, alegria se manifesta. O que é belo prevalece.'
+    },
+    'Foice': {
+      passado: 'A Foice mostra corte que aconteceu. Separação brusca, decisão afiada, fim repentino. O caminho foi cortado.',
+      presente: 'A Foice indica ruptura no agora. Há corte acontecendo, decisão sendo tomada, fim abrupto em curso. A energia está cortante.',
+      futuro: 'A Foice aponta corte à frente. Separação virá, decisão será tomada, fim será repentino. A lâmina cai.'
+    },
+    'Chicote': {
+      passado: 'O Chicote fala de conflito passado. Discussões que aconteceram, agressões trocadas, embates repetidos. O caminho foi combativo.',
+      presente: 'O Chicote traz conflito no agora. Há discussão ativa, embate presente, agressão em troca. A energia está combativa.',
+      futuro: 'O Chicote aponta briga à frente. Conflito virá, discussão se estabelece, embates se repetem. A disputa prevalece.'
+    },
+    'Pássaros': {
+      passado: 'Os Pássaros mostram conversas que foram. Fofocas circularam, comunicação intensa, vozes múltiplas. O caminho foi barulhento.',
+      presente: 'Os Pássaros indicam comunicação no agora. Há conversa acontecendo, fofoca circulando, vozes se multiplicando. A energia está vocal.',
+      futuro: 'Os Pássaros apontam fala à frente. Conversas virão, fofocas circularão, comunicação se intensifica. As vozes prevalecerão.'
+    },
+    'Criança': {
+      passado: 'A Criança revela inocência passada. Começos que aconteceram, ingenuidade que prevaleceu, novidade que surgiu. O caminho foi infantil.',
+      presente: 'A Criança traz novo começo agora. Há inocência presente, frescor ativo, pequenez atual. A energia está jovem.',
+      futuro: 'A Criança aponta início à frente. Novo começa, inocência retorna, pequeno cresce. O começo prevalece.'
+    },
+    'Raposa': {
+      passado: 'A Raposa mostra astúcia passada. Estratégias usadas, inteligência aplicada, manipulação que ocorreu. O caminho foi esperto.',
+      presente: 'A Raposa indica inteligência no agora. Há estratégia ativa, astúcia sendo usada, jogo sendo jogado. A energia está calculista.',
+      futuro: 'A Raposa aponta esperteza à frente. Estratégia virá, manipulação acontecerá, inteligência prevalecerá. O jogo se estabelece.'
+    },
+    'Urso': {
+      passado: 'O Urso fala de poder que foi. Força estabelecida, autoridade exercida, proteção que existiu. O caminho foi forte.',
+      presente: 'O Urso traz força no agora. Há poder presente, autoridade ativa, proteção estabelecida. A energia está dominante.',
+      futuro: 'O Urso aponta domínio à frente. Poder virá, autoridade se estabelece, força prevalece. O controle é inevitável.'
+    },
+    'Estrelas': {
+      passado: 'As Estrelas mostram orientação que houve. Destino que guiou, esperança que sustentou, proteção celestial. O caminho foi iluminado.',
+      presente: 'As Estrelas trazem guia no agora. Há destino se revelando, esperança presente, luz celestial. A energia está orientada.',
+      futuro: 'As Estrelas apontam direção divina. Destino se cumpre, esperança se realiza, proteção se manifesta. O caminho é iluminado.'
+    },
+    'Cegonha': {
+      passado: 'A Cegonha revela mudança que ocorreu. Transformação que aconteceu, nascimento que veio, movimento ascendente. O caminho foi de elevação.',
+      presente: 'A Cegonha indica mudança no agora. Há transformação em curso, nascimento acontecendo, movimento para cima. A energia está ascendente.',
+      futuro: 'A Cegonha aponta transformação à frente. Mudança virá, nascimento acontece, elevação se dá. O novo prevalece.'
+    },
+    'Cão': {
+      passado: 'O Cão mostra lealdade que existiu. Amizades que sustentaram, fidelidade que prevaleceu, proteção que foi dada. O caminho teve aliados.',
+      presente: 'O Cão traz lealdade e sustentação. Há alianças firmes, base fiel, proteção ativa. Não se caminha sozinho agora — existe quem defenda e sustente.',
+      futuro: 'O Cão aponta fidelidade à frente. Amizade permanece, lealdade se estabelece, proteção continua. Os aliados ficam.'
+    },
+    'Torre': {
+      passado: 'A Torre fala de isolamento passado. Solidão vivida, separação imposta, distância estabelecida. O caminho foi solitário.',
+      presente: 'A Torre indica solidão no agora. Há isolamento ativo, separação presente, distância estabelecida. A energia está fechada.',
+      futuro: 'A Torre aponta isolamento à frente. Solidão virá, separação se impõe, distância se estabelece. O afastamento prevalece.'
+    },
+    'Jardim': {
+      passado: 'O Jardim mostra convívio que houve. Socializações passadas, público que esteve presente, comunidade que existiu. O caminho foi coletivo.',
+      presente: 'O Jardim traz convívio no agora. Há socialização ativa, público presente, comunidade reunida. A energia está coletiva.',
+      futuro: 'O Jardim aponta público à frente. Socialização virá, comunidade se reúne, exposição acontece. O coletivo prevalece.'
+    },
+    'Montanha': {
+      passado: 'A Montanha revela bloqueio que existiu. Obstáculos enfrentados, atrasos vividos, impossibilidades que prevaleceram. O caminho foi travado.',
+      presente: 'A Montanha indica bloqueio no agora. Há obstáculo firme, atraso estabelecido, impossibilidade presente. A energia está travada.',
+      futuro: 'A Montanha aponta obstrução à frente. Bloqueio virá, obstáculo se estabelece, impossibilidade prevalece. O caminho se fecha.'
+    },
+    'Caminhos': {
+      passado: 'Os Caminhos mostram escolha que foi feita. Bifurcações enfrentadas, decisões tomadas, rotas escolhidas. O caminho teve encruzilhada.',
+      presente: 'Os Caminhos indicam escolha no agora. Há decisão sendo tomada, bifurcação presente, rotas se abrindo. A energia está indecisa.',
+      futuro: 'Os Caminhos apontam decisão à frente. Escolha virá, bifurcação se apresenta, rota será tomada. A encruzilhada se aproxima.'
+    },
+    'Ratos': {
+      passado: 'Os Ratos falam de desgaste passado. Perdas graduais, corrosão vivida, ansiedade que consumiu. O caminho foi corroído.',
+      presente: 'Os Ratos trazem desgaste no agora. Há perda gradual, corrosão ativa, ansiedade consumindo. A energia está sendo roída.',
+      futuro: 'Os Ratos apontam corrosão à frente. Perdas graduais virão, desgaste contínuo se estabelece, consumo silencioso prevalece. Não é corte brusco, mas erosão que enfraquece o que parecia sólido.'
+    },
+    'Coração': {
+      passado: 'O Coração revela amor que foi. Sentimentos vividos, paixão que existiu, afeto estabelecido. O caminho foi emocional.',
+      presente: 'O Coração traz amor no agora. Há sentimento ativo, paixão presente, afeto estabelecido. A energia está emocional.',
+      futuro: 'O Coração aponta amor à frente. Sentimento virá, paixão se estabelece, afeto prevalece. O amor se manifesta.'
+    },
+    'Anel': {
+      passado: 'O Anel mostra compromisso que houve. Promessas feitas, contratos assinados, alianças estabelecidas. O caminho foi comprometido.',
+      presente: 'O Anel indica compromisso no agora. Há promessa ativa, contrato válido, aliança estabelecida. A energia está comprometida.',
+      futuro: 'O Anel aponta compromisso à frente. Promessa será feita, contrato será assinado, aliança se estabelece. O vínculo se forma.'
+    },
+    'Livro': {
+      passado: 'O Livro fala de segredos passados. Conhecimento oculto, informações escondidas, mistérios que prevaleceram. O caminho foi secreto.',
+      presente: 'O Livro indica segredo no agora. Há conhecimento oculto, informação escondida, mistério presente. A energia está velada.',
+      futuro: 'O Livro aponta revelação ou ocultação. Segredo será mantido ou revelado, conhecimento virá ou ficará escondido. O mistério prevalece.'
+    },
+    'Carta': {
+      passado: 'A Carta mostra mensagem que chegou. Notícias recebidas, comunicação que aconteceu, informações que vieram. O caminho foi informado.',
+      presente: 'A Carta traz notícia no agora. Há mensagem chegando, comunicação ativa, informação em trânsito. A energia está em comunicação.',
+      futuro: 'A Carta aponta mensagem à frente. Notícia virá, comunicação se estabelece, informação chega. A mensagem se manifesta.'
+    },
+    'Homem': {
+      passado: 'O Homem revela figura masculina significativa. Influência que prevaleceu, presença que marcou, energia masculina ativa. O caminho teve essa figura.',
+      presente: 'O Homem indica presença masculina no agora. Há figura importante, influência ativa, energia masculina presente. A força está personificada.',
+      futuro: 'O Homem aponta figura à frente. Presença masculina virá, influência se estabelece, energia se manifesta. O homem prevalece.'
+    },
+    'Mulher': {
+      passado: 'A Mulher mostra figura feminina significativa. Influência que prevaleceu, presença que marcou, energia feminina ativa. O caminho teve essa figura.',
+      presente: 'A Mulher indica presença feminina no agora. Há figura importante, influência ativa, energia feminina presente. A força está personificada.',
+      futuro: 'A Mulher aponta figura à frente. Presença feminina virá, influência se estabelece, energia se manifesta. A mulher prevalece.'
+    },
+    'Lírios': {
+      passado: 'Os Lírios falam de pureza passada. Paz que existiu, harmonia vivida, maturidade estabelecida. O caminho foi sereno.',
+      presente: 'Os Lírios trazem paz no agora. Há pureza presente, harmonia ativa, serenidade estabelecida. A energia está pura.',
+      futuro: 'Os Lírios apontam harmonia à frente. Paz virá, pureza se estabelece, serenidade prevalece. A harmonia se manifesta.'
+    },
+    'Sol': {
+      passado: 'O Sol revela vitória passada. Sucesso alcançado, brilho que existiu, calor que aqueceu. O caminho foi vitorioso.',
+      presente: 'O Sol traz vitória no agora. Há sucesso presente, brilho ativo, calor estabelecido. A energia está radiante.',
+      futuro: 'O Sol aponta triunfo à frente. Vitória virá, sucesso se estabelece, brilho prevalece. A luz vence.'
+    },
+    'Lua': {
+      passado: 'A Lua mostra reconhecimento passado. Fama que veio, intuição que guiou, emoções que prevaleceram. O caminho foi emocional e reconhecido.',
+      presente: 'A Lua traz reconhecimento no agora. Há fama presente, intuição ativa, emoções fortes. A energia está reconhecida.',
+      futuro: 'A Lua aponta reconhecimento à frente. Fama virá, intuição se manifesta, emoções prevalecem. O brilho noturno se estabelece.'
+    },
+    'Chave': {
+      passado: 'A Chave fala de solução que veio. Portas que se abriram, respostas que chegaram, destino que se cumpriu. O caminho foi destrancado.',
+      presente: 'A Chave traz solução no agora. Há porta abrindo, resposta chegando, destino se cumprindo. A energia está destravada.',
+      futuro: 'A Chave aponta destrancar à frente. Solução virá, porta se abrirá, resposta chega. O destino se cumpre.'
+    },
+    'Peixes': {
+      passado: 'Os Peixes mostram abundância passada. Dinheiro que fluiu, negócios que aconteceram, multiplicação que veio. O caminho foi próspero.',
+      presente: 'Os Peixes trazem abundância no agora. Há dinheiro fluindo, negócios acontecendo, multiplicação ativa. A energia está próspera.',
+      futuro: 'Os Peixes apontam prosperidade à frente. Dinheiro virá, negócios se estabelecem, multiplicação acontece. A abundância prevalece.'
+    },
+    'Âncora': {
+      passado: 'A Âncora revela estabilidade ou peso passado. Segurança estabelecida ou lentidão imposta. O caminho foi ancorado.',
+      presente: 'A Âncora indica firmeza ou trava no agora. Há segurança estabelecida ou peso que segura. A energia está ancorada.',
+      futuro: 'A Âncora aponta permanência ou lentidão. Segurança se estabelece ou peso permanece. O que está ancorado não se move.'
+    },
+    'Cruz': {
+      passado: 'A Cruz mostra fardo que foi carregado. Peso vivido, sacrifício feito, destino cumprido. O caminho foi pesado.',
+      presente: 'A Cruz traz fardo no agora. Há peso sendo carregado, sacrifício ativo, destino se cumprindo. A energia está carregada.',
+      futuro: 'A Cruz aponta peso à frente. Fardo virá, sacrifício será exigido, destino se cumpre. O peso prevalece.'
+    }
+  };
+  
+  const interpretacao = interpretacoesProfundas[card.greekName];
+  if (!interpretacao) {
+    // Fallback caso a carta não esteja mapeada
+    return card.meaning;
+  }
+  
+  return interpretacao[posicao] || card.meaning;
+}
+
+// Gerar síntese NARRATIVA ARQUETÍPICA (universal)
+function gerarSinteseOracular(passado, presente, futuro) {
+  const p = passado.greekName;
+  const pr = presente.greekName;
+  const f = futuro.greekName;
+  
+  let narrativa = '';
+  
+  // ============================================================================
+  // NARRATIVAS ARQUETÍPICAS - Aplicam a QUALQUER contexto
+  // ============================================================================
+  
+  // CHICOTE + CEGONHA + FOICE (conflito → transformação → corte)
+  if (p === 'Chicote' && pr === 'Cegonha' && f === 'Foice') {
+    narrativa = `Passado: Conflitos e embates (${p}).\nPresente: Transformações em curso (${pr}).\nFuturo: Corte abrupto (${f}).\n\nOs embates do passado geraram mudanças no presente. Essas mudanças não se estabilizam — elas pressionam para separação. Ou se corta o que está causando atrito, ou a própria pressão corta. A Foice não espera equilíbrio — ela separa.`;
+  }
+  
+  // QUALQUER + CÃO + RATOS (lealdade → desgaste)
+  else if (pr === 'Cão' && f === 'Ratos') {
+    narrativa = `Passado: ${p}.\nPresente: Lealdade e sustentação (${pr}).\nFuturo: Desgaste gradual (${f}).\n\nA base fiel do presente cria proteção momentânea, mas os Ratos não poupam alianças — eles corroem estruturas. Ou a lealdade se transforma em ação que preserva, ou o desgaste consome mesmo o que está protegido. Não é colapso — é erosão.`;
+  }
+  
+  // BLOQUEIO PRESENTE + FIM FUTURO
+  else if ((pr === 'Montanha' || pr === 'Âncora' || pr === 'Caixão') && (f === 'Caixão' || f === 'Foice' || f === 'Cruz')) {
+    narrativa = `Passado: ${p}.\nPresente: ${pr} — bloqueio estrutural.\nFuturo: ${f} — encerramento.\n\nQuando o presente está travado e o futuro mostra fim, a tendência não é destravamento — é conclusão. Ou se rompe antes e se liberta, ou a permanência se torna insustentável até morrer. O bloqueio não se resolve — ele encerra.`;
+  }
+  
+  // PASSADO PESADO + FOICE FUTURO
+  else if ((p === 'Cobra' || p === 'Chicote' || p === 'Montanha' || p === 'Nuvens') && f === 'Foice') {
+    narrativa = `Passado: ${p} — ${p === 'Chicote' ? 'embates' : p === 'Cobra' ? 'complicações' : p === 'Montanha' ? 'bloqueios' : 'confusão'}.\nPresente: ${pr}.\nFuturo: Foice — separação.\n\nO peso do passado acumula tensão no presente. Tensão acumulada pressiona até que algo se rompe. Ou se corta antes que exploda, ou a própria pressão força o corte. A lâmina não negocia — ela apenas separa.`;
+  }
+  
+  // FIM NO FUTURO (Caixão, Foice, Cruz)
+  else if (f === 'Caixão' || f === 'Foice' || f === 'Cruz') {
+    const acao = f === 'Caixão' ? 'se encerra' : f === 'Foice' ? 'se separa' : 'pesa até parar';
+    narrativa = `Passado: ${p}.\nPresente: ${pr}.\nFuturo: ${f} — ${acao}.\n\nDo passado ao presente, o movimento converge para encerramento. ${f === 'Foice' ? 'A lâmina não negocia — ou se corta conscientemente, ou se é cortado pela pressão.' : f === 'Caixão' ? 'Ciclos não morrem por escolha — morrem quando se esgotam.' : 'O fardo não desaparece — ou se abandona, ou esmaga.'} A questão não é SE termina, mas COMO termina.`;
+  }
+  
+  // VITÓRIA NO FUTURO (Sol, Estrelas, Chave)
+  else if (f === 'Sol' || f === 'Estrelas' || f === 'Chave') {
+    narrativa = `Passado: ${p}.\nPresente: ${pr}.\nFuturo: ${f} — resolução favorável.\n\nDo que foi construído ao que está sendo vivido, o caminho aponta para ${f === 'Sol' ? 'vitória clara' : f === 'Estrelas' ? 'orientação divina' : 'solução definitiva'}. Ou se aproveita o momento favorável e se consolida, ou se desperdiça e ele passa. O destino oferece a porta — cabe atravessá-la.`;
+  }
+  
+  // DESGASTE FUTURO (Ratos, Nuvens, Cobra)
+  else if (f === 'Ratos' || f === 'Nuvens' || f === 'Cobra') {
+    const processo = f === 'Ratos' ? 'corrosão' : f === 'Nuvens' ? 'confusão' : 'complicação';
+    narrativa = `Passado: ${p}.\nPresente: ${pr}.\nFuturo: ${f} — ${processo} progressiva.\n\nO caminho não se fortalece — se fragiliza. ${f === 'Ratos' ? 'Os Ratos não atacam de frente — eles roem fundações aos poucos.' : f === 'Nuvens' ? 'As Nuvens não bloqueiam — elas obscurecem até que nada se enxerga.' : 'A Cobra não confronta — ela complica até que o simples vire impossível.'} Ou se age antes da deterioração total, ou o desgaste prevalece.`;
+  }
+  
+  // TRANSFORMAÇÃO (Cegonha)
+  else if (pr === 'Cegonha' || f === 'Cegonha') {
+    narrativa = `Passado: ${p}.\n${pr === 'Cegonha' ? 'Presente: Transformação ativa.' : 'Presente: ' + pr + '.'}\nFuturo: ${f}.\n\nMudança não é promessa — é movimento em curso. ${pr === 'Cegonha' ? 'O que está se transformando agora determina o ' + f + ' futuro.' : 'O caminho leva à transformação.'} Ou se surfam as mudanças e se adapta, ou se é arrastado por elas. Transformação não pede licença.`;
+  }
+  
+  // BLOQUEIO PRESENTE (não necessariamente fim)
+  else if (pr === 'Montanha' || pr === 'Âncora' || pr === 'Caixão') {
+    narrativa = `Passado: ${p}.\nPresente: ${pr} — bloqueio ou peso.\nFuturo: ${f}.\n\nO presente está travado. ${pr === 'Montanha' ? 'Montanha não se move' : pr === 'Âncora' ? 'Âncora prende' : 'Caixão fecha'} — o que está parado define o que virá. Ou se rompe o bloqueio e ${f} vem como libertação, ou o bloqueio permanece e ${f} vem como consequência da imobilidade.`;
+  }
+  
+  // PODER (Urso)
+  else if (f === 'Urso') {
+    narrativa = `Passado: ${p}.\nPresente: ${pr}.\nFuturo: Urso — domínio.\n\nO poder não se pede — se estabelece. Do presente ao futuro, a força se consolida. Ou se assume o domínio ativamente, ou outro assume. Autoridade prevalece — questão é de quem.`;
+  }
+  
+  // ESCOLHA (Caminhos)
+  else if (f === 'Caminhos' || pr === 'Caminhos') {
+    narrativa = `Passado: ${p}.\n${pr === 'Caminhos' ? 'Presente: Bifurcação ativa.' : 'Presente: ' + pr + '.'}\nFuturo: ${f}.\n\n${pr === 'Caminhos' ? 'A encruzilhada está aqui.' : 'A bifurcação se aproxima.'} Quando os Caminhos aparecem, não há destino único — há múltiplas possibilidades. Cada rota leva a um ${f} diferente. Não há caminho errado, mas cada um tem seu destino próprio.`;
+  }
+  
+  // AMOR/SENTIMENTO (Coração)
+  else if (f === 'Coração' || pr === 'Coração') {
+    narrativa = `Passado: ${p}.\n${pr === 'Coração' ? 'Presente: Amor ativo.' : 'Presente: ' + pr + '.'}\nFuturo: ${f}.\n\n${pr === 'Coração' ? 'Sentimento presente conduz ao futuro.' : 'Caminho leva ao sentimento.'} Amor não é racional — é força que move. Ou se segue a emoção e ela guia, ou se resiste e o afeto se perde. Coração define rota mais que lógica.`;
+  }
+  
+  // PADRÃO GENÉRICO ARQUETÍPICO
+  else {
+    const energiaP = categorizeCard(p);
+    const energiaPr = categorizeCard(pr);
+    const energiaF = categorizeCard(f);
+    
+    // Trajetória ascendente
+    if (energiaP === 'negativa' && energiaF === 'positiva') {
+      narrativa = `Passado difícil (${p}) leva a futuro favorável (${f}). Trajetória ascendente. Do peso à leveza. Ou se sustenta a melhora, ou se retrocede. Tendência é evolução.`;
+    }
+    // Trajetória descendente
+    else if (energiaP === 'positiva' && energiaF === 'negativa') {
+      narrativa = `Passado favorável (${p}) aponta futuro difícil (${f}). Trajetória descendente. Do brilho ao peso. Ou se reverte antes, ou a deterioração completa. Tendência é desgaste.`;
+    }
+    // Futuro difícil
+    else if (energiaF === 'negativa') {
+      narrativa = `${p} moldou o caminho. ${pr} define agora. ${f} se aproxima trazendo dificuldade. Ou se prepara e minimiza dano, ou se é pego despreparado. O problema vem — questão é como se recebe.`;
+    }
+    // Futuro favorável
+    else if (energiaF === 'positiva') {
+      narrativa = `${p} trouxe o que trouxe. ${pr} sustenta o momento. ${f} se aproxima trazendo resolução. Ou se aproveita e maximiza ganho, ou se desperdiça e perde. A porta abre — questão é atravessá-la.`;
+    }
+    // Neutro
+    else {
+      narrativa = `Do ${p} ao ${pr}, chegando em ${f}. Cada carta alimenta a próxima — passado molda presente, presente gera futuro. Não são três eventos separados — é um único fluxo em três estágios. O movimento é contínuo.`;
+    }
+  }
+  
+  return narrativa;
+}
+
+// Função auxiliar para categorizar energia da carta
+function categorizeCard(cardName) {
+  const positivas = ['Sol', 'Estrelas', 'Chave', 'Buquê', 'Coração', 'Anel', 'Trevo', 'Casa'];
+  const negativas = ['Caixão', 'Foice', 'Cobra', 'Montanha', 'Ratos', 'Nuvens', 'Chicote', 'Cruz', 'Âncora', 'Torre'];
+  
+  if (positivas.includes(cardName)) return 'positiva';
+  if (negativas.includes(cardName)) return 'negativa';
+  return 'neutra';
+}
+
+// Gerar veredito NARRATIVO com possibilidades (não sentença fechada)
+function gerarVeredito(passado, presente, futuro) {
+  const f = futuro.greekName;
+  const pr = presente.greekName;
+  const p = passado.greekName;
+  
+  // Vereditos NARRATIVOS por carta final
+  const vereditos = {
+    'Sol': `A vitória se aproxima.\nOu se aproveita o brilho, ou ele passa.\nTendência é triunfo.`,
+    
+    'Estrelas': `Orientação divina guia.\nOu se segue a luz, ou se perde no escuro.\nDestino favorece quem confia.`,
+    
+    'Chave': `A solução está próxima.\nOu se gira a chave e abre, ou ela enferruja trancada.\nResposta existe — questão é alcançá-la.`,
+    
+    'Caixão': `O ciclo se encerra.\nOu se aceita o fim e se liberta, ou se resiste e morre junto.\nNão há como reviver o que morreu.`,
+    
+    'Foice': `Corte se aproxima.\nOu se corta o que está doente, ou se é cortado pela pressão.\nA lâmina não negocia — só separa.`,
+    
+    'Ratos': `Desgaste cobra aos poucos.\nOu se protege antes da erosão total, ou tudo se consome.\nNão é queda súbita — é perda gradual.`,
+    
+    'Montanha': `Bloqueio permanece.\nOu se contorna a montanha, ou se para diante dela.\nObstáculo não cede — se adapta ou se desiste.`,
+    
+    'Cobra': `Complicação se aproxima.\nOu se navega a sinuosidade, ou se perde nela.\nCaminho não é reto — é tortuoso.`,
+    
+    'Nuvens': `Confusão obscurece.\nOu se espera a névoa passar, ou se age às cegas.\nClareza não vem rápido.`,
+    
+    'Cão': `Lealdade se mantém.\nOu se valoriza os aliados, ou se perde o apoio.\nProteção existe — questão é reconhecê-la.`,
+    
+    'Urso': `Poder se consolida.\nOu se assume o domínio, ou outro assume por você.\nForça prevalece — questão é de quem.`,
+    
+    'Coração': `Amor define.\nOu se segue o sentimento, ou se perde o afeto.\nEmoção guia mais que razão.`,
+    
+    'Anel': `Compromisso se aproxima.\nOu se firma o vínculo, ou se perde a aliança.\nPromessa será cobrada.`,
+    
+    'Casa': `Base se estabelece.\nOu se constrói raízes, ou se fica sem fundação.\nO que vier, fica — para bem ou mal.`,
+    
+    'Cavaleiro': `Mudança chega rápido.\nOu se surfam as notícias, ou se é engolido por elas.\nMovimento não espera permissão.`,
+    
+    'Jardim': `Exposição acontece.\nOu se usa o público a favor, ou se expõe vulnerabilidades.\nO privado se tornará visível.`,
+    
+    'Torre': `Isolamento se aproxima.\nOu se aceita a solidão como proteção, ou se sofre com ela.\nAfastamento é inevitável.`,
+    
+    'Chicote': `Conflito persiste.\nOu se enfrenta o embate, ou se é consumido por ele.\nDisputa não cessa sozinha.`,
+    
+    'Raposa': `Astúcia define.\nOu se joga o jogo, ou se é jogado.\nEstratégia vence força bruta.`,
+    
+    'Cegonha': `Transformação é real.\nOu se adapta ao novo, ou se é deixado no velho.\nMudança não espera consentimento.`,
+    
+    'Livro': `Segredo prevalece.\nOu se revela no momento certo, ou permanece oculto.\nConhecimento é poder — saber quando usar é sabedoria.`,
+    
+    'Lírios': `Paz se aproxima.\nOu se aceita a serenidade, ou se rejeita por inquietação.\nHarmonia existe para quem a permite.`,
+    
+    'Lua': `Reconhecimento vem.\nOu se abraça o brilho, ou se esconde dele.\nFama é faca de dois gumes.`,
+    
+    'Peixes': `Abundância se manifesta.\nOu se recebe com gratidão, ou se desperdiça.\nProsperidade vem para quem está pronto.`,
+    
+    'Âncora': `${pr === 'Montanha' ? 'Peso dobrado — bloqueio + trava.\nOu se remove ambos, ou nada se move.\nImobilidade total.' : 'Firmeza se estabelece.\nOu se valoriza a estabilidade, ou se frustra com a lentidão.\nO ancorado não flutua.'}`,
+    
+    'Cruz': `Fardo permanece.\nOu se carrega com propósito, ou se é esmagado por ele.\nSacrifício será cobrado.`,
+    
+    'Trevo': `Sorte breve aparece.\nOu se aproveita o momento, ou ele passa.\nOportunidade é rápida — blink e perde.`,
+    
+    'Navio': `${pr === 'Cão' ? 'Lealdade não impede separação física.\nOu a distância fortalece, ou quebra.\nViagem acontece mesmo com aliados.' : 'Distância se estabelece.\nOu se navega a jornada, ou se fica na margem.\nMovimento é inevitável.'}`,
+    
+    'Buquê': `Beleza chega.\nOu se recebe a dádiva, ou se ignora.\nO que é bom vem — questão é reconhecer.`,
+    
+    'Criança': `Novo começa.\nOu se nutre o início, ou se mata no nascimento.\nPequeno pode virar grande — se for cuidado.`,
+    
+    'Pássaros': `Vozes se multiplicam.\nOu se controla a narrativa, ou se perde o controle.\nO que é dito se espalha — bem ou mal.`,
+    
+    'Caminhos': `Bifurcação se impõe.\nCada rota leva a destino diferente.\nNão há caminho errado — há destinos distintos.`,
+    
+    'Carta': `Mensagem chega.\nOu se prepara para a notícia, ou se é pego de surpresa.\nComunicação altera tudo.`,
+    
+    'Homem': `Figura masculina define.\nOu se alia com essa presença, ou se confronta.\nInfluência é real — questão é como se relaciona.`,
+    
+    'Mulher': `Figura feminina define.\nOu se alia com essa presença, ou se confronta.\nInfluência é real — questão é como se relaciona.`,
+    
+    'Árvore': `${pr === 'Ratos' ? 'Saúde será testada.\nOu se cuida antes da corrosão, ou se paga depois.\nTempo não perdoa negligência.' : 'Tempo prevalece.\nOu se tem paciência, ou se frustra.\nCrescimento é lento mas inevitável.'}`,
+  };
+  
+  let veredito = vereditos[f];
+  
+  if (!veredito) {
+    veredito = `${f} define o desfecho.\nOu se alinha com essa energia, ou se resiste a ela.\nTendência está dada — ação determina resultado.`;
+  }
+  
+  return veredito;
+}
 
 // =============================================================================
 // 🎙️ ANÁLISE DE ÁUDIO - SISTEMA 4 CARTAS
@@ -2280,6 +2688,7 @@ app.listen(PORT, () => {
   console.log(`✅ Análise de frases: coerência energética com IA`);
   console.log(`✅ Oráculo de Futebol: 6 blocos + numerologia 1-9 ⚽`);
 });
+
 
 
 
