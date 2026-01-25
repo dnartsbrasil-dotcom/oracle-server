@@ -670,7 +670,36 @@ As 6 posições do Sistema DECIFRA revelam:
 
 Esta leitura revela não apenas o que vai acontecer, mas POR QUE acontece. O DECIFRA mostra o conflito interno, o caminho e a verdade final.`;
   } else {
-    interpretation = `${interpretationPrefix}🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`;
+    // Para Cigano com 3 cartas → Interpretação Passado-Presente-Futuro
+    if (selectedDeck === 'CIGANO' && cardCount === 3) {
+      interpretation = `${interpretationPrefix}🔮 LEITURA DO CAMINHO
+
+📜 PASSADO (O que trouxe até aqui):
+${cards[0].symbol} ${cards[0].greekName}
+${cards[0].meaning}
+
+O que já foi vivido molda o presente. Esta carta revela a energia que você carrega.
+
+⏳ PRESENTE (Onde você está agora):
+${cards[1].symbol} ${cards[1].greekName}
+${cards[1].meaning}
+
+Este é o momento de escolha. O presente é a ponte entre o que foi e o que será.
+
+🌟 FUTURO (Para onde você vai):
+${cards[2].symbol} ${cards[2].greekName}
+${cards[2].meaning}
+
+O destino se desenha. Esta carta mostra a tendência natural se você seguir o fluxo atual.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💭 Síntese:
+Você carrega ${cards[0].greekName} do passado, vive ${cards[1].greekName} no presente, e caminha para ${cards[2].greekName} no futuro. O oráculo não dita destino — ele mostra caminhos. A escolha é sempre sua.`;
+    } else {
+      // Outros casos (outros decks ou quantidade de cartas)
+      interpretation = `${interpretationPrefix}🎙️ O ${deckName} revela ${levelDescription}. As ${cardCount} frequências (${cardNames}) se combinam para responder sua pergunta com clareza vibracional.`;
+    }
   }
   
   const response = {
@@ -2251,6 +2280,7 @@ app.listen(PORT, () => {
   console.log(`✅ Análise de frases: coerência energética com IA`);
   console.log(`✅ Oráculo de Futebol: 6 blocos + numerologia 1-9 ⚽`);
 });
+
 
 
 
