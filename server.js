@@ -1683,83 +1683,213 @@ function analyzeTeamEnergy(cards) {
 }
 
 function generateOracleInterpretation(teamX, teamY, numerology, analysisX, analysisY) {
-  let interpretation = `⚽ ORÁCULO DE JOGOS - LEITURA SIMBÓLICA\n\n`;
+  // System prompt para interpretação mística
+  const systemContext = `
+Você é um Oráculo Simbólico de jogos esportivos.
+Sua linguagem é direta, mística e decisiva.
+
+REGRAS ABSOLUTAS:
+- Não use estatísticas, elenco ou favoritismo
+- Não seja neutro quando houver diferença clara de energia
+- Interprete "morrer na praia" como ponto de falha
+- Use linguagem poética mas objetiva
+- Foque em: Fluxo/Criação vs Bloqueio/Desgaste
+- Conclua com veredito claro quando houver tendência
+
+ESTRUTURA:
+1. Numerologia (significado profundo)
+2. Time A (cartas + interpretação simbólica)
+3. Time B (cartas + interpretação simbólica)
+4. Veredito (decisivo, não neutro)
+`;
+
+  let interpretation = `🔮 LEITURA SIMBÓLICA DO JOGO\n\n`;
   
+  interpretation += `${teamX.name.toUpperCase()} × ${teamY.name.toUpperCase()}\n\n`;
   interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `🔢 NUMEROLOGIA DO JOGO: ${numerology.value}\n`;
-  interpretation += `${numerology.meaning}\n\n`;
   
+  // NUMEROLOGIA com significado profundo
+  const numerologyDeep = {
+    1: "Arquétipo do Pioneiro. Jogo de iniciativa, quem ataca primeiro define.",
+    2: "Arquétipo da Dualidade. Jogo de equilíbrio, decisão nos detalhes.",
+    3: "Arquétipo da Criação. Jogo de ousadia, vence quem arrisca.",
+    4: "Arquétipo da Estrutura. Jogo de disciplina, vence quem se organiza.",
+    5: "Arquétipo da Mudança. Jogo imprevisível, viradas inesperadas.",
+    6: "Arquétipo do Equilíbrio. Jogo disputado, tendência ao empate.",
+    7: "Arquétipo da Tensão. Jogo no limite, decisão no detalhe.",
+    8: "Arquétipo do Poder. Jogo de força, vence quem domina fisicamente.",
+    9: "Arquétipo do Fechamento. Destino e colheita. Resultado vem por energia, não por lógica."
+  };
+  
+  interpretation += `🔢 Numerologia do jogo: ${numerology.value}\n`;
+  interpretation += `${numerologyDeep[numerology.value]}\n\n`;
   interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `🔵 ${teamX.name.toUpperCase()}\n\n`;
   
-  for (let i = 0; i < teamX.cards.length; i++) {
-    const card = teamX.cards[i];
-    interpretation += `Carta ${i + 1}: ${card.symbol} ${card.name} (#${card.number})\n`;
-    interpretation += `${card.footballMeaning}\n`;
-    if (card.isMorrerNaPraia) {
-      interpretation += `⚠️ ALERTA: MORRER NA PRAIA - esforço sem conversão\n`;
-    }
-    interpretation += `\n`;
+  // TIME X - Interpretação profunda
+  interpretation += `⚪ ${teamX.name.toUpperCase()}\n\n`;
+  interpretation += `Cartas: ${teamX.cards.map(c => c.name).join(' • ')}\n\n`;
+  
+  for (let card of teamX.cards) {
+    interpretation += `${card.symbol} ${card.name} → ${card.footballMeaning}\n`;
   }
+  interpretation += `\n`;
   
-  interpretation += `Análise energética:\n`;
-  interpretation += `${analysisX.dominantEnergy}\n`;
-  interpretation += `Risco: ${analysisX.riskLevel}\n\n`;
-  
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `🔴 ${teamY.name.toUpperCase()}\n\n`;
-  
-  for (let i = 0; i < teamY.cards.length; i++) {
-    const card = teamY.cards[i];
-    interpretation += `Carta ${i + 1}: ${card.symbol} ${card.name} (#${card.number})\n`;
-    interpretation += `${card.footballMeaning}\n`;
-    if (card.isMorrerNaPraia) {
-      interpretation += `⚠️ ALERTA: MORRER NA PRAIA - esforço sem conversão\n`;
-    }
-    interpretation += `\n`;
-  }
-  
-  interpretation += `Análise energética:\n`;
-  interpretation += `${analysisY.dominantEnergy}\n`;
-  interpretation += `Risco: ${analysisY.riskLevel}\n\n`;
-  
-  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `🔮 LEITURA FINAL:\n\n`;
-  
-  // Decisão oracular
-  if (analysisX.morrerNaPraia && !analysisY.morrerNaPraia) {
-    interpretation += `${teamX.name} enfrenta o Caixão - risco de perder mesmo jogando bem.\n`;
-    interpretation += `${teamY.name} com caminho mais livre.\n\n`;
-    interpretation += `Tendência: ${teamY.name} com vantagem energética.\n`;
-  } else if (analysisY.morrerNaPraia && !analysisX.morrerNaPraia) {
-    interpretation += `${teamY.name} enfrenta o Caixão - risco de perder mesmo jogando bem.\n`;
-    interpretation += `${teamX.name} com caminho mais livre.\n\n`;
-    interpretation += `Tendência: ${teamX.name} com vantagem energética.\n`;
-  } else if (analysisX.morrerNaPraia && analysisY.morrerNaPraia) {
-    interpretation += `Ambos os times enfrentam o Caixão.\n`;
-    interpretation += `Jogo de sofrimento mútuo.\n\n`;
-    interpretation += `Tendência: Empate ou vitória no detalhe.\n`;
-  } else if (analysisX.criacao > analysisY.criacao + 1) {
-    interpretation += `${teamX.name} apresenta energia de criação superior.\n`;
-    interpretation += `${teamY.name} com mais bloqueios.\n\n`;
-    interpretation += `Tendência: ${teamX.name} favorito.\n`;
-  } else if (analysisY.criacao > analysisX.criacao + 1) {
-    interpretation += `${teamY.name} apresenta energia de criação superior.\n`;
-    interpretation += `${teamX.name} com mais bloqueios.\n\n`;
-    interpretation += `Tendência: ${teamY.name} favorito.\n`;
+  // Análise interpretativa (não técnica)
+  const morrerNaPraiaX = teamX.cards.some(c => c.isMorrerNaPraia);
+  interpretation += `💭 Leitura energética:\n`;
+  if (analysisX.criacao > analysisX.bloqueio) {
+    interpretation += `Energia de criação e movimento. `;
+  } else if (analysisX.bloqueio > analysisX.criacao) {
+    interpretation += `Energia de bloqueio e resistência. `;
   } else {
-    interpretation += `Energias equilibradas.\n`;
-    interpretation += `Ambos com capacidade de criação e bloqueio.\n\n`;
-    interpretation += `Tendência: Jogo aberto, resultado indefinido.\n`;
+    interpretation += `Energia equilibrada entre criar e bloquear. `;
+  }
+  
+  if (morrerNaPraiaX) {
+    const morrerCard = teamX.cards.find(c => c.isMorrerNaPraia);
+    if (morrerCard.energy === 'criacao') {
+      interpretation += `Mas há oscilação emocional (${morrerCard.name}) - instabilidade, não travamento.\n`;
+    } else {
+      interpretation += `Com bloqueio estrutural (${morrerCard.name}) - esforço sem conversão.\n`;
+    }
+  } else {
+    interpretation += `Fluxo sem grandes travamentos.\n`;
   }
   
   interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `💬 Nota do Oráculo:\n`;
-  interpretation += `Esta leitura considera apenas as energias simbólicas.\n`;
-  interpretation += `Não leva em conta estatísticas, elenco ou momento dos times.\n`;
-  interpretation += `O oráculo revela tendências, não certezas.\n`;
+  
+  // TIME Y - Interpretação profunda
+  interpretation += `🔴 ${teamY.name.toUpperCase()}\n\n`;
+  interpretation += `Cartas: ${teamY.cards.map(c => c.name).join(' • ')}\n\n`;
+  
+  for (let card of teamY.cards) {
+    interpretation += `${card.symbol} ${card.name} → ${card.footballMeaning}\n`;
+  }
+  interpretation += `\n`;
+  
+  const morrerNaPraiaY = teamY.cards.some(c => c.isMorrerNaPraia);
+  interpretation += `💭 Leitura energética:\n`;
+  if (analysisY.criacao > analysisY.bloqueio) {
+    interpretation += `Energia de criação e movimento. `;
+  } else if (analysisY.bloqueio > analysisY.criacao) {
+    interpretation += `Energia de bloqueio e resistência. `;
+  } else {
+    interpretation += `Energia equilibrada entre criar e bloquear. `;
+  }
+  
+  if (morrerNaPraiaY) {
+    const morrerCard = teamY.cards.find(c => c.isMorrerNaPraia);
+    if (morrerCard.energy === 'criacao') {
+      interpretation += `Mas há oscilação emocional (${morrerCard.name}) - instabilidade, não travamento.\n`;
+    } else {
+      interpretation += `Com bloqueio estrutural (${morrerCard.name}) - esforço sem conversão.\n`;
+    }
+  } else {
+    interpretation += `Fluxo sem grandes travamentos.\n`;
+  }
+  
+  interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  
+  // VEREDITO SIMBÓLICO - DECISIVO
+  interpretation += `🔮 VEREDITO SIMBÓLICO\n\n`;
+  
+  // Lógica de decisão mais profunda
+  const diffCriacao = analysisX.criacao - analysisY.criacao;
+  const diffBloqueio = analysisY.bloqueio - analysisX.bloqueio;
+  
+  if (analysisX.morrerNaPraia && !analysisY.morrerNaPraia && diffBloqueio > 0) {
+    interpretation += `${teamY.name.toUpperCase()} VENCE O JOGO\n\n`;
+    interpretation += `${teamX.name} encontra bloqueio estrutural. ${teamY.name} tem caminho livre.\n`;
+    interpretation += `O peso trava o fluxo. A resistência vence o movimento.\n\n`;
+    interpretation += `Tendência: Vitória ${teamY.name} - jogo controlado, resultado não confortável.\n`;
+  } else if (analysisY.morrerNaPraia && !analysisX.morrerNaPraia && diffCriacao > 0) {
+    interpretation += `${teamX.name.toUpperCase()} VENCE O JOGO\n\n`;
+    interpretation += `${teamY.name} encontra bloqueio estrutural. ${teamX.name} tem fluxo de criação.\n`;
+    interpretation += `O movimento vence o peso. O fluxo supera a resistência.\n\n`;
+    interpretation += `Tendência: Vitória ${teamX.name} - jogo disputado, definição no movimento.\n`;
+  } else if (analysisX.morrerNaPraia && analysisY.morrerNaPraia) {
+    interpretation += `JOGO DE SOFRIMENTO MÚTUO\n\n`;
+    interpretation += `Ambos enfrentam bloqueios. Nenhum time flui livremente.\n`;
+    interpretation += `Desgaste de ambos os lados. Decisão no detalhe.\n\n`;
+    interpretation += `Tendência: Empate ou vitória no erro do adversário.\n`;
+  } else if (diffCriacao >= 2) {
+    interpretation += `${teamX.name.toUpperCase()} FAVORECIDO\n\n`;
+    interpretation += `Energia de criação superior. ${teamY.name} mais bloqueado.\n`;
+    interpretation += `Criação vence resistência quando há diferença clara.\n\n`;
+    interpretation += `Tendência: ${teamX.name} vence - jogo com iniciativa.\n`;
+  } else if (diffCriacao <= -2) {
+    interpretation += `${teamY.name.toUpperCase()} FAVORECIDO\n\n`;
+    interpretation += `Energia de criação superior. ${teamX.name} mais bloqueado.\n`;
+    interpretation += `Criação vence resistência quando há diferença clara.\n\n`;
+    interpretation += `Tendência: ${teamY.name} vence - jogo com iniciativa.\n`;
+  } else {
+    interpretation += `ENERGIAS EQUILIBRADAS\n\n`;
+    interpretation += `Ambos com capacidade equivalente de criação e bloqueio.\n`;
+    interpretation += `Um time cria e oscila. O outro bloqueia e resiste.\n\n`;
+    interpretation += `Tendência: Jogo aberto, resultado indefinido.\n`;
+    interpretation += `Vence quem souber usar o momento.\n`;
+  }
+  
+  interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `⚡ Nota do Oráculo:\n`;
+  interpretation += `Numerologia ${numerology.value} ${numerology.value === 9 ? 'fecha ciclo com destino, não com domínio.' : 'define o temperamento energético.'}\n`;
+  interpretation += `Esta leitura revela tendências simbólicas, não certezas estatísticas.\n`;
+  interpretation += `🔮⚽ O destino favorece quem flui, não quem resiste.\n`;
   
   return interpretation;
+}
+
+// Tentar extrair nomes dos times
+function extractTeamNames(question) {
+  const normalized = question.toLowerCase();
+  
+  // Lista de times conhecidos
+  const teams = [
+    'flamengo', 'palmeiras', 'corinthians', 'são paulo', 'sao paulo',
+    'grêmio', 'gremio', 'inter', 'internacional', 'santos',
+    'vasco', 'botafogo', 'cruzeiro', 'atlético', 'atletico',
+    'fluminense', 'bahia', 'fortaleza', 'cuiabá', 'cuiaba',
+    'bragantino', 'athletico', 'goiás', 'goias', 'coritiba',
+    'barcelona', 'real madrid', 'bayern', 'psg', 'manchester',
+    'liverpool', 'juventus', 'milan', 'chelsea', 'arsenal'
+  ];
+  
+  const foundTeams = [];
+  
+  // Procurar times na pergunta (na ordem que aparecem)
+  for (let team of teams) {
+    const index = normalized.indexOf(team);
+    if (index !== -1) {
+      foundTeams.push({ name: team, index: index });
+    }
+  }
+  
+  // Ordenar por ordem de aparição
+  foundTeams.sort((a, b) => a.index - b.index);
+  
+  // Capitalizar nomes
+  function capitalize(name) {
+    return name.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  }
+  
+  if (foundTeams.length >= 2) {
+    return {
+      teamX: capitalize(foundTeams[0].name),
+      teamY: capitalize(foundTeams[1].name)
+    };
+  } else if (foundTeams.length === 1) {
+    return {
+      teamX: capitalize(foundTeams[0].name),
+      teamY: 'TIME ADVERSÁRIO'
+    };
+  } else {
+    return {
+      teamX: 'TIME 1',
+      teamY: 'TIME 2'
+    };
+  }
 }
 
 app.post('/oracleConsultFootball', (req, res) => {
@@ -1807,19 +1937,19 @@ app.post('/oracleConsultFootball', (req, res) => {
   console.log(`🔵 Time X: ${analysisX.dominantEnergy}`);
   console.log(`🔴 Time Y: ${analysisY.dominantEnergy}`);
   
-  // Tentar extrair nomes dos times (simples)
-  const teamXName = 'TIME 1 (primeiro mencionado)';
-  const teamYName = 'TIME 2 (segundo mencionado)';
+  // Extrair nomes dos times da pergunta
+  const teamNames = extractTeamNames(question);
+  console.log(`⚽ Times identificados: ${teamNames.teamX} vs ${teamNames.teamY}`);
   
   const teamX = {
-    name: teamXName,
+    name: teamNames.teamX,
     blocks: [blocks[0], blocks[1], blocks[2]],
     cards: teamXCards,
     analysis: analysisX
   };
   
   const teamY = {
-    name: teamYName,
+    name: teamNames.teamY,
     blocks: [blocks[3], blocks[4], blocks[5]],
     cards: teamYCards,
     analysis: analysisY
@@ -1865,6 +1995,7 @@ app.listen(PORT, () => {
   console.log(`✅ Análise de frases: coerência energética com IA`);
   console.log(`✅ Oráculo de Futebol: 6 blocos + numerologia 1-9 ⚽`);
 });
+
 
 
 
