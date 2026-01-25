@@ -1790,74 +1790,277 @@ ESTRUTURA:
   
   interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
   
-  // VEREDITO SIMBÓLICO - DECISIVO
+  // ============================================================================
+  // 🔮 VEREDITO ORACULAR DECISIVO
+  // Princípio: Bloqueio pesa mais que criação
+  // Morrer na praia SEMPRE inclina o destino
+  // Empate é EXCEÇÃO (apenas espelho simbólico)
+  // ============================================================================
+  
   interpretation += `🔮 VEREDITO SIMBÓLICO\n\n`;
   
-  // Lógica de decisão mais profunda
-  const diffCriacao = analysisX.criacao - analysisY.criacao;
-  const diffBloqueio = analysisY.bloqueio - analysisX.bloqueio;
+  // Cartas de bloqueio PESADO vs LEVE
+  const bloqueiosPesados = ['Caixão', 'Âncora', 'Montanha', 'Poço', 'Cobra', 'Cruz'];
+  const bloqueiosLeves = ['Nuvens', 'Ratos', 'Foice', 'Lua', 'Homem'];
   
-  if (analysisX.morrerNaPraia && !analysisY.morrerNaPraia && diffBloqueio > 0) {
-    interpretation += `${teamY.name.toUpperCase()} VENCE O JOGO\n\n`;
-    interpretation += `${teamX.name} encontra bloqueio estrutural. ${teamY.name} tem caminho livre.\n`;
-    interpretation += `O peso trava o fluxo. A resistência vence o movimento.\n\n`;
-    interpretation += `Tendência: Vitória ${teamY.name} - jogo controlado, resultado não confortável.\n`;
-  } else if (analysisY.morrerNaPraia && !analysisX.morrerNaPraia && diffCriacao > 0) {
-    interpretation += `${teamX.name.toUpperCase()} VENCE O JOGO\n\n`;
-    interpretation += `${teamY.name} encontra bloqueio estrutural. ${teamX.name} tem fluxo de criação.\n`;
-    interpretation += `O movimento vence o peso. O fluxo supera a resistência.\n\n`;
-    interpretation += `Tendência: Vitória ${teamX.name} - jogo disputado, definição no movimento.\n`;
-  } else if (analysisX.morrerNaPraia && analysisY.morrerNaPraia) {
-    interpretation += `JOGO DE SOFRIMENTO MÚTUO\n\n`;
-    interpretation += `Ambos enfrentam bloqueios. Nenhum time flui livremente.\n`;
-    interpretation += `Desgaste de ambos os lados. Decisão no detalhe.\n\n`;
-    interpretation += `Tendência: Empate ou vitória no erro do adversário.\n`;
-  } else if (diffCriacao >= 2) {
-    interpretation += `${teamX.name.toUpperCase()} FAVORECIDO\n\n`;
-    interpretation += `Energia de criação superior. ${teamY.name} mais bloqueado.\n`;
-    interpretation += `Criação vence resistência quando há diferença clara.\n\n`;
-    interpretation += `Tendência: ${teamX.name} vence - jogo com iniciativa.\n`;
-  } else if (diffCriacao <= -2) {
-    interpretation += `${teamY.name.toUpperCase()} FAVORECIDO\n\n`;
-    interpretation += `Energia de criação superior. ${teamX.name} mais bloqueado.\n`;
-    interpretation += `Criação vence resistência quando há diferença clara.\n\n`;
-    interpretation += `Tendência: ${teamY.name} vence - jogo com iniciativa.\n`;
-  } else {
-    interpretation += `ENERGIAS EQUILIBRADAS\n\n`;
-    interpretation += `Ambos com capacidade equivalente de criação e bloqueio.\n`;
-    interpretation += `Um time cria e oscila. O outro bloqueia e resiste.\n\n`;
-    interpretation += `Tendência: Jogo aberto, resultado indefinido.\n`;
-    interpretation += `Vence quem souber usar o momento.\n`;
+  const morrerXCard = teamX.cards.find(c => c.isMorrerNaPraia);
+  const morrerYCard = teamY.cards.find(c => c.isMorrerNaPraia);
+  
+  let vencedor = null;
+  let razao = '';
+  let placar = '';
+  
+  // ============================================================================
+  // ANÁLISE DE GATILHOS DE EMPATE (35% dos jogos)
+  // Empate é ATIVO, não passivo - precisa 2+ gatilhos
+  // ============================================================================
+  
+  let empateGatilhos = 0;
+  const gatilhosDetalhes = [];
+  
+  // GATILHO 1: Ambos com morrer na praia de peso similar
+  if (morrerXCard && morrerYCard) {
+    const xPesado = bloqueiosPesados.includes(morrerXCard.name);
+    const yPesado = bloqueiosPesados.includes(morrerYCard.name);
+    const xLeve = bloqueiosLeves.includes(morrerXCard.name);
+    const yLeve = bloqueiosLeves.includes(morrerYCard.name);
+    
+    if ((xPesado && yPesado) || (xLeve && yLeve)) {
+      empateGatilhos++;
+      gatilhosDetalhes.push(`Ambos com morrer na praia ${xPesado ? 'pesado' : 'leve'}`);
+    }
   }
   
-  interpretation += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  interpretation += `⚡ Nota do Oráculo:\n`;
-  interpretation += `Numerologia ${numerology.value} ${numerology.value === 9 ? 'fecha ciclo com destino, não com domínio.' : 'define o temperamento energético.'}\n`;
-  interpretation += `Esta leitura revela tendências simbólicas, não certezas estatísticas.\n`;
-  interpretation += `🔮⚽ O destino favorece quem flui, não quem resiste.\n`;
+  // GATILHO 2: Bloqueio estrutural bilateral
+  const xBloqueiosPesados = teamX.cards.filter(c => bloqueiosPesados.includes(c.name)).length;
+  const yBloqueiosPesados = teamY.cards.filter(c => bloqueiosPesados.includes(c.name)).length;
+  
+  if (xBloqueiosPesados >= 1 && yBloqueiosPesados >= 1) {
+    empateGatilhos++;
+    gatilhosDetalhes.push(`Bloqueios estruturais bilaterais (${xBloqueiosPesados} vs ${yBloqueiosPesados})`);
+  }
+  
+  // GATILHO 3: Numerologia de suspensão
+  const num = numerology.value;
+  let numeroSuspende = false;
+  
+  if (num === 2) {
+    // Dualidade - favorece empate quando forças equivalentes
+    if (Math.abs(analysisX.criacao - analysisY.criacao) <= 1) {
+      empateGatilhos++;
+      numeroSuspende = true;
+      gatilhosDetalhes.push('Numerologia 2: Dualidade equilibrada');
+    }
+  } else if (num === 6) {
+    // Equilíbrio - favorece empate quando energias próximas
+    if (analysisX.criacao === analysisY.criacao || analysisX.bloqueio === analysisY.bloqueio) {
+      empateGatilhos++;
+      numeroSuspende = true;
+      gatilhosDetalhes.push('Numerologia 6: Balança suspensa');
+    }
+  } else if (num === 9) {
+    // Fechamento - empate se ambos perdem muita energia
+    if (analysisX.bloqueio >= 2 && analysisY.bloqueio >= 2) {
+      empateGatilhos++;
+      numeroSuspende = true;
+      gatilhosDetalhes.push('Numerologia 9: Ambos esgotados');
+    }
+  }
+  
+  // GATILHO 4: Criação espelhada (ambos atacam, ambos erram)
+  if (analysisX.criacao === analysisY.criacao && analysisX.criacao >= 1) {
+    empateGatilhos++;
+    gatilhosDetalhes.push(`Criação espelhada (${analysisX.criacao} vs ${analysisY.criacao})`);
+  }
+  
+  // ============================================================================
+  // DECISÃO: EMPATE se 2+ gatilhos ativos
+  // ============================================================================
+  
+  if (empateGatilhos >= 2) {
+    interpretation += `EMPATE SIMBÓLICO - TRAVAMENTO BILATERAL\n\n`;
+    interpretation += `Gatilhos de espelhamento detectados:\n`;
+    for (let detalhe of gatilhosDetalhes) {
+      interpretation += `• ${detalhe}\n`;
+    }
+    interpretation += `\n`;
+    
+    if (morrerXCard && morrerYCard) {
+      interpretation += `${teamX.name}: ${morrerXCard.symbol} ${morrerXCard.name}\n`;
+      interpretation += `${teamY.name}: ${morrerYCard.symbol} ${morrerYCard.name}\n\n`;
+    }
+    
+    interpretation += `Ambos os times enfrentam bloqueios simultâneos.\n`;
+    interpretation += `Nenhum flui livremente.\n\n`;
+    
+    if (numeroSuspende) {
+      interpretation += `Numerologia ${num} reforça o travamento.\n`;
+    }
+    
+    interpretation += `Tendência: Empate ${num === 6 ? '0x0 ou 1x1' : num === 2 ? '1x1 ou 2x2' : '0x0, 1x1 ou 2x2'}\n`;
+    interpretation += `Ou vitória por erro isolado, não por domínio.\n\n`;
+    interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    interpretation += `⚡ Quando o cosmos trava ambos, o resultado se divide.\n`;
+    interpretation += `Empate é exceção qualificada, não ausência de decisão.\n\n`;
+    interpretation += `🔮⚽ O destino não inclina quando o espelho é perfeito.\n`;
+    return interpretation;
+  }
+  
+  // ============================================================================
+  // NÍVEL 1: MORRER NA PRAIA (se não for empate)
+  // ============================================================================
+  
+  if (morrerXCard || morrerYCard) {
+    const xPesado = morrerXCard && bloqueiosPesados.includes(morrerXCard.name);
+    const yPesado = morrerYCard && bloqueiosPesados.includes(morrerYCard.name);
+    const xLeve = morrerXCard && bloqueiosLeves.includes(morrerXCard.name);
+    const yLeve = morrerYCard && bloqueiosLeves.includes(morrerYCard.name);
+    
+    if (xPesado && !yPesado) {
+      vencedor = teamY.name;
+      razao = `${teamX.name} enfrenta bloqueio estrutural fatal (${morrerXCard.name}).\n${teamY.name} ${yLeve ? 'oscila levemente' : 'flui livremente'}.\n\nBloqueio pesado é decisivo.`;
+      placar = '2x0';
+    } else if (yPesado && !xPesado) {
+      vencedor = teamX.name;
+      razao = `${teamY.name} enfrenta bloqueio estrutural fatal (${morrerYCard.name}).\n${teamX.name} ${xLeve ? 'oscila levemente' : 'flui livremente'}.\n\nBloqueio pesado é decisivo.`;
+      placar = '2x0';
+    } else if (xLeve && !yLeve) {
+      vencedor = teamY.name;
+      razao = `${teamX.name} oscila (${morrerXCard.name}).\n${teamY.name} sem travamentos.\n\nFluxo livre vence instabilidade.`;
+      placar = '1x0';
+    } else if (yLeve && !xLeve) {
+      vencedor = teamX.name;
+      razao = `${teamY.name} oscila (${morrerYCard.name}).\n${teamX.name} sem travamentos.\n\nFluxo livre vence instabilidade.`;
+      placar = '1x0';
+    }
+  }
+  
+  // ============================================================================
+  // NÍVEL 2: BLOQUEIO ESTRUTURAL (se não decidiu)
+  // ============================================================================
+  
+  if (!vencedor) {
+    if (xBloqueiosPesados > yBloqueiosPesados) {
+      vencedor = teamY.name;
+      razao = `${teamX.name} acumula bloqueios (${xBloqueiosPesados} cartas pesadas).\n${teamY.name} mais leve.\n\nQuem carrega peso, não avança.`;
+      placar = '2x1';
+    } else if (yBloqueiosPesados > xBloqueiosPesados) {
+      vencedor = teamX.name;
+      razao = `${teamY.name} acumula bloqueios (${yBloqueiosPesados} cartas pesadas).\n${teamX.name} mais leve.\n\nQuem carrega peso, não avança.`;
+      placar = '2x1';
+    }
+  }
+  
+  // ============================================================================
+  // NÍVEL 3: NUMEROLOGIA DECISIVA (sempre inclina)
+  // ============================================================================
+  
+  if (!vencedor) {
+    if (num === 9) {
+      // Vence quem perde menos energia
+      if (analysisX.bloqueio < analysisY.bloqueio) {
+        vencedor = teamX.name;
+        razao = `Numerologia 9: Fechamento.\n${teamX.name} conserva mais energia.\n\nQuem fecha melhor, vence.`;
+        placar = '1x0';
+      } else {
+        vencedor = teamY.name;
+        razao = `Numerologia 9: Fechamento.\n${teamY.name} conserva mais energia.\n\nQuem fecha melhor, vence.`;
+        placar = '1x0';
+      }
+    } else if (num === 5) {
+      vencedor = teamY.name;
+      razao = `Numerologia 5: Mudança e virada.\n${teamY.name} surpreende.\n\nCaos favorece reação.`;
+      placar = '2x1';
+    } else if (num === 7) {
+      vencedor = teamY.name;
+      razao = `Numerologia 7: Tensão no limite.\n${teamY.name} aguenta pressão.\n\nResistência vence ataque.`;
+      placar = '1x0';
+    } else if (num === 1 || num === 3 || num === 8) {
+      vencedor = teamX.name;
+      const motivo = num === 1 ? 'Pioneirismo define' : num === 3 ? 'Ousadia prevalece' : 'Poder domina';
+      razao = `Numerologia ${num}: ${motivo}.\n${teamX.name} toma iniciativa.`;
+      placar = num === 8 ? '3x1' : '2x1';
+    } else if (num === 2 || num === 6) {
+      // Se chegou aqui com num 2 ou 6, não tinha gatilhos suficientes
+      // Usa criação como desempate
+      if (analysisX.criacao > analysisY.criacao) {
+        vencedor = teamX.name;
+        razao = `Numerologia ${num}: ${num === 2 ? 'Dualidade' : 'Equilíbrio'}.\n${teamX.name} cria mais no detalhe.\n\nDiferença mínima decide.`;
+        placar = '1x0';
+      } else {
+        vencedor = teamY.name;
+        razao = `Numerologia ${num}: ${num === 2 ? 'Dualidade' : 'Equilíbrio'}.\n${teamY.name} cria mais no detalhe.\n\nDiferença mínima decide.`;
+        placar = '1x0';
+      }
+    } else {
+      vencedor = teamX.name;
+      razao = `Numerologia ${num}: Leve vantagem para quem inicia.`;
+      placar = '2x1';
+    }
+  }
+  
+  // ============================================================================
+  // VEREDITO FINAL (65% dos jogos)
+  // ============================================================================
+  
+  interpretation += `${vencedor.toUpperCase()} VENCE O JOGO\n\n`;
+  interpretation += `${razao}\n\n`;
+  
+  const tipoVitoria = {
+    1: 'Vitória rápida',
+    2: 'Vitória nos detalhes',
+    3: 'Vitória criativa',
+    4: 'Vitória metódica',
+    5: 'Vitória com reviravolta',
+    6: 'Vitória mínima',
+    7: 'Vitória sofrida',
+    8: 'Vitória dominante',
+    9: 'Vitória definitiva'
+  };
+  
+  interpretation += `Tendência: ${tipoVitoria[num]}\n`;
+  interpretation += `Placar sugerido: ${placar}\n\n`;
+  interpretation += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  interpretation += `⚡ Bloqueio pesa mais que criação.\n`;
+  interpretation += `Morrer na praia inclina o destino.\n`;
+  interpretation += `Taxa natural: ~65% vitórias, ~35% empates.\n\n`;
+  interpretation += `🔮⚽ Oráculos inclinam quando o desequilíbrio sussurra.\n`;
   
   return interpretation;
 }
 
-// Tentar extrair nomes dos times
+// Extrair nomes de times de forma INTELIGENTE
 function extractTeamNames(question) {
   const normalized = question.toLowerCase();
   
-  // Lista de times conhecidos
-  const teams = [
+  // Lista expandida de times (principais brasileiros e internacionais)
+  const knownTeams = [
+    // Série A
     'flamengo', 'palmeiras', 'corinthians', 'são paulo', 'sao paulo',
     'grêmio', 'gremio', 'inter', 'internacional', 'santos',
     'vasco', 'botafogo', 'cruzeiro', 'atlético', 'atletico',
     'fluminense', 'bahia', 'fortaleza', 'cuiabá', 'cuiaba',
     'bragantino', 'athletico', 'goiás', 'goias', 'coritiba',
+    
+    // Série B e outros brasileiros
+    'sport', 'vitória', 'vitoria', 'ceará', 'ceara', 'avaí', 'avai',
+    'ponte preta', 'guarani', 'náutico', 'nautico', 'santa cruz',
+    'paraná', 'parana', 'csa', 'crb', 'sampaio corrêa', 'sampaio correa',
+    'vila nova', 'tombense', 'londrina', 'operário', 'operario',
+    'juventude', 'chapecoense', 'figueirense', 'ituano', 'mirassol',
+    'novorizontino', 'amazonas', 'paysandu', 'remo', 'camboriú', 'camboriu',
+    
+    // Internacionais
     'barcelona', 'real madrid', 'bayern', 'psg', 'manchester',
-    'liverpool', 'juventus', 'milan', 'chelsea', 'arsenal'
+    'liverpool', 'juventus', 'milan', 'chelsea', 'arsenal',
+    'tottenham', 'napoli', 'roma', 'ajax', 'benfica',
+    'porto', 'sporting', 'dortmund', 'atletico madrid', 'city'
   ];
   
   const foundTeams = [];
   
-  // Procurar times na pergunta (na ordem que aparecem)
-  for (let team of teams) {
+  // Procurar times conhecidos
+  for (let team of knownTeams) {
     const index = normalized.indexOf(team);
     if (index !== -1) {
       foundTeams.push({ name: team, index: index });
@@ -1867,8 +2070,61 @@ function extractTeamNames(question) {
   // Ordenar por ordem de aparição
   foundTeams.sort((a, b) => a.index - b.index);
   
+  // Se não encontrou 2 times conhecidos, tentar extrair palavras-chave
+  if (foundTeams.length < 2) {
+    // Procurar padrões: "X contra Y", "X x Y", "X vs Y"
+    const patterns = [
+      /(\w+)\s*(?:x|vs|contra|versus)\s*(\w+)/i,
+      /(\w+)\s+(?:e|ou|com)\s+(\w+)/i
+    ];
+    
+    for (let pattern of patterns) {
+      const match = question.match(pattern);
+      if (match) {
+        const team1 = match[1].toLowerCase();
+        const team2 = match[2].toLowerCase();
+        
+        // Se já encontrou pelo menos 1, completar com o extraído
+        if (foundTeams.length === 1) {
+          const existingTeam = foundTeams[0].name;
+          if (team1 !== existingTeam && team2 !== existingTeam) {
+            // Adicionar o que falta
+            if (!team1.includes(existingTeam)) {
+              foundTeams.push({ name: team1, index: question.indexOf(match[1]) });
+            } else {
+              foundTeams.push({ name: team2, index: question.indexOf(match[2]) });
+            }
+          }
+        } else if (foundTeams.length === 0) {
+          // Adicionar ambos extraídos
+          foundTeams.push({ name: team1, index: question.indexOf(match[1]) });
+          foundTeams.push({ name: team2, index: question.indexOf(match[2]) });
+        }
+        break;
+      }
+    }
+  }
+  
   // Capitalizar nomes
   function capitalize(name) {
+    // Casos especiais
+    const special = {
+      'sao paulo': 'São Paulo',
+      'gremio': 'Grêmio',
+      'atletico': 'Atlético',
+      'goias': 'Goiás',
+      'parana': 'Paraná',
+      'ceara': 'Ceará',
+      'nautico': 'Náutico',
+      'avai': 'Avaí',
+      'cuiaba': 'Cuiabá',
+      'sampaio correa': 'Sampaio Corrêa',
+      'operario': 'Operário',
+      'camboriu': 'Camboriú'
+    };
+    
+    if (special[name]) return special[name];
+    
     return name.split(' ').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
@@ -1882,7 +2138,7 @@ function extractTeamNames(question) {
   } else if (foundTeams.length === 1) {
     return {
       teamX: capitalize(foundTeams[0].name),
-      teamY: 'TIME ADVERSÁRIO'
+      teamY: 'ADVERSÁRIO'
     };
   } else {
     return {
@@ -1995,6 +2251,7 @@ app.listen(PORT, () => {
   console.log(`✅ Análise de frases: coerência energética com IA`);
   console.log(`✅ Oráculo de Futebol: 6 blocos + numerologia 1-9 ⚽`);
 });
+
 
 
 
